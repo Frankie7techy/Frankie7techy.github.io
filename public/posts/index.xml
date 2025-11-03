@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on My CTF Blog</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on My CTF Blog</description>
+    <generator>Hugo -- 0.152.1</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 03 Nov 2025 05:53:15 -0500</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Htb Lab Writeup</title>
+      <link>http://localhost:1313/posts/htb-lab-writeup/</link>
+      <pubDate>Mon, 03 Nov 2025 05:53:15 -0500</pubDate>
+      <guid>http://localhost:1313/posts/htb-lab-writeup/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>HackTheBox: SecretCorp Writeup</title>
+      <link>http://localhost:1313/posts/htb-secretcorp/</link>
+      <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/htb-secretcorp/</guid>
+      <description>&lt;h2 id=&#34;-challenge-overview&#34;&gt;🧩 Challenge Overview&lt;/h2&gt;
+&lt;p&gt;This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-enumeration&#34;&gt;🔍 Enumeration&lt;/h2&gt;
+&lt;p&gt;```bash
+nmap -sC -sV 10.10.10.10
+```
+Discovered ports:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;80/tcp — HTTP (Apache 2.4.41)&lt;/li&gt;
+&lt;li&gt;22/tcp — SSH (OpenSSH 8.2p1)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-exploitation&#34;&gt;💥 Exploitation&lt;/h2&gt;
+&lt;p&gt;During directory fuzzing with `ffuf`, found `/backup.zip`.&lt;br&gt;
+Unzipped credentials for `admin:SuperSecure123`.&lt;br&gt;
+Login exposed an &lt;strong&gt;LFI vulnerability&lt;/strong&gt; at `index.php?file=&amp;hellip;`.&lt;/p&gt;
+&lt;p&gt;```bash
+curl &amp;ldquo;http://target/index.php?file=../../../../etc/passwd&amp;rdquo;
+```&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-privilege-escalation&#34;&gt;🧑‍💻 Privilege Escalation&lt;/h2&gt;
+&lt;p&gt;After gaining shell access:
+```bash
+linpeas.sh | tee output.txt
+```
+Found `/usr/local/bin/backup` with SUID bit.&lt;br&gt;
+Exploited it via `bash -p` to spawn a root shell.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Simple Test</title>
+      <link>http://localhost:1313/posts/simple-test/</link>
+      <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/simple-test/</guid>
+      <description>&lt;p&gt;This is a simple test.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
