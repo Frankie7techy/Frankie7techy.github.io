@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="auto" data-theme="auto">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <title>HackTheBox: SecretCorp Writeup | My CTF Blog</title>
 <meta name="keywords" content="CTF, HackTheBox, Web Exploitation">
 <meta name="description" content="🧩 Challenge Overview
@@ -97,6 +97,105 @@ Exploited it via `bash -p` to spawn a root shell.">
         document.querySelector("html").dataset.theme = 'light';
     }
 
+</script><meta property="og:url" content="http://localhost:1313/posts/htb-secretcorp/">
+  <meta property="og:site_name" content="My CTF Blog">
+  <meta property="og:title" content="HackTheBox: SecretCorp Writeup">
+  <meta property="og:description" content="🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
+🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
+80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.
+Unzipped credentials for `admin:SuperSecure123`.
+Login exposed an LFI vulnerability at `index.php?file=…`.
+```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
+🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.
+Exploited it via `bash -p` to spawn a root shell.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-11-03T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-11-03T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="HackTheBox">
+    <meta property="article:tag" content="Web Exploitation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HackTheBox: SecretCorp Writeup">
+<meta name="twitter:description" content="🧩 Challenge Overview
+This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
+
+🔍 Enumeration
+```bash
+nmap -sC -sV 10.10.10.10
+```
+Discovered ports:
+
+80/tcp — HTTP (Apache 2.4.41)
+22/tcp — SSH (OpenSSH 8.2p1)
+
+
+💥 Exploitation
+During directory fuzzing with `ffuf`, found `/backup.zip`.
+Unzipped credentials for `admin:SuperSecure123`.
+Login exposed an LFI vulnerability at `index.php?file=&hellip;`.
+```bash
+curl &ldquo;http://target/index.php?file=../../../../etc/passwd&rdquo;
+```
+
+🧑‍💻 Privilege Escalation
+After gaining shell access:
+```bash
+linpeas.sh | tee output.txt
+```
+Found `/usr/local/bin/backup` with SUID bit.
+Exploited it via `bash -p` to spawn a root shell.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "HackTheBox: SecretCorp Writeup",
+      "item": "http://localhost:1313/posts/htb-secretcorp/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "HackTheBox: SecretCorp Writeup",
+  "name": "HackTheBox: SecretCorp Writeup",
+  "description": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.\nUnzipped credentials for `admin:SuperSecure123`.\nLogin exposed an LFI vulnerability at `index.php?file=\u0026hellip;`.\n```bash curl \u0026ldquo;http://target/index.php?file=../../../../etc/passwd\u0026rdquo; ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.\nExploited it via `bash -p` to spawn a root shell.\n",
+  "keywords": [
+    "CTF", "HackTheBox", "Web Exploitation"
+  ],
+  "articleBody": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.\nUnzipped credentials for `admin:SuperSecure123`.\nLogin exposed an LFI vulnerability at `index.php?file=…`.\n```bash curl “http://target/index.php?file=../../../../etc/passwd” ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.\nExploited it via `bash -p` to spawn a root shell.\n🧾 Lessons Learned Always check for exposed archives. Automate directory brute-forcing early. LFI → Config file disclosure → RCE chain is common in PHP apps. 📸 Screenshots ",
+  "wordCount" : "117",
+  "inLanguage": "en",
+  "datePublished": "2025-11-03T00:00:00Z",
+  "dateModified": "2025-11-03T00:00:00Z",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/htb-secretcorp/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "My CTF Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
 </script>
 </head>
 <body id="top">
