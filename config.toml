@@ -1,0 +1,16 @@
+baseURL = "http://localhost:1313/"
+title = "My CTF Blog"
+theme = "PaperMod"
+
+[params]
+  description = "CTF Writeups and Security Research"
+  
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 2

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{ site.title }}</h1>
+            <p>{{ site.description }}</p>
+        </header>
+        
+        <nav>
+            <a href="/">Home</a>
+            <a href="/about.html">About</a>
+            <a href="/posts.html">Blog</a>
+        </nav>
+        
+        <main>
+            {{ content }}
+        </main>
+        
+        <footer>
+            <p>&copy; {{ site.time | date: '%Y' }} {{ site.title }} - Forensic Science Blog</p>
+        </footer>
+    </div>
+</body>
+</html>
