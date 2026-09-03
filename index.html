@@ -44,18 +44,37 @@ body {
 
 ::selection { background: var(--green); color: var(--bg); }
 
-/* Matrix Canvas */
-#matrix {
+/* Hacker Background Layers */
+#hacker-bg {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
-  opacity: 0.06;
   pointer-events: none;
 }
+#matrix { opacity: 0.07; }
+#codeLayer { opacity: 0.04; }
+#scanLayer { opacity: 0.03; }
 
-/* Scanline overlay */
-body::after {
+/* Animated scan line */
+.scan-line {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+  z-index: 9998;
+  pointer-events: none;
+  animation: scanDown 8s linear infinite;
+  opacity: 0.4;
+}
+@keyframes scanDown {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* CRT flicker */
+body::before {
   content: '';
   position: fixed;
   top: 0; left: 0;
@@ -64,10 +83,27 @@ body::after {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0,0,0,0.03) 2px,
-    rgba(0,0,0,0.03) 4px
+    rgba(0,255,65,0.008) 2px,
+    rgba(0,255,65,0.008) 4px
   );
   z-index: 9999;
+  pointer-events: none;
+  animation: flicker 0.15s infinite;
+}
+@keyframes flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+  z-index: 9997;
   pointer-events: none;
 }
 
@@ -634,7 +670,12 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
 </head>
 <body>
 
-<canvas id="matrix"></canvas>
+<div id="hacker-bg">
+  <canvas id="matrix"></canvas>
+  <canvas id="codeLayer"></canvas>
+  <canvas id="scanLayer"></canvas>
+</div>
+<div class="scan-line"></div>
 
 <nav id="navbar">
   <a href="#" class="nav-logo">&gt;_ <span>Z3r0.sec</span></a>
@@ -864,6 +905,23 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
     <div class="section-line"></div>
   </div>
   <div class="writeups-list reveal">
+
+    <a href="https://github.com/Frankie7techy/vulnshop/blob/main/CHALLENGES.md" class="writeup-item" target="_blank">
+      <div class="writeup-info">
+        <h3>I Built an Intentionally Vulnerable Web App &mdash; Here's What 9 Bugs Taught Me</h3>
+        <div class="writeup-meta">
+          <span>June 2026</span>
+          <span>12 min read</span>
+          <span class="writeup-tag">VulnShop</span>
+          <span class="writeup-tag">SQLi</span>
+          <span class="writeup-tag">XSS</span>
+          <span class="writeup-tag">IDOR</span>
+          <span class="writeup-tag">RCE</span>
+        </div>
+      </div>
+      <span class="writeup-arrow">&rarr;</span>
+    </a>
+
     <a href="https://frankie7techy.github.io/posts/xxe-injection/" class="writeup-item" target="_blank">
       <div class="writeup-info">
         <h3>XXE Injection &mdash; Breaking XML the Fun Way</h3>
@@ -877,6 +935,7 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
       </div>
       <span class="writeup-arrow">&rarr;</span>
     </a>
+
     <a href="https://frankie7techy.github.io" class="writeup-item" target="_blank">
       <div class="writeup-info">
         <h3>Z3r0.sec &mdash; Full writeup archive</h3>
@@ -887,6 +946,7 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
       </div>
       <span class="writeup-arrow">&rarr;</span>
     </a>
+
     <div class="writeup-item" style="border-style: dashed; opacity: 0.6;">
       <div class="writeup-info">
         <h3>SQL Injection Deep Dive &mdash; Union-Based Extraction</h3>
@@ -898,16 +958,90 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
       </div>
       <span class="writeup-arrow">&rarr;</span>
     </div>
-    <div class="writeup-item" style="border-style: dashed; opacity: 0.6;">
-      <div class="writeup-info">
-        <h3>Building VulnShop &mdash; 9 Bugs, 8 Flags</h3>
-        <div class="writeup-meta">
-          <span>Coming soon</span>
-          <span class="writeup-tag">VulnShop</span>
-          <span class="writeup-tag">AppSec</span>
+  </div>
+
+  <!-- VulnShop Writeup Detail -->
+  <div class="reveal" style="margin-top: 3rem;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border); padding: 2.5rem; position: relative; overflow: hidden;">
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--green), var(--cyan), var(--green));"></div>
+
+      <div class="project-badge" style="margin-bottom: 1.5rem;">Featured Writeup</div>
+
+      <h2 style="font-family: var(--font-mono); font-size: 1.4rem; color: #fff; margin-bottom: 0.5rem;">
+        VulnShop: 9 Bugs, 8 Flags, 1 App
+      </h2>
+      <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 2rem;">
+        A deep dive into building an intentionally vulnerable e-commerce app and the security lessons embedded in every broken line.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+        <div style="border: 1px solid var(--border); padding: 1.2rem;">
+          <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--red); margin-bottom: 0.8rem;">SQL Injection (x2)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.6;">
+            Auth bypass via <code style="color:var(--cyan)">' OR 1=1 --</code> and UNION-based extraction
+            pulling secrets from the users table. The root cause: f-string concatenation
+            in raw SQL queries.
+          </p>
+          <div style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);">
+            Fix: parameterized queries with ?
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); padding: 1.2rem;">
+          <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--red); margin-bottom: 0.8rem;">Cross-Site Scripting (x2)</h4>
+          <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.6;">
+            Reflected XSS via search parameter, stored XSS via product reviews.
+            Both enabled by Jinja2's <code style="color:var(--cyan)">|safe</code> filter
+            disabling auto-escaping on user input.
+          </p>
+          <div style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);">
+            Fix: remove |safe, trust Jinja2's defaults
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); padding: 1.2rem;">
+          <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--yellow); margin-bottom: 0.8rem;">IDOR + Path Traversal</h4>
+          <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.6;">
+            Order details accessible by any user via sequential IDs (no ownership check).
+            Invoice viewer vulnerable to <code style="color:var(--cyan)">../</code> traversal
+            escaping the intended directory.
+          </p>
+          <div style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);">
+            Fix: authorization checks + path containment validation
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); padding: 1.2rem;">
+          <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--red); margin-bottom: 0.8rem;">Cookie Forgery + Command Injection</h4>
+          <p style="font-size: 0.82rem; color: var(--text-dim); line-height: 1.6;">
+            Admin panel trusts client-side <code style="color:var(--cyan)">is_admin</code> cookie.
+            Ping utility passes input to <code style="color:var(--cyan)">os.popen()</code>,
+            enabling arbitrary command execution via <code style="color:var(--cyan)">&amp; type flag.txt</code>.
+          </p>
+          <div style="margin-top: 0.8rem; font-family: var(--font-mono); font-size: 0.7rem; color: var(--green);">
+            Fix: server-side sessions + subprocess with list args
+          </div>
         </div>
       </div>
-      <span class="writeup-arrow">&rarr;</span>
+
+      <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+        <h4 style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--cyan); margin-bottom: 1rem;">Chaining Vulnerabilities</h4>
+        <p style="font-size: 0.85rem; color: var(--text-dim); line-height: 1.7;">
+          The real power: <strong style="color:var(--text)">SQLi &rarr; Admin &rarr; Stored XSS &rarr; Full Compromise</strong>.
+          Individual bugs are interesting. Chained bugs are devastating. One vulnerability is a problem.
+          Two is a breach. This is why defense in depth matters &mdash; every layer must hold independently.
+        </p>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <a href="https://github.com/Frankie7techy/vulnshop" target="_blank"
+           style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--cyan); text-decoration: none; border: 1px solid var(--cyan); padding: 0.6rem 1.2rem; display: inline-block; transition: all 0.3s;"
+           onmouseover="this.style.background='var(--cyan)';this.style.color='var(--bg)'"
+           onmouseout="this.style.background='transparent';this.style.color='var(--cyan)'">
+          View Full Writeup on GitHub &rarr;
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -1021,31 +1155,139 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
 </footer>
 
 <script>
-// Matrix rain
-const canvas = document.getElementById('matrix');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// === LAYER 1: Matrix Rain ===
+const matrixCanvas = document.getElementById('matrix');
+const mCtx = matrixCanvas.getContext('2d');
+matrixCanvas.width = window.innerWidth;
+matrixCanvas.height = window.innerHeight;
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+-=[]{}|;:,.<>?/~`frankz3r0secbughunter01';
 const fontSize = 14;
-const columns = Math.floor(canvas.width / fontSize);
-const drops = Array(columns).fill(1);
+let mColumns = Math.floor(matrixCanvas.width / fontSize);
+let mDrops = Array(mColumns).fill(1);
 
 function drawMatrix() {
-  ctx.fillStyle = 'rgba(10,10,10,0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#00ff41';
-  ctx.font = fontSize + 'px Fira Code, monospace';
-  for (let i = 0; i < drops.length; i++) {
+  mCtx.fillStyle = 'rgba(10,10,10,0.05)';
+  mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+  mCtx.font = fontSize + 'px Fira Code, monospace';
+  for (let i = 0; i < mDrops.length; i++) {
     const text = chars[Math.floor(Math.random() * chars.length)];
-    ctx.fillStyle = Math.random() > 0.98 ? '#fff' : '#00ff41';
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-    drops[i]++;
+    mCtx.fillStyle = Math.random() > 0.97 ? '#fff' : '#00ff41';
+    mCtx.fillText(text, i * fontSize, mDrops[i] * fontSize);
+    if (mDrops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) mDrops[i] = 0;
+    mDrops[i]++;
   }
 }
-setInterval(drawMatrix, 45);
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+// === LAYER 2: Floating Code Snippets ===
+const codeCanvas = document.getElementById('codeLayer');
+const cCtx = codeCanvas.getContext('2d');
+codeCanvas.width = window.innerWidth;
+codeCanvas.height = window.innerHeight;
+
+const codeSnippets = [
+  '$ sqlmap -u "https://target.com/?id=1" --dbs',
+  '$ nmap -sV -sC target.com',
+  '$ ffuf -u https://target.com/FUZZ -w wordlist.txt',
+  "SELECT * FROM users WHERE id='1' OR '1'='1'",
+  '$ curl -X POST -d "username=admin\'--" https://target/login',
+  '<!ENTITY xxe SYSTEM "file:///etc/passwd">',
+  '$ nuclei -u https://target.com -t cves/',
+  '$ subhunt target.com -t 100',
+  'HTTP/1.1 200 OK',
+  '$ gobuster dir -u https://target.com -w dirs.txt',
+  'User-Agent: Mozilla/5.0 (compatible; SecurityScanner)',
+  '$ hydra -l admin -P passwords.txt target.com ssh',
+  'POST /api/v1/users HTTP/1.1',
+  '$ metasploit > use exploit/multi/handler',
+  'GET /admin HTTP/1.1 403 Forbidden',
+  '$ john --wordlist=passwords.txt hash.txt',
+  "INSERT INTO users (name, role) VALUES ('admin', 'admin')",
+  '$ openssl s_client -connect target.com:443',
+  'X-Powered-By: Express 4.18.2',
+  '$ nikto -h https://target.com',
+];
+
+const floatingCode = [];
+for (let i = 0; i < 12; i++) {
+  floatingCode.push({
+    text: codeSnippets[Math.floor(Math.random() * codeSnippets.length)],
+    x: Math.random() * codeCanvas.width,
+    y: Math.random() * codeCanvas.height,
+    speed: 0.2 + Math.random() * 0.4,
+    opacity: 0.3 + Math.random() * 0.5,
+    size: 10 + Math.random() * 3,
+  });
+}
+
+function drawCodeLayer() {
+  cCtx.clearRect(0, 0, codeCanvas.width, codeCanvas.height);
+  cCtx.font = '12px Fira Code, monospace';
+  floatingCode.forEach(s => {
+    cCtx.fillStyle = `rgba(0, 212, 255, ${s.opacity})`;
+    cCtx.fillText(s.text, s.x, s.y);
+    s.y -= s.speed;
+    if (s.y < -20) {
+      s.y = codeCanvas.height + 20;
+      s.x = Math.random() * codeCanvas.width;
+      s.text = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+    }
+  });
+}
+
+// === LAYER 3: Binary/Hex Stream ===
+const scanCanvas = document.getElementById('scanLayer');
+const sCtx = scanCanvas.getContext('2d');
+scanCanvas.width = window.innerWidth;
+scanCanvas.height = window.innerHeight;
+
+const binaryStreams = [];
+for (let i = 0; i < 30; i++) {
+  binaryStreams.push({
+    x: Math.random() * scanCanvas.width,
+    y: Math.random() * scanCanvas.height,
+    chars: Array.from({length: 8 + Math.floor(Math.random() * 12)}, () =>
+      Math.random() > 0.5 ? '1' : '0'
+    ).join(''),
+    speed: 0.5 + Math.random() * 1.5,
+    opacity: 0.2 + Math.random() * 0.4,
+  });
+}
+
+function drawBinary() {
+  sCtx.clearRect(0, 0, scanCanvas.width, scanCanvas.height);
+  sCtx.font = '10px Fira Code, monospace';
+  binaryStreams.forEach(b => {
+    sCtx.fillStyle = `rgba(0, 255, 65, ${b.opacity})`;
+    sCtx.fillText(b.chars, b.x, b.y);
+    b.y += b.speed;
+    if (b.y > scanCanvas.height + 20) {
+      b.y = -20;
+      b.x = Math.random() * scanCanvas.width;
+      b.chars = Array.from({length: 8 + Math.floor(Math.random() * 12)}, () =>
+        Math.random() > 0.5 ? '1' : '0'
+      ).join('');
+    }
+  });
+}
+
+// === Animation Loop ===
+function animate() {
+  drawMatrix();
+  drawCodeLayer();
+  drawBinary();
+  requestAnimationFrame(animate);
+}
+animate();
+
+// === Resize ===
+window.addEventListener('resize', () => {
+  [matrixCanvas, codeCanvas, scanCanvas].forEach(c => {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+  });
+  mColumns = Math.floor(matrixCanvas.width / fontSize);
+  mDrops = Array(mColumns).fill(1);
+});
 
 // Typing effect
 const roles = [
@@ -1085,6 +1327,17 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Terminal boot sequence
+window.addEventListener('load', () => {
+  const boot = document.createElement('div');
+  boot.style.cssText = 'position:fixed;bottom:20px;left:20px;z-index:10000;font-family:var(--font-mono);font-size:11px;color:var(--green);pointer-events:none;opacity:0;transition:opacity 0.5s';
+  boot.innerHTML = '&gt; system initialized<br>&gt; scan complete<br>&gt; all systems nominal';
+  document.body.appendChild(boot);
+  setTimeout(() => boot.style.opacity = '0.6', 1000);
+  setTimeout(() => boot.style.opacity = '0', 5000);
+  setTimeout(() => boot.remove(), 6000);
+});
 </script>
 </body>
 </html>
