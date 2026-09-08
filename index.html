@@ -6,9 +6,9 @@ layout: none
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Frank Ngaruiya | Security Engineer & Bug Bounty Hunter</title>
-<meta name="description" content="Security Engineer, Bug Bounty Hunter, and CTF player based in Kenya. Specializing in web application security, vulnerability research, and offensive security.">
-<meta name="keywords" content="Frank Ngaruiya, security engineer, bug bounty, penetration testing, CTF, Kenya, Z3r0.sec, Frankie7techy">
+<title>Frank Ngaruiya | Security Engineer, Bug Bounty Hunter & Smart Contract Auditor</title>
+<meta name="description" content="Security Engineer, Bug Bounty Hunter, and Smart Contract Auditor based in Kenya. Specializing in web application security, Move/Aptos blockchain audits, vulnerability research, and offensive security.">
+<meta name="keywords" content="Frank Ngaruiya, security engineer, bug bounty, penetration testing, CTF, smart contract auditor, Move, Aptos, blockchain security, Kenya, Z3r0.sec, Frankie7techy">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -695,7 +695,7 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
 <!-- Hero -->
 <section class="hero">
   <div class="hero-content">
-    <div class="hero-tag">// SECURITY ENGINEER &amp; BUG BOUNTY HUNTER</div>
+    <div class="hero-tag">// SECURITY ENGINEER &amp; BUG BOUNTY HUNTER &amp; SMART CONTRACT AUDITOR</div>
     <h1 class="hero-name">
       <span class="glitch" data-text="FRANK NGARUIYA">FRANK NGARUIYA</span>
     </h1>
@@ -721,8 +721,13 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
   <div class="about-grid reveal">
     <div class="about-text">
       <p>
-        I'm Frank Ngaruiya, a security engineer and bug bounty hunter based in Kenya.
-        I break web applications for a living and build tools that help others do the same.
+        I'm Frank Ngaruiya, a security engineer, bug bounty hunter, and smart contract auditor based in Kenya.
+        I break web applications and Move/Aptos smart contracts for a living and build tools that help others do the same.
+      </p>
+      <p>
+        On the blockchain side I review Aptos/Move payment infrastructure &mdash; escrow, streaming,
+        and split-payment logic &mdash; shipping audit reports with severity-rated findings,
+        executable proof-of-concept tests, and clear remediation.
       </p>
       <p>
         My work focuses on finding real vulnerabilities in production systems &mdash; SQL injection,
@@ -814,6 +819,18 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
       </div>
     </div>
     <div class="skill-category">
+      <h3>// Blockchain &amp; Smart Contracts</h3>
+      <div class="skill-tags">
+        <span class="skill-tag hot">Move / Aptos</span>
+        <span class="skill-tag hot">Smart Contract Auditing</span>
+        <span class="skill-tag hot">Escrow &amp; Payment Logic</span>
+        <span class="skill-tag">Resource / Coin Custody</span>
+        <span class="skill-tag">Move Unit Testing &amp; PoCs</span>
+        <span class="skill-tag">Access-Control Review</span>
+        <span class="skill-tag lang">Solidity (EVM)</span>
+      </div>
+    </div>
+    <div class="skill-category">
       <h3>// Infrastructure &amp; Blue Team</h3>
       <div class="skill-tags">
         <span class="skill-tag">Linux Administration</span>
@@ -861,6 +878,29 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
       </div>
     </div>
     <div class="project-card">
+      <div class="project-badge">Smart Contract Audit</div>
+      <h3>AptoPay Audit</h3>
+      <p>Professional security audit of a 4-module Aptos/Move payment system. 9 findings (1 High / 3 Medium / 3 Low / 2 Info), line-precise locations, attack PoCs as runnable Move tests, and remediation for each.</p>
+      <div class="project-tech">
+        <span>Move</span><span>Aptos</span><span>Audit Report</span><span>PoC Tests</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/Frankie7techy/aptopay-audit" target="_blank">GitHub &rarr;</a>
+        <a href="https://github.com/Frankie7techy/aptopay-audit/blob/main/docs/AUDIT.md" target="_blank">Full Report &rarr;</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-badge">Blockchain · Move</div>
+      <h3>AptoPay</h3>
+      <p>4 Move payment primitives on Aptos &mdash; milestone escrow, real-time payment streams, group bill splitting, and P2P/batch/request payments. Coins held as real resources; 10+ Move unit tests.</p>
+      <div class="project-tech">
+        <span>Move</span><span>Aptos</span><span>React</span>
+      </div>
+      <div class="project-links">
+        <a href="https://github.com/Frankie7techy/Aptopay" target="_blank">GitHub &rarr;</a>
+      </div>
+    </div>
+    <div class="project-card">
       <div class="project-badge">Writeups &amp; Research</div>
       <h3>Z3r0.sec Blog</h3>
       <p>Security blog covering PortSwigger labs, CTF writeups, vulnerability research, and technique breakdowns. Updated regularly with new findings.</p>
@@ -905,6 +945,21 @@ footer .ascii { color: var(--green); margin-bottom: 1rem; font-size: 0.6rem; lin
     <div class="section-line"></div>
   </div>
   <div class="writeups-list reveal">
+
+    <a href="https://github.com/Frankie7techy/aptopay-audit/blob/main/docs/AUDIT.md" class="writeup-item" target="_blank">
+      <div class="writeup-info">
+        <h3>Security Audit Report — AptoPay (Aptos/Move Payment System)</h3>
+        <div class="writeup-meta">
+          <span>Sep 2026</span>
+          <span>9 findings · PoCs · Remediation</span>
+          <span class="writeup-tag">Move</span>
+          <span class="writeup-tag">Aptos</span>
+          <span class="writeup-tag">Escrow</span>
+          <span class="writeup-tag">Streaming</span>
+        </div>
+      </div>
+      <span class="writeup-arrow">&rarr;</span>
+    </a>
 
     <a href="https://github.com/Frankie7techy/vulnshop/blob/main/CHALLENGES.md" class="writeup-item" target="_blank">
       <div class="writeup-info">
@@ -1293,6 +1348,8 @@ window.addEventListener('resize', () => {
 const roles = [
   'Security Engineer',
   'Bug Bounty Hunter',
+  'Smart Contract Auditor',
+  'Move / Aptos Security',
   'CTF Player',
   'Vulnerability Researcher',
   'Tool Builder',
