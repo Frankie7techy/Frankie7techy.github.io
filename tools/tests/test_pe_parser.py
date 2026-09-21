@@ -28,10 +28,11 @@ def make_minimal_pe():
     data += opt
     # Section header 40 bytes
     sec = bytearray(40)
-    sec[0:8] = b'.text\x00\x00'
+    sec[0:8] = b'.text\x00\x00\x00'
     struct.pack_into('<II', sec, 8, 0x200, 0x1000)  # VirtualSize, VirtualAddress
     struct.pack_into('<II', sec, 16, 0x200, 0x200)  # SizeOfRawData, PointerToRawData
-    struct.pack_into('<I', sec, 36, 0x60000020)     # Characteristics
+    # Characteristics at offset 36 (4 bytes)
+    struct.pack_into('<I', sec, 36, 0x60000020)
     data += sec
     return bytes(data)
 
