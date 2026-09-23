@@ -82,7 +82,9 @@ def parse_pe(file_path: str | Path) -> PEInfo:
 
     # Optional header
     opt_offset = coff_offset + 20
-    if len(data) < opt_offset + 24:
+    # image_base is read at opt_offset+28 (PE32) or as a qword at
+    # opt_offset+24 (PE32+), so the guard must cover through opt_offset+32.
+    if len(data) < opt_offset + 32:
         raise PEParseError("File too short for Optional header")
 
     magic = struct.unpack_from('<H', data, opt_offset)[0]

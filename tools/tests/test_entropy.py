@@ -22,6 +22,12 @@ class TestEntropy(unittest.TestCase):
         avg, scores = entropy_score(data, window_size=3)
         self.assertGreaterEqual(avg, 0)
 
+    def test_entropy_score_rejects_zero_window(self):
+        # cli.py passes --window straight through; 0 used to die with
+        # an opaque 'range() arg 3 must not be zero' ValueError.
+        with self.assertRaises(ValueError):
+            entropy_score(b'A' * 64, window_size=0)
+
     def test_scan_file_entropy(self):
         # Create temporary file with low entropy
         with tempfile.NamedTemporaryFile(delete=False) as tf:

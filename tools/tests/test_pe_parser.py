@@ -64,6 +64,28 @@ class TestPEParser(unittest.TestCase):
         finally:
             os.unlink(name)
 
+    def _assert_truncated_optional_header_raises(self, magic):
+        # opt_offset = 0x98 for the seed; the old length guard (+24) let
+        # buffers of 176..183 bytes through, then struct.unpack_from crashed
+        # on the image_base read. Raise PEParseError instead.
+        pe = bytearray(make_minimal_pe())
+        struct.pack_into('<H', pe, 0x98, magic)
+        for cut in (176, 180, 183):
+            with tempfile.NamedTemporaryFile(delete=False) as tf:
+                tf.write(bytes(pe[:cut]))
+                name = tf.name
+            try:
+                with self.assertRaises(PEParseError, msg=f'truncated at {cut}'):
+                    parse_pe(name)
+            finally:
+                os.unlink(name)
+
+    def test_truncated_optional_header_pe32(self):
+        self._assert_truncated_optional_header_raises(0x10B)
+
+    def test_truncated_optional_header_pe32_plus(self):
+        self._assert_truncated_optional_header_raises(0x20B)
+
 
 if __name__ == '__main__':
     unittest.main()

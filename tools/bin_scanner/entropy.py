@@ -27,6 +27,8 @@ def shannon_entropy(data: bytes) -> float:
 
 def entropy_score(data: bytes, window_size: int = 256) -> Tuple[float, List[float]]:
     """Return average entropy and per-window list."""
+    if window_size < 1:
+        raise ValueError("window_size must be >= 1")
     if len(data) < window_size:
         return shannon_entropy(data), [shannon_entropy(data)]
     scores = []
