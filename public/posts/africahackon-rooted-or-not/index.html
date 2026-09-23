@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>AfricaHackon: Rooted or not? Writeup | My CTF Blog</title>
+<meta name="keywords" content="CTF, AfricaHackon, Mobile, Reverse Engineering, Android">
+<meta name="description" content="🧩 Challenge Overview
+Name: Rooted or not?
+Author: LordSudo
+Difficulty: Easy · Points: 100
+Platform: AfricaHackon — &ldquo;PERFECT ROOT&rdquo; operation
+
+A vault app exposes a debug panel — but the developers claim it&rsquo;s safe since it&rsquo;s gated behind a root check, and &ldquo;real users don&rsquo;t root their phones.&rdquo;
+
+Files: Rooted or not.zip → vaultapp.apk
+
+🔍 Step 1 — Unpack the APK
+An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="http://localhost:1313/posts/africahackon-rooted-or-not/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.20d6cff195baed31e1caa20c74d29d988ebe0e1a971923b26acd0671c96478bf.css" integrity="sha256-INbP8ZW67THhyqIMdNKdmI6&#43;DhqXGSOyas0GcclkeL8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/africahackon-rooted-or-not/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="http://localhost:1313/posts/africahackon-rooted-or-not/">
+  <meta property="og:site_name" content="My CTF Blog">
+  <meta property="og:title" content="AfricaHackon: Rooted or not? Writeup">
+  <meta property="og:description" content="🧩 Challenge Overview Name: Rooted or not? Author: LordSudo Difficulty: Easy · Points: 100 Platform: AfricaHackon — “PERFECT ROOT” operation
+A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
+Files: Rooted or not.zip → vaultapp.apk
+🔍 Step 1 — Unpack the APK An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-09-23T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-09-23T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="AfricaHackon">
+    <meta property="article:tag" content="Mobile">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AfricaHackon: Rooted or not? Writeup">
+<meta name="twitter:description" content="🧩 Challenge Overview
+Name: Rooted or not?
+Author: LordSudo
+Difficulty: Easy · Points: 100
+Platform: AfricaHackon — &ldquo;PERFECT ROOT&rdquo; operation
+
+A vault app exposes a debug panel — but the developers claim it&rsquo;s safe since it&rsquo;s gated behind a root check, and &ldquo;real users don&rsquo;t root their phones.&rdquo;
+
+Files: Rooted or not.zip → vaultapp.apk
+
+🔍 Step 1 — Unpack the APK
+An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "AfricaHackon: Rooted or not? Writeup",
+      "item": "http://localhost:1313/posts/africahackon-rooted-or-not/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "AfricaHackon: Rooted or not? Writeup",
+  "name": "AfricaHackon: Rooted or not? Writeup",
+  "description": "🧩 Challenge Overview Name: Rooted or not? Author: LordSudo Difficulty: Easy · Points: 100 Platform: AfricaHackon — \u0026ldquo;PERFECT ROOT\u0026rdquo; operation\nA vault app exposes a debug panel — but the developers claim it\u0026rsquo;s safe since it\u0026rsquo;s gated behind a root check, and \u0026ldquo;real users don\u0026rsquo;t root their phones.\u0026rdquo;\nFiles: Rooted or not.zip → vaultapp.apk\n🔍 Step 1 — Unpack the APK An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.\n",
+  "keywords": [
+    "CTF", "AfricaHackon", "Mobile", "Reverse Engineering", "Android"
+  ],
+  "articleBody": "🧩 Challenge Overview Name: Rooted or not? Author: LordSudo Difficulty: Easy · Points: 100 Platform: AfricaHackon — “PERFECT ROOT” operation\nA vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”\nFiles: Rooted or not.zip → vaultapp.apk\n🔍 Step 1 — Unpack the APK An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.\n🧵 Step 2 — Strings Recon Pulling printable strings out of classes.dex immediately reveals the attack surface:\n/system/bin/su — the classic root-detection path unlockDebugFlag, deriveKey, ENCODED_FLAG, SEED — the debug panel’s “gate” and the crypto behind it 🔬 Step 3 — Disassemble the Gate Using androguard (pure Python — runs fine on Windows where apktool/jadx wanted Java), the flow in MainActivity.onCreate() is clear:\ninvoke-static RootCheck;-\u003eisDeviceRooted()Z if-eqz v0, +0xa # rooted → print \"Root detected - access denied\" invoke-static RootCheck;-\u003eunlockDebugFlag()Ljava/lang/String; # not rooted → log flag If the device is not rooted, the app just calls unlockDebugFlag() and prints the flag to logcat. So the “debug panel” is a red herring — the flag is computed statically in code.\n⚙️ Step 4 — The Whole “Protection” RootCheck.java is the entire security model:\nisDeviceRooted(): new File(\"/system/bin/su\").exists() deriveKey(n): key[i] = (byte)(90 + 7*i) # SEED = 90, step 7 unlockDebugFlag(): flag[i] = ENCODED_FLAG[i] ^ key[i] A single File.exists() check, and a deterministic XOR with a key anyone can regenerate. Nothing is fetched over the network, nothing depends on device state. The root check is security theater.\n🗝️ Step 5 — Grab the Ciphertext The static initializer () fills ENCODED_FLAG with a 40-byte payload via fill-array-data:\n28 51 58 1b 0d 0e f0 bf e6 a8 c3 f8 9a db 88 af b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b 09 1e 2b 27 65 3e 0f 16 🏁 Step 6 — Replay the Crypto Offline Since decryption is just flag[i] = enc[i] ^ ((90 + 7*i) \u0026 0xff), we can reproduce it in a Python one-liner — no rooted phone, no emulator, no Frida needed.\nenc = bytes([0x28,0x51,0x58,0x1b,0x0d,0x0e,0xf0,0xbf,0xe6,0xa8, 0xc3,0xf8,0x9a,0xdb,0x88,0xaf,0xb3,0xa2,0xe9,0xac, 0xb9,0x8f,0x8d,0x8b,0x36,0x7a,0x63,0x24,0x6d,0x7a, 0x58,0x5b,0x09,0x1e,0x2b,0x27,0x65,0x3e,0x0f,0x16]) key = bytes(((90 + 7*i) \u0026 0xff) for i in range(len(enc))) print(bytes(a ^ b for a, b in zip(enc, key)).decode()) Output: 40 characters, clean printable ASCII.\n🚩 Flag r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck} 🧾 Lessons Learned A root check is not a vault. Gating decryption keys behind runtime device state is meaningless when the ciphertext, key formula, and decrypt routine all ship in the APK. Static analysis beats dynamic bypasses. Before reaching for Frida/Magisk hide, check if the secret is computed deterministically — replaying it offline takes seconds. Small DEX = fast wins. Even without apktool/jadx, system Python (zipfile + re) gets you 80% of the way; androguard covers the rest with no Java dependency. ",
+  "wordCount" : "494",
+  "inLanguage": "en",
+  "datePublished": "2026-09-23T00:00:00Z",
+  "dateModified": "2026-09-23T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/africahackon-rooted-or-not/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "My CTF Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="My CTF Blog (Alt + H)">My CTF Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      AfricaHackon: Rooted or not? Writeup
+    </h1>
+    <div class="post-meta"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="-challenge-overview">🧩 Challenge Overview<a hidden class="anchor" aria-hidden="true" href="#-challenge-overview">#</a></h2>
+<p><strong>Name:</strong> Rooted or not?
+<strong>Author:</strong> LordSudo
+<strong>Difficulty:</strong> Easy · <strong>Points:</strong> 100
+<strong>Platform:</strong> AfricaHackon — &ldquo;PERFECT ROOT&rdquo; operation</p>
+<blockquote>
+<p>A vault app exposes a debug panel — but the developers claim it&rsquo;s safe since it&rsquo;s gated behind a root check, and <em>&ldquo;real users don&rsquo;t root their phones.&rdquo;</em></p>
+</blockquote>
+<p><strong>Files:</strong> <code>Rooted or not.zip</code> → <code>vaultapp.apk</code></p>
+<hr>
+<h2 id="-step-1--unpack-the-apk">🔍 Step 1 — Unpack the APK<a hidden class="anchor" aria-hidden="true" href="#-step-1--unpack-the-apk">#</a></h2>
+<p>An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and <code>classes.dex</code> is only 1.6 KB — tiny enough to tear apart by hand.</p>
+<p><img alt="Extracting the APK" loading="lazy" src="/images/rooted-or-not/step1_extract.png"></p>
+<hr>
+<h2 id="-step-2--strings-recon">🧵 Step 2 — Strings Recon<a hidden class="anchor" aria-hidden="true" href="#-step-2--strings-recon">#</a></h2>
+<p>Pulling printable strings out of <code>classes.dex</code> immediately reveals the attack surface:</p>
+<ul>
+<li><code>/system/bin/su</code> — the classic root-detection path</li>
+<li><code>unlockDebugFlag</code>, <code>deriveKey</code>, <code>ENCODED_FLAG</code>, <code>SEED</code> — the debug panel&rsquo;s &ldquo;gate&rdquo; and the crypto behind it</li>
+</ul>
+<p><img alt="Strings in classes.dex" loading="lazy" src="/images/rooted-or-not/step2_strings.png"></p>
+<hr>
+<h2 id="-step-3--disassemble-the-gate">🔬 Step 3 — Disassemble the Gate<a hidden class="anchor" aria-hidden="true" href="#-step-3--disassemble-the-gate">#</a></h2>
+<p>Using <strong>androguard</strong> (pure Python — runs fine on Windows where apktool/jadx wanted Java), the flow in <code>MainActivity.onCreate()</code> is clear:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-smali" data-lang="smali"><span style="display:flex;"><span>invoke-static <span style="color:#960050;background-color:#1e0010">Root</span><span style="color:#66d9ef">C</span><span style="color:#960050;background-color:#1e0010">heck;</span>-&gt;<span style="color:#a6e22e">isDeviceRooted</span>()<span style="color:#66d9ef">Z</span>
+</span></span><span style="display:flex;"><span>if-eqz v0, <span style="color:#960050;background-color:#1e0010">+</span><span style="color:#ae81ff">0xa</span>            <span style="color:#75715e"># rooted → print &#34;Root detected - access denied&#34;
+</span></span></span><span style="display:flex;"><span>invoke-static <span style="color:#960050;background-color:#1e0010">Root</span><span style="color:#66d9ef">C</span><span style="color:#960050;background-color:#1e0010">heck;</span>-&gt;<span style="color:#a6e22e">unlockDebugFlag</span>()<span style="color:#66d9ef">L</span>java/lang/<span style="color:#a6e22e">String</span>;   <span style="color:#75715e"># not rooted → log flag
+</span></span></span></code></pre></div><p>If the device is <strong>not</strong> rooted, the app just calls <code>unlockDebugFlag()</code> and prints the flag to logcat. So the &ldquo;debug panel&rdquo; is a red herring — <strong>the flag is computed statically in code</strong>.</p>
+<p><img alt="Root check gate in onCreate" loading="lazy" src="/images/rooted-or-not/step3_disasm.png"></p>
+<hr>
+<h2 id="-step-4--the-whole-protection">⚙️ Step 4 — The Whole &ldquo;Protection&rdquo;<a hidden class="anchor" aria-hidden="true" href="#-step-4--the-whole-protection">#</a></h2>
+<p><code>RootCheck.java</code> is the entire security model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-smali" data-lang="smali"><span style="display:flex;"><span><span style="color:#a6e22e">isDeviceRooted</span>():
+</span></span><span style="display:flex;"><span>    new <span style="color:#a6e22e">File</span>(<span style="color:#e6db74">&#34;/system/bin/su&#34;</span>).<span style="color:#a6e22e">exists</span>()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">deriveKey</span>(<span style="color:#960050;background-color:#1e0010">n</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">key</span><span style="color:#66d9ef">[</span><span style="color:#960050;background-color:#1e0010">i]</span> = (<span style="color:#960050;background-color:#1e0010">byte</span>)(<span style="color:#ae81ff">90</span> <span style="color:#960050;background-color:#1e0010">+</span> <span style="color:#ae81ff">7</span><span style="color:#960050;background-color:#1e0010">*i</span>)        <span style="color:#75715e"># SEED = 90, step 7
+</span></span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">unlockDebugFlag</span>():
+</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">flag</span><span style="color:#66d9ef">[</span><span style="color:#960050;background-color:#1e0010">i]</span> = <span style="color:#960050;background-color:#1e0010">EN</span><span style="color:#66d9ef">C</span><span style="color:#960050;background-color:#1e0010">O</span><span style="color:#66d9ef">D</span><span style="color:#960050;background-color:#1e0010">E</span><span style="color:#66d9ef">D</span><span style="color:#960050;background-color:#1e0010">_</span><span style="color:#66d9ef">F</span><span style="color:#960050;background-color:#1e0010">LAG</span><span style="color:#66d9ef">[</span><span style="color:#960050;background-color:#1e0010">i]</span> <span style="color:#960050;background-color:#1e0010">^</span> <span style="color:#960050;background-color:#1e0010">key</span><span style="color:#66d9ef">[</span><span style="color:#960050;background-color:#1e0010">i]</span>
+</span></span></code></pre></div><p>A single <code>File.exists()</code> check, and a deterministic XOR with a key anyone can regenerate. Nothing is fetched over the network, nothing depends on device state. The root check is security theater.</p>
+<p><img alt="RootCheck internals" loading="lazy" src="/images/rooted-or-not/step4_rootcheck.png"></p>
+<hr>
+<h2 id="-step-5--grab-the-ciphertext">🗝️ Step 5 — Grab the Ciphertext<a hidden class="anchor" aria-hidden="true" href="#-step-5--grab-the-ciphertext">#</a></h2>
+<p>The static initializer (<code>&lt;clinit&gt;</code>) fills <code>ENCODED_FLAG</code> with a 40-byte payload via <code>fill-array-data</code>:</p>
+<pre tabindex="0"><code>28 51 58 1b 0d 0e f0 bf e6 a8 c3 f8 9a db 88 af
+b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b
+09 1e 2b 27 65 3e 0f 16
+</code></pre><p><img alt="ENCODED_FLAG payload" loading="lazy" src="/images/rooted-or-not/step5_clinit.png"></p>
+<hr>
+<h2 id="-step-6--replay-the-crypto-offline">🏁 Step 6 — Replay the Crypto Offline<a hidden class="anchor" aria-hidden="true" href="#-step-6--replay-the-crypto-offline">#</a></h2>
+<p>Since decryption is just <code>flag[i] = enc[i] ^ ((90 + 7*i) &amp; 0xff)</code>, we can reproduce it in a Python one-liner — no rooted phone, no emulator, no Frida needed.</p>
+<p><img alt="Decoding the flag" loading="lazy" src="/images/rooted-or-not/step6_flag.png"></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>enc <span style="color:#f92672">=</span> bytes([<span style="color:#ae81ff">0x28</span>,<span style="color:#ae81ff">0x51</span>,<span style="color:#ae81ff">0x58</span>,<span style="color:#ae81ff">0x1b</span>,<span style="color:#ae81ff">0x0d</span>,<span style="color:#ae81ff">0x0e</span>,<span style="color:#ae81ff">0xf0</span>,<span style="color:#ae81ff">0xbf</span>,<span style="color:#ae81ff">0xe6</span>,<span style="color:#ae81ff">0xa8</span>,
+</span></span><span style="display:flex;"><span>             <span style="color:#ae81ff">0xc3</span>,<span style="color:#ae81ff">0xf8</span>,<span style="color:#ae81ff">0x9a</span>,<span style="color:#ae81ff">0xdb</span>,<span style="color:#ae81ff">0x88</span>,<span style="color:#ae81ff">0xaf</span>,<span style="color:#ae81ff">0xb3</span>,<span style="color:#ae81ff">0xa2</span>,<span style="color:#ae81ff">0xe9</span>,<span style="color:#ae81ff">0xac</span>,
+</span></span><span style="display:flex;"><span>             <span style="color:#ae81ff">0xb9</span>,<span style="color:#ae81ff">0x8f</span>,<span style="color:#ae81ff">0x8d</span>,<span style="color:#ae81ff">0x8b</span>,<span style="color:#ae81ff">0x36</span>,<span style="color:#ae81ff">0x7a</span>,<span style="color:#ae81ff">0x63</span>,<span style="color:#ae81ff">0x24</span>,<span style="color:#ae81ff">0x6d</span>,<span style="color:#ae81ff">0x7a</span>,
+</span></span><span style="display:flex;"><span>             <span style="color:#ae81ff">0x58</span>,<span style="color:#ae81ff">0x5b</span>,<span style="color:#ae81ff">0x09</span>,<span style="color:#ae81ff">0x1e</span>,<span style="color:#ae81ff">0x2b</span>,<span style="color:#ae81ff">0x27</span>,<span style="color:#ae81ff">0x65</span>,<span style="color:#ae81ff">0x3e</span>,<span style="color:#ae81ff">0x0f</span>,<span style="color:#ae81ff">0x16</span>])
+</span></span><span style="display:flex;"><span>key  <span style="color:#f92672">=</span> bytes(((<span style="color:#ae81ff">90</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">7</span><span style="color:#f92672">*</span>i) <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">0xff</span>) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(len(enc)))
+</span></span><span style="display:flex;"><span>print(bytes(a <span style="color:#f92672">^</span> b <span style="color:#66d9ef">for</span> a, b <span style="color:#f92672">in</span> zip(enc, key))<span style="color:#f92672">.</span>decode())
+</span></span></code></pre></div><p><strong>Output:</strong> 40 characters, clean printable ASCII.</p>
+<hr>
+<h2 id="-flag">🚩 Flag<a hidden class="anchor" aria-hidden="true" href="#-flag">#</a></h2>
+<pre tabindex="0"><code>r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck}
+</code></pre><hr>
+<h2 id="-lessons-learned">🧾 Lessons Learned<a hidden class="anchor" aria-hidden="true" href="#-lessons-learned">#</a></h2>
+<ul>
+<li><strong>A root check is not a vault.</strong> Gating decryption keys behind runtime device state is meaningless when the ciphertext, key formula, and decrypt routine all ship in the APK.</li>
+<li><strong>Static analysis beats dynamic bypasses.</strong> Before reaching for Frida/Magisk hide, check if the secret is computed deterministically — replaying it offline takes seconds.</li>
+<li><strong>Small DEX = fast wins.</strong> Even without apktool/jadx, system Python (<code>zipfile</code> + <code>re</code>) gets you 80% of the way; androguard covers the rest with no Java dependency.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/ctf/">CTF</a></li>
+      <li><a href="http://localhost:1313/tags/africahackon/">AfricaHackon</a></li>
+      <li><a href="http://localhost:1313/tags/mobile/">Mobile</a></li>
+      <li><a href="http://localhost:1313/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="http://localhost:1313/tags/android/">Android</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">My CTF Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

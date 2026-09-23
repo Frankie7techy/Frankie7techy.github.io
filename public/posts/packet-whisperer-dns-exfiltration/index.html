@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Packet Whisperer — The One Where DNS Snitched on Itself | My CTF Blog</title>
+<meta name="keywords" content="CTF, AfricaHackon, Network Forensics, DNS, Exfiltration">
+<meta name="description" content="Challenge Overview
+
+Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t
+Category: Network Forensics | Difficulty: Easy | Points: 100
+Given: a single file, chall.pcap
+Task: &ldquo;Analyze the provided PCAP and identify the hidden DNS-related flag.&rdquo;
+
+Flag: r00t{1ts_4lw4y5_DNS_r1ght}
+The whole trick: someone slid a ZIP archive out of a network using nothing but
+DNS TXT queries. This writeup walks through exactly how to spot it and reverse
+it — zero Wireshark required (though it works there too).">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="http://localhost:1313/posts/packet-whisperer-dns-exfiltration/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.20d6cff195baed31e1caa20c74d29d988ebe0e1a971923b26acd0671c96478bf.css" integrity="sha256-INbP8ZW67THhyqIMdNKdmI6&#43;DhqXGSOyas0GcclkeL8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/packet-whisperer-dns-exfiltration/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            .list::-webkit-scrollbar-thumb {
+                border-color: var(--code-bg);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="http://localhost:1313/posts/packet-whisperer-dns-exfiltration/">
+  <meta property="og:site_name" content="My CTF Blog">
+  <meta property="og:title" content="Packet Whisperer — The One Where DNS Snitched on Itself">
+  <meta property="og:description" content="Challenge Overview Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t Category: Network Forensics | Difficulty: Easy | Points: 100 Given: a single file, chall.pcap Task: “Analyze the provided PCAP and identify the hidden DNS-related flag.” Flag: r00t{1ts_4lw4y5_DNS_r1ght}
+The whole trick: someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-09-23T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-09-23T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="AfricaHackon">
+    <meta property="article:tag" content="Network Forensics">
+    <meta property="article:tag" content="DNS">
+    <meta property="article:tag" content="Exfiltration">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Packet Whisperer — The One Where DNS Snitched on Itself">
+<meta name="twitter:description" content="Challenge Overview
+
+Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t
+Category: Network Forensics | Difficulty: Easy | Points: 100
+Given: a single file, chall.pcap
+Task: &ldquo;Analyze the provided PCAP and identify the hidden DNS-related flag.&rdquo;
+
+Flag: r00t{1ts_4lw4y5_DNS_r1ght}
+The whole trick: someone slid a ZIP archive out of a network using nothing but
+DNS TXT queries. This writeup walks through exactly how to spot it and reverse
+it — zero Wireshark required (though it works there too).">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Packet Whisperer — The One Where DNS Snitched on Itself",
+      "item": "http://localhost:1313/posts/packet-whisperer-dns-exfiltration/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Packet Whisperer — The One Where DNS Snitched on Itself",
+  "name": "Packet Whisperer — The One Where DNS Snitched on Itself",
+  "description": "Challenge Overview Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t Category: Network Forensics | Difficulty: Easy | Points: 100 Given: a single file, chall.pcap Task: \u0026ldquo;Analyze the provided PCAP and identify the hidden DNS-related flag.\u0026rdquo; Flag: r00t{1ts_4lw4y5_DNS_r1ght}\nThe whole trick: someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).\n",
+  "keywords": [
+    "CTF", "AfricaHackon", "Network Forensics", "DNS", "Exfiltration"
+  ],
+  "articleBody": "Challenge Overview Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t Category: Network Forensics | Difficulty: Easy | Points: 100 Given: a single file, chall.pcap Task: “Analyze the provided PCAP and identify the hidden DNS-related flag.” Flag: r00t{1ts_4lw4y5_DNS_r1ght}\nThe whole trick: someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).\nStep 0 — First impressions Opening a pcap blind is like walking into a room where everyone is talking at once: you don’t listen to individuals, you listen for the weird voice. The file is small (1,279 packets), and the description literally hands us the filter: DNS.\nIn Wireshark you’d type:\ndns I wanted to script this instead — sure enough, the “weird voice” would need a transform later. No tshark, no scapy on this box, so I wrote a tiny pure-Python pcap parser (pcaps are simple: 24-byte global header, then [16-byte record header + raw frame] repeating; carve Ethernet → IPv4 → UDP → port 53). Full source: dns_extract.py\nStep 1 — The “wait, what?” moment A neat burst of TXT queries for domains like:\nUEsDBAoAAAAAAHKRelsO8+wGGwAAABsAAAAIABwA.hackerman.com Three things set off the alarm:\nNobody legitimately asks for TXT records of 50-character random-looking subdomains. TXT is usually SPF/DKIM/verification — short, boring labels. The “random” strings aren’t random. The alphabet is A–Z a–z 0–9 + / with one == at the end of the final query. That’s base64 staring at you. They’re sequential and burst-y — packets #1218 to #1250, fired off like a script. Step 2 — What we’re looking at: DNS exfiltration Here’s the part worth understanding properly, because this technique shows up in real intrusions all the time:\nYou don’t choose the destination of a DNS query — the resolver chases it for you — but you fully control the question. If you own the authoritative nameserver for the domain, every question arrives at your doorstep, in order, logged forever.\nSo an attacker doesn’t need HTTP, an open port, or anything a firewall blinks at. They just need DNS — the one thing every network lets through on port 53.\nThe punchline for us: the pcap contains the entire stolen file. Every query is a carrier pigeon, and the pcap caught all the pigeons. We only need to read the little scrolls in order.\nStep 3 — Carving the chunks Per query name, we only want what’s before .hackerman.com. One gotcha: some chunks span multiple DNS labels (a label caps out at 63 chars), so strip the domain and rejoin the remaining labels without dots:\nif name.endswith(\".hackerman.com\"): b64 = name[:-len(\".hackerman.com\")].replace(\".\", \"\") chunks.append(b64) Second gotcha: only collect queries (destination port 53). Responses echo the same names back — take both and you’ll decode every chunk twice.\nStep 4 — The blob says hello Concatenate the chunks in packet order, base64.b64decode, and peek:\nb'PK\\x03\\x04\\n\\x00\\x00\\x00\\x00\\x00r\\x91z[...' PK (Phil Katz) is the magic of every ZIP file on Earth. Which explains why the first chunk, UEsDB..., looked familiar all along — base64 of PK\\x03\\x04 starts with UEsDB.\nHand the bytes to Python’s zipfile: dns_decode.py\nStep 5 — Free flag inside The archive holds two files:\nnotes.txt — “Some random data, you are close though” — a decoy and a bit of trolling from the author. Respect. flag.txt — the prize: r00t{1ts_4lw4y5_DNS_r1ght} Submitted. 100/100. Done.\nWhy you should care at 2 AM (defender notes) DNS exfiltration keeps working because of three uncomfortable truths:\nDNS is rarely inspected. Firewalls obsess over HTTP/SMTP while port 53 strolls by. Query names are user-controlled by design. Abuse looks exactly like use — until you check volume and shape. The authoritative server keeps a perfect ordered log. The attacker just reads their own query log later. Detection tells — the same ones this challenge exhibited:\nLabels at/near the 63-char limit (padding maxes throughput) Bursts of TXT/NULL/CNAME queries to one rare domain High-entropy (base64-looking) names under a single parent domain Queries massively outnumbering answers One weird query is a hiccup. Seventeen in a row at 63 chars each is a filing cabinet leaving the building.\nRecap — six moves Isolate port-53 traffic. Spot freaky TXT queries to *.hackerman.com. Strip the domain, glue labels into one base64 string per query. Concatenate in packet order, decode. PK magic → ZIP → extract. Read flag.txt, ignore the troll note, bank the points. It’s always DNS. The flag said so itself.\nScripts: dns_extract.py · dns_decode.py\n",
+  "wordCount" : "745",
+  "inLanguage": "en",
+  "datePublished": "2026-09-23T00:00:00Z",
+  "dateModified": "2026-09-23T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/packet-whisperer-dns-exfiltration/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "My CTF Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="My CTF Blog (Alt + H)">My CTF Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Packet Whisperer — The One Where DNS Snitched on Itself
+    </h1>
+    <div class="post-meta"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> 
+  <div class="post-content"><h2 id="challenge-overview">Challenge Overview<a hidden class="anchor" aria-hidden="true" href="#challenge-overview">#</a></h2>
+<ul>
+<li><strong>Platform:</strong> AfricaHackon — <em>Packet Whisperer</em> by p3rf3ctr00t</li>
+<li><strong>Category:</strong> Network Forensics | <strong>Difficulty:</strong> Easy | <strong>Points:</strong> 100</li>
+<li><strong>Given:</strong> a single file, <code>chall.pcap</code></li>
+<li><strong>Task:</strong> <em>&ldquo;Analyze the provided PCAP and identify the hidden DNS-related flag.&rdquo;</em></li>
+</ul>
+<p><strong>Flag:</strong> <code>r00t{1ts_4lw4y5_DNS_r1ght}</code></p>
+<p>The whole trick: someone slid a ZIP archive out of a network using nothing but
+DNS TXT queries. This writeup walks through exactly how to spot it and reverse
+it — zero Wireshark required (though it works there too).</p>
+<hr>
+<h2 id="step-0--first-impressions">Step 0 — First impressions<a hidden class="anchor" aria-hidden="true" href="#step-0--first-impressions">#</a></h2>
+<p>Opening a pcap blind is like walking into a room where everyone is talking at
+once: you don&rsquo;t listen to individuals, you listen for the <em>weird</em> voice. The
+file is small (1,279 packets), and the description literally hands us the
+filter: <strong>DNS</strong>.</p>
+<p>In Wireshark you&rsquo;d type:</p>
+<pre tabindex="0"><code>dns
+</code></pre><p>I wanted to script this instead — sure enough, the &ldquo;weird voice&rdquo; would need a
+transform later. No tshark, no scapy on this box, so I wrote a tiny pure-Python
+pcap parser (pcaps are simple: 24-byte global header, then <code>[16-byte record header + raw frame]</code> repeating; carve Ethernet → IPv4 → UDP → port 53). Full
+source: <a href="/files/packet-whisperer/dns_extract.py">dns_extract.py</a></p>
+<hr>
+<h2 id="step-1--the-wait-what-moment">Step 1 — The &ldquo;wait, what?&rdquo; moment<a hidden class="anchor" aria-hidden="true" href="#step-1--the-wait-what-moment">#</a></h2>
+<p><img alt="Suspicious DNS TXT queries found in the pcap" loading="lazy" src="/images/packet-whisperer/01_suspicious_dns.png"></p>
+<p>A neat burst of <strong>TXT queries</strong> for domains like:</p>
+<pre tabindex="0"><code>UEsDBAoAAAAAAHKRelsO8+wGGwAAABsAAAAIABwA.hackerman.com
+</code></pre><p>Three things set off the alarm:</p>
+<ol>
+<li><strong>Nobody legitimately asks for TXT records of 50-character random-looking
+subdomains.</strong> TXT is usually SPF/DKIM/verification — short, boring labels.</li>
+<li><strong>The &ldquo;random&rdquo; strings aren&rsquo;t random.</strong> The alphabet is <code>A–Z a–z 0–9 + /</code>
+with one <code>==</code> at the end of the final query. That&rsquo;s base64 staring at you.</li>
+<li><strong>They&rsquo;re sequential and burst-y</strong> — packets #1218 to #1250, fired off like
+a script.</li>
+</ol>
+<hr>
+<h2 id="step-2--what-were-looking-at-dns-exfiltration">Step 2 — What we&rsquo;re looking at: DNS exfiltration<a hidden class="anchor" aria-hidden="true" href="#step-2--what-were-looking-at-dns-exfiltration">#</a></h2>
+<p>Here&rsquo;s the part worth understanding properly, because this technique shows up
+in real intrusions all the time:</p>
+<blockquote>
+<p>You don&rsquo;t choose the <em>destination</em> of a DNS query — the resolver chases it
+for you — but you fully control the <em>question</em>. If you own the authoritative
+nameserver for the domain, every question arrives at your doorstep, in order,
+logged forever.</p>
+</blockquote>
+<p>So an attacker doesn&rsquo;t need HTTP, an open port, or anything a firewall blinks
+at. They just need DNS — the one thing every network lets through on port 53.</p>
+<p><img alt="How DNS exfiltration works, end to end" loading="lazy" src="/images/packet-whisperer/02_exfil_diagram.png"></p>
+<p>The punchline for us: <strong>the pcap contains the entire stolen file.</strong> Every query
+is a carrier pigeon, and the pcap caught all the pigeons. We only need to read
+the little scrolls in order.</p>
+<hr>
+<h2 id="step-3--carving-the-chunks">Step 3 — Carving the chunks<a hidden class="anchor" aria-hidden="true" href="#step-3--carving-the-chunks">#</a></h2>
+<p>Per query name, we only want what&rsquo;s before <code>.hackerman.com</code>. One gotcha: some
+chunks span <strong>multiple DNS labels</strong> (a label caps out at 63 chars), so strip
+the domain and rejoin the remaining labels <em>without dots</em>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> name<span style="color:#f92672">.</span>endswith(<span style="color:#e6db74">&#34;.hackerman.com&#34;</span>):
+</span></span><span style="display:flex;"><span>    b64 <span style="color:#f92672">=</span> name[:<span style="color:#f92672">-</span>len(<span style="color:#e6db74">&#34;.hackerman.com&#34;</span>)]<span style="color:#f92672">.</span>replace(<span style="color:#e6db74">&#34;.&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>)
+</span></span><span style="display:flex;"><span>    chunks<span style="color:#f92672">.</span>append(b64)
+</span></span></code></pre></div><p>Second gotcha: only collect <strong>queries</strong> (destination port 53). Responses echo
+the same names back — take both and you&rsquo;ll decode every chunk twice.</p>
+<h2 id="step-4--the-blob-says-hello">Step 4 — The blob says hello<a hidden class="anchor" aria-hidden="true" href="#step-4--the-blob-says-hello">#</a></h2>
+<p>Concatenate the chunks in packet order, <code>base64.b64decode</code>, and peek:</p>
+<pre tabindex="0"><code>b&#39;PK\x03\x04\n\x00\x00\x00\x00\x00r\x91z[...&#39;
+</code></pre><p><code>PK</code> (Phil Katz) is the magic of every ZIP file on Earth. Which explains why
+the first chunk, <code>UEsDB...</code>, looked familiar all along — base64 of <code>PK\x03\x04</code>
+starts with <code>UEsDB</code>.</p>
+<p>Hand the bytes to Python&rsquo;s <code>zipfile</code>:
+<a href="/files/packet-whisperer/dns_decode.py">dns_decode.py</a></p>
+<h2 id="step-5--free-flag-inside">Step 5 — Free flag inside<a hidden class="anchor" aria-hidden="true" href="#step-5--free-flag-inside">#</a></h2>
+<p><img alt="Decoding the ZIP and revealing the flag" loading="lazy" src="/images/packet-whisperer/03_flag_revealed.png"></p>
+<p>The archive holds two files:</p>
+<ul>
+<li><strong><code>notes.txt</code></strong> — <em>&ldquo;Some random data, you are close though&rdquo;</em> — a decoy and a
+bit of trolling from the author. Respect.</li>
+<li><strong><code>flag.txt</code></strong> — the prize:</li>
+</ul>
+<pre tabindex="0"><code>r00t{1ts_4lw4y5_DNS_r1ght}
+</code></pre><p>Submitted. 100/100. Done.</p>
+<hr>
+<h2 id="why-you-should-care-at-2-am-defender-notes">Why you should care at 2 AM (defender notes)<a hidden class="anchor" aria-hidden="true" href="#why-you-should-care-at-2-am-defender-notes">#</a></h2>
+<p>DNS exfiltration keeps working because of three uncomfortable truths:</p>
+<ol>
+<li><strong>DNS is rarely inspected.</strong> Firewalls obsess over HTTP/SMTP while port 53
+strolls by.</li>
+<li><strong>Query names are user-controlled by design.</strong> Abuse looks exactly like use
+— until you check <em>volume and shape</em>.</li>
+<li><strong>The authoritative server keeps a perfect ordered log.</strong> The attacker just
+reads their own query log later.</li>
+</ol>
+<p>Detection tells — the same ones this challenge exhibited:</p>
+<ul>
+<li>Labels at/near the <strong>63-char limit</strong> (padding maxes throughput)</li>
+<li>Bursts of <strong>TXT/NULL/CNAME queries to one rare domain</strong></li>
+<li>High-entropy (base64-looking) names under a single parent domain</li>
+<li>Queries massively outnumbering answers</li>
+</ul>
+<p>One weird query is a hiccup. Seventeen in a row at 63 chars each is a filing
+cabinet leaving the building.</p>
+<hr>
+<h2 id="recap--six-moves">Recap — six moves<a hidden class="anchor" aria-hidden="true" href="#recap--six-moves">#</a></h2>
+<ol>
+<li>Isolate port-53 traffic.</li>
+<li>Spot freaky TXT queries to <code>*.hackerman.com</code>.</li>
+<li>Strip the domain, glue labels into one base64 string per query.</li>
+<li>Concatenate in packet order, decode.</li>
+<li><code>PK</code> magic → ZIP → extract.</li>
+<li>Read <code>flag.txt</code>, ignore the troll note, bank the points.</li>
+</ol>
+<p>It&rsquo;s always DNS. The flag said so itself.</p>
+<hr>
+<p><em>Scripts: <a href="/files/packet-whisperer/dns_extract.py">dns_extract.py</a> ·
+<a href="/files/packet-whisperer/dns_decode.py">dns_decode.py</a></em></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/ctf/">CTF</a></li>
+      <li><a href="http://localhost:1313/tags/africahackon/">AfricaHackon</a></li>
+      <li><a href="http://localhost:1313/tags/network-forensics/">Network Forensics</a></li>
+      <li><a href="http://localhost:1313/tags/dns/">DNS</a></li>
+      <li><a href="http://localhost:1313/tags/exfiltration/">Exfiltration</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">My CTF Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

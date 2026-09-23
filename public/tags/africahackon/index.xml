@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>AfricaHackon on My CTF Blog</title>
+    <link>http://localhost:1313/tags/africahackon/</link>
+    <description>Recent content in AfricaHackon on My CTF Blog</description>
+    <generator>Hugo -- 0.166.0</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/africahackon/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AfricaHackon: Rooted or not? Writeup</title>
+      <link>http://localhost:1313/posts/africahackon-rooted-or-not/</link>
+      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/africahackon-rooted-or-not/</guid>
+      <description>&lt;h2 id=&#34;-challenge-overview&#34;&gt;🧩 Challenge Overview&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Name:&lt;/strong&gt; Rooted or not?
+&lt;strong&gt;Author:&lt;/strong&gt; LordSudo
+&lt;strong&gt;Difficulty:&lt;/strong&gt; Easy · &lt;strong&gt;Points:&lt;/strong&gt; 100
+&lt;strong&gt;Platform:&lt;/strong&gt; AfricaHackon — &amp;ldquo;PERFECT ROOT&amp;rdquo; operation&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A vault app exposes a debug panel — but the developers claim it&amp;rsquo;s safe since it&amp;rsquo;s gated behind a root check, and &lt;em&gt;&amp;ldquo;real users don&amp;rsquo;t root their phones.&amp;rdquo;&lt;/em&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Files:&lt;/strong&gt; &lt;code&gt;Rooted or not.zip&lt;/code&gt; → &lt;code&gt;vaultapp.apk&lt;/code&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-step-1--unpack-the-apk&#34;&gt;🔍 Step 1 — Unpack the APK&lt;/h2&gt;
+&lt;p&gt;An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and &lt;code&gt;classes.dex&lt;/code&gt; is only 1.6 KB — tiny enough to tear apart by hand.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
+      <link>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</link>
+      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</guid>
+      <description>&lt;h2 id=&#34;challenge-overview&#34;&gt;Challenge Overview&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Platform:&lt;/strong&gt; AfricaHackon — &lt;em&gt;Packet Whisperer&lt;/em&gt; by p3rf3ctr00t&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Category:&lt;/strong&gt; Network Forensics | &lt;strong&gt;Difficulty:&lt;/strong&gt; Easy | &lt;strong&gt;Points:&lt;/strong&gt; 100&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Given:&lt;/strong&gt; a single file, &lt;code&gt;chall.pcap&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Task:&lt;/strong&gt; &lt;em&gt;&amp;ldquo;Analyze the provided PCAP and identify the hidden DNS-related flag.&amp;rdquo;&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Flag:&lt;/strong&gt; &lt;code&gt;r00t{1ts_4lw4y5_DNS_r1ght}&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;The whole trick: someone slid a ZIP archive out of a network using nothing but
+DNS TXT queries. This writeup walks through exactly how to spot it and reverse
+it — zero Wireshark required (though it works there too).&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
