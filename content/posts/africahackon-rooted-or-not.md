@@ -24,7 +24,7 @@ authors: ["z3ro"]
 
 An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and `classes.dex` is only 1.6 KB — tiny enough to tear apart by hand.
 
-![Extracting the APK](/images/rooted-or-not/step1_extract.png)
+![Extracting the APK](/public/images/rooted-or-not/step1_extract.png)
 
 ---
 
@@ -35,7 +35,7 @@ Pulling printable strings out of `classes.dex` immediately reveals the attack su
 - `/system/bin/su` — the classic root-detection path
 - `unlockDebugFlag`, `deriveKey`, `ENCODED_FLAG`, `SEED` — the debug panel's "gate" and the crypto behind it
 
-![Strings in classes.dex](/images/rooted-or-not/step2_strings.png)
+![Strings in classes.dex](/public/images/rooted-or-not/step2_strings.png)
 
 ---
 
@@ -51,7 +51,7 @@ invoke-static RootCheck;->unlockDebugFlag()Ljava/lang/String;   # not rooted →
 
 If the device is **not** rooted, the app just calls `unlockDebugFlag()` and prints the flag to logcat. So the "debug panel" is a red herring — **the flag is computed statically in code**.
 
-![Root check gate in onCreate](/images/rooted-or-not/step3_disasm.png)
+![Root check gate in onCreate](/public/images/rooted-or-not/step3_disasm.png)
 
 ---
 
@@ -72,7 +72,7 @@ unlockDebugFlag():
 
 A single `File.exists()` check, and a deterministic XOR with a key anyone can regenerate. Nothing is fetched over the network, nothing depends on device state. The root check is security theater.
 
-![RootCheck internals](/images/rooted-or-not/step4_rootcheck.png)
+![RootCheck internals](/public/images/rooted-or-not/step4_rootcheck.png)
 
 ---
 
@@ -86,7 +86,7 @@ b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b
 09 1e 2b 27 65 3e 0f 16
 ```
 
-![ENCODED_FLAG payload](/images/rooted-or-not/step5_clinit.png)
+![ENCODED_FLAG payload](/public/images/rooted-or-not/step5_clinit.png)
 
 ---
 
@@ -94,7 +94,7 @@ b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b
 
 Since decryption is just `flag[i] = enc[i] ^ ((90 + 7*i) & 0xff)`, we can reproduce it in a Python one-liner — no rooted phone, no emulator, no Frida needed.
 
-![Decoding the flag](/images/rooted-or-not/step6_flag.png)
+![Decoding the flag](/public/images/rooted-or-not/step6_flag.png)
 
 ```python
 enc = bytes([0x28,0x51,0x58,0x1b,0x0d,0x0e,0xf0,0xbf,0xe6,0xa8,

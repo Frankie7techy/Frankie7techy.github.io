@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Welcome to My CTF Lab on My CTF Blog</title>
-    <link>http://localhost:1313/</link>
-    <description>Recent content in Welcome to My CTF Lab on My CTF Blog</description>
+    <title>Welcome to My CTF Lab on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/</link>
+    <description>Recent content in Welcome to My CTF Lab on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.166.0</generator>
     <language>en</language>
     <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://frankie7techy.github.io/public/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AfricaHackon: Rooted or not? Writeup</title>
-      <link>http://localhost:1313/posts/africahackon-rooted-or-not/</link>
+      <link>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/africahackon-rooted-or-not/</guid>
+      <guid>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</guid>
       <description>&lt;h2 id=&#34;-challenge-overview&#34;&gt;🧩 Challenge Overview&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Name:&lt;/strong&gt; Rooted or not?
 &lt;strong&gt;Author:&lt;/strong&gt; LordSudo
@@ -28,9 +28,9 @@
     </item>
     <item>
       <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
-      <link>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</link>
+      <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</guid>
+      <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
       <description>&lt;h2 id=&#34;challenge-overview&#34;&gt;Challenge Overview&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Platform:&lt;/strong&gt; AfricaHackon — &lt;em&gt;Packet Whisperer&lt;/em&gt; by p3rf3ctr00t&lt;/li&gt;
@@ -45,9 +45,9 @@ it — zero Wireshark required (though it works there too).&lt;/p&gt;</descripti
     </item>
     <item>
       <title>HackTheBox: SecretCorp Writeup</title>
-      <link>http://localhost:1313/posts/htb-secretcorp/</link>
+      <link>https://frankie7techy.github.io/public/posts/htb-secretcorp/</link>
       <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/htb-secretcorp/</guid>
+      <guid>https://frankie7techy.github.io/public/posts/htb-secretcorp/</guid>
       <description>&lt;h2 id=&#34;-challenge-overview&#34;&gt;🧩 Challenge Overview&lt;/h2&gt;
 &lt;p&gt;This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.&lt;/p&gt;
 &lt;hr&gt;
@@ -79,9 +79,9 @@ Exploited it via `bash -p` to spawn a root shell.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Simple Test</title>
-      <link>http://localhost:1313/posts/simple-test/</link>
+      <link>https://frankie7techy.github.io/public/posts/simple-test/</link>
       <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/simple-test/</guid>
+      <guid>https://frankie7techy.github.io/public/posts/simple-test/</guid>
       <description>&lt;p&gt;This is a simple test.&lt;/p&gt;</description>
     </item>
   </channel>

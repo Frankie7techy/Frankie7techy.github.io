@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto" data-theme="auto">
+<html lang="en" dir="auto" data-theme="dark">
 
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>HackTheBox: SecretCorp Writeup | My CTF Blog</title>
+<title>HackTheBox: SecretCorp Writeup | z3ro :: CTF &amp; Security Research</title>
 <meta name="keywords" content="CTF, HackTheBox, Web Exploitation">
 <meta name="description" content="🧩 Challenge Overview
 This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
@@ -36,16 +36,16 @@ linpeas.sh | tee output.txt
 Found `/usr/local/bin/backup` with SUID bit.
 Exploited it via `bash -p` to spawn a root shell.">
 <meta name="author" content="z3ro">
-<link rel="canonical" href="http://localhost:1313/posts/htb-secretcorp/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.20d6cff195baed31e1caa20c74d29d988ebe0e1a971923b26acd0671c96478bf.css" integrity="sha256-INbP8ZW67THhyqIMdNKdmI6&#43;DhqXGSOyas0GcclkeL8=" rel="preload stylesheet" as="style">
-<link rel="icon" href="http://localhost:1313/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
-<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
-<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/htb-secretcorp/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.20d6cff195baed31e1caa20c74d29d988ebe0e1a971923b26acd0671c96478bf.css" integrity="sha256-INbP8ZW67THhyqIMdNKdmI6&#43;DhqXGSOyas0GcclkeL8=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/htb-secretcorp/">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/htb-secretcorp/">
 <noscript>
     <style>
         #theme-toggle,
@@ -54,51 +54,14 @@ Exploited it via `bash -p` to spawn a root shell.">
         }
 
     </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-                color-scheme: dark;
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .toc {
-                background: var(--entry);
-            }
-        }
-
-        @media (prefers-color-scheme: light) {
-            .list::-webkit-scrollbar-thumb {
-                border-color: var(--code-bg);
-            }
-        }
-
-    </style>
 </noscript>
 <script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.querySelector("html").dataset.theme = 'dark';
-    } else if (localStorage.getItem("pref-theme") === "light") {
-       document.querySelector("html").dataset.theme = 'light';
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.querySelector("html").dataset.theme = 'dark';
-    } else {
+    if (localStorage.getItem("pref-theme") === "light") {
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="http://localhost:1313/posts/htb-secretcorp/">
-  <meta property="og:site_name" content="My CTF Blog">
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/htb-secretcorp/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
   <meta property="og:title" content="HackTheBox: SecretCorp Writeup">
   <meta property="og:description" content="🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
 🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
@@ -157,13 +120,13 @@ Exploited it via `bash -p` to spawn a root shell.">
       "@type": "ListItem",
       "position":  1 ,
       "name": "Posts",
-      "item": "http://localhost:1313/posts/"
+      "item": "https://frankie7techy.github.io/public/posts/"
     }, 
     {
       "@type": "ListItem",
       "position":  2 ,
       "name": "HackTheBox: SecretCorp Writeup",
-      "item": "http://localhost:1313/posts/htb-secretcorp/"
+      "item": "https://frankie7techy.github.io/public/posts/htb-secretcorp/"
     }
   ]
 }
@@ -189,14 +152,14 @@ Exploited it via `bash -p` to spawn a root shell.">
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "http://localhost:1313/posts/htb-secretcorp/"
+    "@id": "https://frankie7techy.github.io/public/posts/htb-secretcorp/"
   },
   "publisher": {
     "@type": "Organization",
-    "name": "My CTF Blog",
+    "name": "z3ro :: CTF \u0026 Security Research",
     "logo": {
       "@type": "ImageObject",
-      "url": "http://localhost:1313/favicon.ico"
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
     }
   }
 }
@@ -206,7 +169,7 @@ Exploited it via `bash -p` to spawn a root shell.">
     <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="My CTF Blog (Alt + H)">My CTF Blog</a>
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
             <div class="logo-switches">
                 <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
@@ -232,12 +195,12 @@ Exploited it via `bash -p` to spawn a root shell.">
         </div>
         <ul id="menu">
             <li>
-                <a href="http://localhost:1313/" title="Home">
+                <a href="https://frankie7techy.github.io/public/" title="Home">
                     <span>Home</span>
                 </a>
             </li>
             <li>
-                <a href="http://localhost:1313/posts/" title="Posts">
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
                     <span>Posts</span>
                 </a>
             </li>
@@ -252,10 +215,34 @@ Exploited it via `bash -p` to spawn a root shell.">
     <h1 class="post-title entry-hint-parent">
       HackTheBox: SecretCorp Writeup
     </h1>
-    <div class="post-meta"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>z3ro</span>
+    <div class="post-meta"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>z3ro</span>
 
 </div>
-  </header> 
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#-challenge-overview" aria-label="🧩 Challenge Overview">🧩 Challenge Overview</a></li>
+                <li>
+                    <a href="#-enumeration" aria-label="🔍 Enumeration">🔍 Enumeration</a></li>
+                <li>
+                    <a href="#-exploitation" aria-label="💥 Exploitation">💥 Exploitation</a></li>
+                <li>
+                    <a href="#-privilege-escalation" aria-label="🧑‍💻 Privilege Escalation">🧑‍💻 Privilege Escalation</a></li>
+                <li>
+                    <a href="#-lessons-learned" aria-label="🧾 Lessons Learned">🧾 Lessons Learned</a></li>
+                <li>
+                    <a href="#-screenshots" aria-label="📸 Screenshots">📸 Screenshots</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
   <div class="post-content"><h2 id="-challenge-overview">🧩 Challenge Overview<a hidden class="anchor" aria-hidden="true" href="#-challenge-overview">#</a></h2>
 <p>This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.</p>
 <hr>
@@ -300,16 +287,16 @@ Exploited it via `bash -p` to spawn a root shell.</p>
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="http://localhost:1313/tags/ctf/">CTF</a></li>
-      <li><a href="http://localhost:1313/tags/hackthebox/">HackTheBox</a></li>
-      <li><a href="http://localhost:1313/tags/web-exploitation/">Web Exploitation</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/hackthebox/">HackTheBox</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/web-exploitation/">Web Exploitation</a></li>
     </ul>
   </footer>
 </article>
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://localhost:1313/">My CTF Blog</a></span> · 
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
 
     <span>
         Powered by
@@ -382,6 +369,53 @@ Exploited it via `bash -p` to spawn a root shell.</p>
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

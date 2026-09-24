@@ -38,13 +38,13 @@ I wanted to script this instead — sure enough, the "weird voice" would need a
 transform later. No tshark, no scapy on this box, so I wrote a tiny pure-Python
 pcap parser (pcaps are simple: 24-byte global header, then `[16-byte record
 header + raw frame]` repeating; carve Ethernet → IPv4 → UDP → port 53). Full
-source: [dns_extract.py](/files/packet-whisperer/dns_extract.py)
+source: [dns_extract.py](/public/files/packet-whisperer/dns_extract.py)
 
 ---
 
 ## Step 1 — The "wait, what?" moment
 
-![Suspicious DNS TXT queries found in the pcap](/images/packet-whisperer/01_suspicious_dns.png)
+![Suspicious DNS TXT queries found in the pcap](/public/images/packet-whisperer/01_suspicious_dns.png)
 
 A neat burst of **TXT queries** for domains like:
 
@@ -76,7 +76,7 @@ in real intrusions all the time:
 So an attacker doesn't need HTTP, an open port, or anything a firewall blinks
 at. They just need DNS — the one thing every network lets through on port 53.
 
-![How DNS exfiltration works, end to end](/images/packet-whisperer/02_exfil_diagram.png)
+![How DNS exfiltration works, end to end](/public/images/packet-whisperer/02_exfil_diagram.png)
 
 The punchline for us: **the pcap contains the entire stolen file.** Every query
 is a carrier pigeon, and the pcap caught all the pigeons. We only need to read
@@ -112,11 +112,11 @@ the first chunk, `UEsDB...`, looked familiar all along — base64 of `PK\x03\x04
 starts with `UEsDB`.
 
 Hand the bytes to Python's `zipfile`:
-[dns_decode.py](/files/packet-whisperer/dns_decode.py)
+[dns_decode.py](/public/files/packet-whisperer/dns_decode.py)
 
 ## Step 5 — Free flag inside
 
-![Decoding the ZIP and revealing the flag](/images/packet-whisperer/03_flag_revealed.png)
+![Decoding the ZIP and revealing the flag](/public/images/packet-whisperer/03_flag_revealed.png)
 
 The archive holds two files:
 
@@ -168,5 +168,5 @@ It's always DNS. The flag said so itself.
 
 ---
 
-*Scripts: [dns_extract.py](/files/packet-whisperer/dns_extract.py) ·
-[dns_decode.py](/files/packet-whisperer/dns_decode.py)*
+*Scripts: [dns_extract.py](/public/files/packet-whisperer/dns_extract.py) ·
+[dns_decode.py](/public/files/packet-whisperer/dns_decode.py)*

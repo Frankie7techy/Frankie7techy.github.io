@@ -2,64 +2,64 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/africahackon/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/africahackon/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/africahackon-rooted-or-not/</loc>
+    <loc>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/android/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/android/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>https://frankie7techy.github.io/public/categories/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/ctf/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/ctf/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/ctf-writeups/</loc>
+    <loc>https://frankie7techy.github.io/public/categories/ctf-writeups/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/dns/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/dns/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/exfiltration/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/exfiltration/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/mobile/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/mobile/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/network-forensics/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/network-forensics/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</loc>
+    <loc>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>https://frankie7techy.github.io/public/posts/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/reverse-engineering/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/reverse-engineering/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>https://frankie7techy.github.io/public/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/hackthebox/</loc>
+    <loc>https://frankie7techy.github.io/public/categories/hackthebox/</loc>
     <lastmod>2025-11-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/hackthebox/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/hackthebox/</loc>
     <lastmod>2025-11-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/htb-secretcorp/</loc>
+    <loc>https://frankie7techy.github.io/public/posts/htb-secretcorp/</loc>
     <lastmod>2025-11-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/simple-test/</loc>
+    <loc>https://frankie7techy.github.io/public/posts/simple-test/</loc>
     <lastmod>2025-11-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/web-exploitation/</loc>
+    <loc>https://frankie7techy.github.io/public/tags/web-exploitation/</loc>
     <lastmod>2025-11-03T00:00:00+00:00</lastmod>
   </url>
 </urlset>

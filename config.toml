@@ -1,10 +1,15 @@
-baseURL = "http://localhost:1313/"
-title = "My CTF Blog"
+baseURL = "https://frankie7techy.github.io/public/"
+title = "z3ro :: CTF & Security Research"
 theme = "PaperMod"
 
 [params]
   description = "CTF Writeups and Security Research"
   author = "z3ro"
+  defaultTheme = "dark"
+  ShowReadingTime = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  TocOpen = true
   
 [menu]
   [[menu.main]]

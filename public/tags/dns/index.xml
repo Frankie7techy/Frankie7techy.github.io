@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>DNS on My CTF Blog</title>
-    <link>http://localhost:1313/tags/dns/</link>
-    <description>Recent content in DNS on My CTF Blog</description>
+    <title>DNS on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/dns/</link>
+    <description>Recent content in DNS on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.166.0</generator>
     <language>en</language>
     <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/dns/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://frankie7techy.github.io/public/tags/dns/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
-      <link>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</link>
+      <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/posts/packet-whisperer-dns-exfiltration/</guid>
+      <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
       <description>&lt;h2 id=&#34;challenge-overview&#34;&gt;Challenge Overview&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;Platform:&lt;/strong&gt; AfricaHackon — &lt;em&gt;Packet Whisperer&lt;/em&gt; by p3rf3ctr00t&lt;/li&gt;
