@@ -1,0 +1,95 @@
+/* z3ro portfolio palette for the blog — matches frankie7techy.github.io root index.html */
+
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+:root[data-theme="dark"] {
+    /* palette lifted from the portfolio :root vars */
+    --theme: rgb(10, 10, 10);        /* --bg */
+    --entry: rgb(15, 15, 15);        /* --bg-card */
+    --primary: rgb(0, 255, 65);      /* --green (matrix) */
+    --secondary: rgb(106, 106, 106); /* --text-dim */
+    --tertiary: rgb(26, 26, 26);     /* --border-as-bg */
+    --content: rgb(200, 200, 200);   /* --text */
+    --code-block-bg: rgb(13, 13, 13);
+    --code-bg: rgb(21, 21, 21);
+    --border: rgb(26, 26, 26);       /* --border */
+    color-scheme: dark;
+}
+
+body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+}
+
+code,
+pre,
+.post-content code,
+.post-content pre {
+    font-family: 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* titles hit with the matrix green already via --primary;
+   give body links the portfolio cyan like inline <code> there */
+.post-content a {
+    color: rgb(0, 212, 255); /* --cyan */
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.post-content a:hover {
+    color: rgb(0, 255, 65);
+    text-shadow: 0 0 12px rgba(0, 255, 65, 0.4);
+}
+
+/* quote blocks -> green left rail, card bg */
+.post-content blockquote {
+    border-left: 3px solid rgb(0, 255, 65);
+    background: rgba(15, 15, 15, 0.85);
+    padding: 0.8em 1em;
+}
+
+/* inline code chip like the portfolio's cyan code bits */
+.post-content code:not(pre > code) {
+    color: rgb(0, 212, 255);
+    background: rgba(0, 212, 255, 0.08);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+}
+
+/* code block frame */
+.post-content pre {
+    border: 1px solid rgb(26, 26, 26);
+    border-radius: var(--radius);
+}
+
+/* post cards on lists: bordered entry like portfolio cards */
+.post-entry {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.post-entry:hover {
+    border-color: rgba(0, 255, 65, 0.35);
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.15); /* --glow */
+}
+
+/* tag chips: outlined mono chips */
+.tag,
+.taxonomy .count,
+.post-tags a {
+    font-family: 'Fira Code', monospace;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.5em;
+}
+
+/* toc + single-post accents */
+.toc .inner::before {
+    color: var(--secondary);
+}
+
+/* make the theme toggle/footer icons pick up green on hover */
+.nav a:hover,
+.top-link:hover {
+    color: rgb(0, 255, 65);
+}
