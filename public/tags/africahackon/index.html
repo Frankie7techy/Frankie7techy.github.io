@@ -96,18 +96,32 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">AfricaHackon: Rooted or not? Writeup
+    <h2 class="entry-hint-parent">Dead Reckoning — When the Paperwork Lies, Trust the Physics
     </h2>
   </header>
   <div class="entry-content">
-    <p>🧩 Challenge Overview Name: Rooted or not? Author: LordSudo Difficulty: Easy · Points: 100 Platform: AfricaHackon — “PERFECT ROOT” operation
-A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
-Files: Rooted or not.zip → vaultapp.apk
-🔍 Step 1 — Unpack the APK An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and classes.dex is only 1.6 KB — tiny enough to tear apart by hand.
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Dead Reckoning Author Dr Programmer Category Forensics Difficulty Hard Points 400 Given fdr.bin (1,158 bytes), fdr-spec.txt, aircraft-manual.txt, validator, check “A corrupted flight data recorder log from a SkyTrack-7 avionics unit contains 39 entries mixed with injected ‘ghost’ entries. The aircraft’s true flight path must be reconstructed using dead-reckoning physics. Ghost entries are detectable because they violate aerodynamic constraints.”
+Flag: r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b}
+TL;DR A Cessna 172S flew Nairobi Wilson → Mombasa. Its flight data recorder caught 39 fixes — but a firmware fault (Advisory SA-019, a story the spec really wants you to believe) injected “ghost” entries with plausible timestamps and impossible positions.
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or not? Writeup" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
+  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Dead Reckoning — When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
+Files: Rooted or not.zip → vaultapp.apk
+TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
@@ -116,11 +130,12 @@ Files: Rooted or not.zip → vaultapp.apk
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Platform: AfricaHackon — Packet Whisperer by p3rf3ctr00t Category: Network Forensics | Difficulty: Easy | Points: 100 Given: a single file, chall.pcap Task: “Analyze the provided PCAP and identify the hidden DNS-related flag.” Flag: r00t{1ts_4lw4y5_DNS_r1ght}
-The whole trick: someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Packet Whisperer Author p3rf3ctr00t Category Network Forensics Difficulty Easy Points 100 Given chall.pcap (1,279 packets) “Analyze the provided PCAP and identify the hidden DNS-related flag.”
+Flag: r00t{1ts_4lw4y5_DNS_r1ght}
+TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
   <a class="entry-link" aria-label="post link to Packet Whisperer — The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
 </article>
     </main>

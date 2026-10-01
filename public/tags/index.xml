@@ -4,15 +4,78 @@
     <title>Tags on z3ro :: CTF &amp; Security Research</title>
     <link>https://frankie7techy.github.io/public/tags/</link>
     <description>Recent content in Tags on z3ro :: CTF &amp; Security Research</description>
-    <generator>Hugo -- 0.166.0</generator>
+    <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AfricaHackon</title>
       <link>https://frankie7techy.github.io/public/tags/africahackon/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/africahackon/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Binary Analysis</title>
+      <link>https://frankie7techy.github.io/public/tags/binary-analysis/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/binary-analysis/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CTF</title>
+      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CVE</title>
+      <link>https://frankie7techy.github.io/public/tags/cve/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/cve/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Dead Reckoning</title>
+      <link>https://frankie7techy.github.io/public/tags/dead-reckoning/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/dead-reckoning/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Exploitation</title>
+      <link>https://frankie7techy.github.io/public/tags/exploitation/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/exploitation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Forensics</title>
+      <link>https://frankie7techy.github.io/public/tags/forensics/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/forensics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Fuzzing</title>
+      <link>https://frankie7techy.github.io/public/tags/fuzzing/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/fuzzing/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RCE</title>
+      <link>https://frankie7techy.github.io/public/tags/rce/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/rce/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vulnerability Research</title>
+      <link>https://frankie7techy.github.io/public/tags/vulnerability-research/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/vulnerability-research/</guid>
       <description></description>
     </item>
     <item>
@@ -20,13 +83,6 @@
       <link>https://frankie7techy.github.io/public/tags/android/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/android/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>CTF</title>
-      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
       <description></description>
     </item>
     <item>
