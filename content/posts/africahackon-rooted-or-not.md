@@ -1,18 +1,24 @@
 ---
-title: "AfricaHackon: Rooted or not? Writeup"
+title: "AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything"
 date: 2026-09-23
 draft: false
+description: "Android APK reversing — XOR key recovered, static analysis only. A vault app gates its debug panel behind a root check, but the flag is computed statically. No rooting, no emulator, no Frida needed."
 tags: ["CTF", "AfricaHackon", "Mobile", "Reverse Engineering", "Android"]
 categories: ["CTF Writeups"]
 authors: ["z3ro"]
 ---
 
-## 🧩 Challenge Overview
+## Challenge Overview
 
-**Name:** Rooted or not?
-**Author:** LordSudo
-**Difficulty:** Easy · **Points:** 100
-**Platform:** AfricaHackon — "PERFECT ROOT" operation
+| Field | Value |
+|---|---|
+| **Platform** | AfricaHackon |
+| **Challenge** | Rooted or not? |
+| **Author** | LordSudo |
+| **Category** | Mobile / Reverse Engineering |
+| **Difficulty** | Easy |
+| **Points** | 100 |
+| **Operation** | "PERFECT ROOT" |
 
 > A vault app exposes a debug panel — but the developers claim it's safe since it's gated behind a root check, and *"real users don't root their phones."*
 
@@ -20,15 +26,33 @@ authors: ["z3ro"]
 
 ---
 
-## 🔍 Step 1 — Unpack the APK
+## TL;DR
+
+The app's entire security model is a single `File.exists("/system/bin/su")` check. The flag is computed **statically** via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
+
+**The five moves:**
+1. Unpack the APK (it's just a ZIP)
+2. Strings recon on `classes.dex`
+3. Disassemble the gate with androguard
+4. Extract the ciphertext from `<clinit>`
+5. Replay the XOR crypto offline in Python
+
+---
+
+## Step 1 — Unpack the APK
 
 An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and `classes.dex` is only 1.6 KB — tiny enough to tear apart by hand.
 
 ![Extracting the APK](/public/images/rooted-or-not/step1_extract.png)
 
+```bash
+unzip "Rooted or not.zip"
+unzip vaultapp.apk
+```
+
 ---
 
-## 🧵 Step 2 — Strings Recon
+## Step 2 — Strings Recon
 
 Pulling printable strings out of `classes.dex` immediately reveals the attack surface:
 
@@ -39,7 +63,7 @@ Pulling printable strings out of `classes.dex` immediately reveals the attack su
 
 ---
 
-## 🔬 Step 3 — Disassemble the Gate
+## Step 3 — Disassemble the Gate
 
 Using **androguard** (pure Python — runs fine on Windows where apktool/jadx wanted Java), the flow in `MainActivity.onCreate()` is clear:
 
@@ -55,7 +79,7 @@ If the device is **not** rooted, the app just calls `unlockDebugFlag()` and prin
 
 ---
 
-## ⚙️ Step 4 — The Whole "Protection"
+## Step 4 — The Whole "Protection"
 
 `RootCheck.java` is the entire security model:
 
@@ -76,7 +100,7 @@ A single `File.exists()` check, and a deterministic XOR with a key anyone can re
 
 ---
 
-## 🗝️ Step 5 — Grab the Ciphertext
+## Step 5 — Grab the Ciphertext
 
 The static initializer (`<clinit>`) fills `ENCODED_FLAG` with a 40-byte payload via `fill-array-data`:
 
@@ -90,7 +114,7 @@ b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b
 
 ---
 
-## 🏁 Step 6 — Replay the Crypto Offline
+## Step 6 — Replay the Crypto Offline
 
 Since decryption is just `flag[i] = enc[i] ^ ((90 + 7*i) & 0xff)`, we can reproduce it in a Python one-liner — no rooted phone, no emulator, no Frida needed.
 
@@ -109,7 +133,7 @@ print(bytes(a ^ b for a, b in zip(enc, key)).decode())
 
 ---
 
-## 🚩 Flag
+## Flag
 
 ```
 r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck}
@@ -117,8 +141,52 @@ r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck}
 
 ---
 
-## 🧾 Lessons Learned
+## Lessons Learned
 
 - **A root check is not a vault.** Gating decryption keys behind runtime device state is meaningless when the ciphertext, key formula, and decrypt routine all ship in the APK.
 - **Static analysis beats dynamic bypasses.** Before reaching for Frida/Magisk hide, check if the secret is computed deterministically — replaying it offline takes seconds.
 - **Small DEX = fast wins.** Even without apktool/jadx, system Python (`zipfile` + `re`) gets you 80% of the way; androguard covers the rest with no Java dependency.
+
+---
+
+## The Full Script
+
+```python
+#!/usr/bin/env python3
+"""Rooted or not? — offline flag decoder. No rooting required."""
+
+import zipfile
+import re
+
+def extract_flag(apk_path):
+    """Extract and decode the flag from the vault app APK."""
+    with zipfile.ZipFile(apk_path) as zf:
+        dex = zf.read('classes.dex')
+
+    # Find the ENCODED_FLAG bytes in the DEX
+    # Pattern: fill-array-data with 40 bytes
+    pattern = re.compile(
+        b'[\x28\x51\x58\x1b\x0d\x0e\xf0\xbf\xe6\xa8\xc3\xf8\x9a\xdb\x88\xaf'
+        b'\xb3\xa2\xe9\xac\xb9\x8f\x8d\x8b\x36\x7a\x63\x24\x6d\x7a\x58\x5b'
+        b'\x09\x1e\x2b\x27\x65\x3e\x0f\x16]'
+    )
+
+    # The XOR key: seed=90, step=7
+    key = bytes(((90 + 7 * i) & 0xff) for i in range(40))
+
+    # Find the ciphertext in the DEX
+    match = pattern.search(dex)
+    if match:
+        enc = match.group()
+        flag = bytes(a ^ b for a, b in zip(enc, key))
+        return flag.decode('ascii', errors='ignore')
+    return None
+
+if __name__ == '__main__':
+    flag = extract_flag('vaultapp.apk')
+    print(f"Flag: {flag}")
+```
+
+---
+
+*— Frank Ngaruiya (@z3r0bme)*
