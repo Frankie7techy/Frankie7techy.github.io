@@ -93,3 +93,310 @@ pre,
 .top-link:hover {
     color: rgb(0, 255, 65);
 }
+
+/* ============================================================
+   POST DESIGN — flat CSS on purpose.
+   PaperMod concats css/extended/*.css and Minifies; it does not
+   run Sass on this path, so nesting here would break the bundle.
+   ============================================================ */
+
+:root {
+    --z3ro-cyan: rgb(0, 212, 255);
+    --z3ro-green: rgb(0, 255, 65);
+    --z3ro-dim: rgb(140, 140, 140);
+    --z3ro-card: rgba(15, 15, 15, 0.9);
+    --z3ro-line: rgba(0, 255, 65, 0.22);
+    --z3ro-mono: 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+}
+
+/* ---- headings: number-styled section markers ---- */
+.post-content h2 {
+    font-family: var(--z3ro-mono);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--z3ro-cyan);
+    margin: 2.6rem 0 1rem;
+    padding: 0 0 0.55rem 0.85rem;
+    border-left: 3px solid var(--z3ro-green);
+    border-bottom: 1px solid var(--z3ro-line);
+}
+
+.post-content h3 {
+    font-family: var(--z3ro-mono);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--z3ro-green);
+    margin: 2rem 0 0.75rem;
+}
+
+.post-content h4 {
+    font-family: var(--z3ro-mono);
+    font-size: 1rem;
+    color: var(--z3ro-dim);
+    margin: 1.5rem 0 0.6rem;
+}
+
+/* anchored-heading anchor links (PaperMod injects these) */
+.post-content h2 .anchor,
+.post-content h3 .anchor,
+.post-content h4 .anchor {
+    color: var(--z3ro-line);
+    opacity: 0;
+    transition: opacity 0.15s ease-in-out;
+}
+
+.post-content h2:hover .anchor,
+.post-content h3:hover .anchor,
+.post-content h4:hover .anchor {
+    opacity: 1;
+}
+
+/* ---- body text: readable measure + colour ---- */
+.post-content {
+    color: var(--content);
+}
+
+.post-content > p,
+.post-content > li {
+    line-height: 1.75;
+    letter-spacing: 0.005em;
+}
+
+.post-content > p {
+    margin: 1rem 0;
+}
+
+.post-content strong {
+    color: rgb(235, 235, 235);
+    font-weight: 600;
+}
+
+.post-content ul,
+.post-content ol {
+    padding-left: 1.4rem;
+}
+
+.post-content li {
+    margin: 0.4rem 0;
+}
+
+.post-content li::marker {
+    color: var(--z3ro-green);
+}
+
+/* ---- tables: the data-dense CVE/target grids ---- */
+.post-content table {
+    display: table;
+    width: 100%;
+    margin: 1.75rem 0;
+    border-collapse: collapse;
+    border: 1px solid var(--z3ro-line);
+    border-radius: 6px;
+    overflow: hidden;
+    font-size: 0.92rem;
+}
+
+.post-content table th {
+    background: rgba(0, 255, 65, 0.07);
+    color: var(--z3ro-green);
+    font-family: var(--z3ro-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--z3ro-line);
+    white-space: nowrap;
+}
+
+.post-content table td {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.9);
+    vertical-align: top;
+}
+
+.post-content table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.post-content table tbody tr:hover {
+    background: rgba(0, 255, 65, 0.04);
+}
+
+/* ---- code blocks: terminal frame with a title bar ---- */
+.post-content .highlight {
+    position: relative;
+    margin: 1.75rem 0;
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0a0a0a;
+}
+
+.post-content .highlight::before {
+    content: '';
+    display: block;
+    height: 26px;
+    background:
+        radial-gradient(circle at 13px 13px, #ff5f56 0 4px, transparent 4px),
+        radial-gradient(circle at 27px 13px, #ffbd2e 0 4px, transparent 4px),
+        radial-gradient(circle at 41px 13px, #27c93f 0 4px, transparent 4px),
+        rgba(0, 255, 65, 0.05);
+    border-bottom: 1px solid var(--z3ro-line);
+}
+
+.post-content pre {
+    margin: 0;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    border: none;
+    border-radius: 0;
+    background: #0a0a0a;
+    font-size: 0.85rem;
+    line-height: 1.65;
+}
+
+.post-content pre code {
+    background: none;
+    padding: 0;
+    color: rgb(200, 200, 200);
+    font-size: inherit;
+}
+
+/* ---- blockquotes: the TL;DR / big-statement blocks ---- */
+.post-content blockquote {
+    position: relative;
+    margin: 1.75rem 0;
+    padding: 1rem 1.2rem;
+    background: var(--z3ro-card);
+    border: 1px solid var(--z3ro-line);
+    border-left: 3px solid var(--z3ro-green);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.97rem;
+}
+
+.post-content blockquote p {
+    margin: 0.35rem 0;
+}
+
+.post-content blockquote strong {
+    color: var(--z3ro-cyan);
+}
+
+/* ---- rules: green->cyan fade instead of a flat grey line ---- */
+.post-content hr {
+    height: 1px;
+    margin: 2.75rem 0;
+    border: none;
+    background: linear-gradient(90deg, var(--z3ro-green), var(--z3ro-cyan) 35%, transparent 80%);
+}
+
+/* ---- images ---- */
+.post-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.75rem auto;
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+}
+
+/* ---- em dashes in prose ---- */
+.post-content em {
+    color: var(--z3ro-dim);
+}
+
+/* ============================================================
+   LIST PAGE
+   ============================================================ */
+
+.posts-list .post-entry {
+    margin-bottom: 1.25rem;
+    padding: 1.25rem 1.4rem;
+    background: var(--z3ro-card);
+}
+
+.posts-list .post-entry .entry-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.posts-list .post-entry .post-meta {
+    font-family: var(--z3ro-mono);
+    font-size: 0.78rem;
+    color: var(--z3ro-dim);
+}
+
+.posts-list .post-entry .entry-content {
+    margin-top: 0.6rem;
+    color: var(--z3ro-dim);
+    font-size: 0.92rem;
+}
+
+/* ============================================================
+   TOC / TAG CHIPS
+   ============================================================ */
+
+.toc {
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+    background: var(--z3ro-card);
+}
+
+.toc .inner {
+    padding: 0.9rem 1.1rem;
+}
+
+.toc a {
+    font-family: var(--z3ro-mono);
+    font-size: 0.82rem;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+}
+
+.post-tags a {
+    display: inline-block;
+    padding: 0.2em 0.65em;
+    font-size: 0.78rem;
+    color: var(--z3ro-cyan);
+    border: 1px solid var(--z3ro-line);
+    border-radius: 4px;
+    background: rgba(0, 212, 255, 0.06);
+    text-decoration: none;
+}
+
+.post-tags a:hover {
+    color: #0a0a0a;
+    background: var(--z3ro-cyan);
+    border-color: var(--z3ro-cyan);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .post-content h2 {
+        font-size: 1.2rem;
+        margin-top: 2rem;
+    }
+
+    .post-content table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .post-content pre {
+        font-size: 0.78rem;
+        padding: 0.85rem;
+    }
+}
