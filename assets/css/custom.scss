@@ -1,47 +1,400 @@
----
----
+/* Z3r0.sec Custom Blog Styles — Hugo PaperMod Override */
 
-// Custom forensic-themed styles
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Courier New', monospace;
+/* ============================================
+   POST PAGE DESIGN
+   ============================================ */
+
+.post-single {
+    /* Terminal-inspired code blocks */
+    pre {
+        background: #0d1117 !important;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        position: relative;
+        margin: 1.5rem 0;
+
+        code {
+            color: #c9d1d9;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+    }
+
+    /* Inline code */
+    code {
+        background: #161b22;
+        color: #7ee787;
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-family: 'Fira Code', 'JetBrains Mono', monospace;
+        font-size: 0.85em;
+    }
+
+    /* Styled headings */
+    h2 {
+        color: #58a6ff;
+        border-bottom: 2px solid #21262d;
+        padding-bottom: 0.5rem;
+        margin-top: 2.5rem;
+        font-weight: 700;
+    }
+
+    h3 {
+        color: #7ee787;
+        margin-top: 2rem;
+        font-weight: 600;
+    }
+
+    /* Flag styling */
+    p:has(> code:first-child:last-child) {
+        code {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 0.6rem 1rem;
+            display: inline-block;
+            color: #f0f6fc;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+    }
+
+    /* Tables */
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1.5rem 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #30363d;
+
+        th {
+            background: #161b22;
+            color: #58a6ff;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 2px solid #30363d;
+        }
+
+        td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+        }
+
+        tr:hover td {
+            background: #161b22;
+        }
+    }
+
+    /* Blockquotes — callout style */
+    blockquote {
+        border-left: 4px solid #58a6ff;
+        background: #0d1117;
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 0 8px 8px 0;
+        color: #8b949e;
+
+        p {
+            margin: 0.5rem 0;
+        }
+    }
+
+    /* Lists */
+    ul, ol {
+        li {
+            margin: 0.4rem 0;
+            color: #c9d1d9;
+
+            &::marker {
+                color: #58a6ff;
+            }
+        }
+    }
+
+    /* Strong emphasis */
+    strong {
+        color: #f0f6fc;
+        font-weight: 700;
+    }
+
+    /* Horizontal rules */
+    hr {
+        border: none;
+        height: 2px;
+        background: linear-gradient(90deg, #58a6ff, #7ee787, transparent);
+        margin: 2.5rem 0;
+        border-radius: 1px;
+    }
+
+    /* Images */
+    img {
+        border-radius: 8px;
+        border: 1px solid #30363d;
+        max-width: 100%;
+        margin: 1.5rem auto;
+        display: block;
+    }
+
+    /* Links */
+    a {
+        color: #58a6ff;
+        text-decoration: none;
+        border-bottom: 1px dashed #58a6ff;
+        transition: all 0.2s ease;
+
+        &:hover {
+            color: #7ee787;
+            border-bottom-color: #7ee787;
+        }
+    }
 }
 
-.forensic-alert {
-    border-left: 4px solid #c0392b;
-    padding: 1rem;
-    background: #2c3e50;
-    margin: 1rem 0;
-    color: #ecf0f1;
-}
+/* ============================================
+   POST LIST CARDS
+   ============================================ */
 
-.case-study {
-    background: #34495e;
+.post-entry {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 12px;
     padding: 1.5rem;
-    border-radius: 5px;
-    border: 1px solid #7f8c8d;
-    margin: 1rem 0;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: #58a6ff;
+        box-shadow: 0 0 20px rgba(88, 166, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .entry-title {
+        color: #58a6ff;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+
+        a {
+            color: inherit;
+            border: none;
+
+            &:hover {
+                color: #7ee787;
+            }
+        }
+    }
+
+    .entry-content {
+        color: #8b949e;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .entry-meta {
+        color: #484f58;
+        font-size: 0.8rem;
+        margin-top: 0.75rem;
+    }
 }
 
-.post-meta {
-    color: #95a5a6;
-    font-size: 0.9em;
+/* ============================================
+   TERMINAL WINDOWS
+   ============================================ */
+
+.terminal {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+
+    .terminal-header {
+        background: #161b22;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid #30363d;
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+
+            &.red { background: #ff5f56; }
+            &.yellow { background: #ffbd2e; }
+            &.green { background: #27c93f; }
+        }
+
+        .terminal-title {
+            color: #484f58;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+            font-family: 'Fira Code', monospace;
+        }
+    }
+
+    .terminal-body {
+        padding: 1rem;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.85rem;
+        color: #c9d1d9;
+        line-height: 1.6;
+
+        .prompt {
+            color: #7ee787;
+        }
+
+        .command {
+            color: #58a6ff;
+        }
+
+        .output {
+            color: #8b949e;
+        }
+
+        .success {
+            color: #27c93f;
+        }
+    }
 }
 
-nav {
-    margin: 2rem 0;
-    padding: 1rem 0;
-    border-top: 1px solid #34495e;
-    border-bottom: 1px solid #34495e;
+/* ============================================
+   CALLOUT BOXES
+   ============================================ */
+
+.callout {
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid;
+    background: #0d1117;
+
+    &.info {
+        border-color: #58a6ff;
+        strong { color: #58a6ff; }
+    }
+
+    &.warning {
+        border-color: #ffbd2e;
+        strong { color: #ffbd2e; }
+    }
+
+    &.danger {
+        border-color: #ff5f56;
+        strong { color: #ff5f56; }
+    }
+
+    &.success {
+        border-color: #27c93f;
+        strong { color: #27c93f; }
+    }
 }
 
-nav a {
-    margin-right: 1rem;
-    text-decoration: none;
+/* ============================================
+   TAG PILLS
+   ============================================ */
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    .tag {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 20px;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        color: #58a6ff;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: #58a6ff;
+            color: #0d1117;
+            border-color: #58a6ff;
+        }
+    }
 }
 
-nav a:hover {
-    text-decoration: underline;
+/* ============================================
+   TABLE OF CONTENTS
+   ============================================ */
+
+.toc {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+
+    .toc-title {
+        color: #58a6ff;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            margin: 0.25rem 0;
+
+            a {
+                color: #8b949e;
+                border: none;
+                transition: color 0.2s ease;
+
+                &:hover {
+                    color: #58a6ff;
+                }
+            }
+        }
+    }
+}
+
+/* ============================================
+   SCREENSHOT ANIMATIONS
+   ============================================ */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.post-single {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .post-single {
+        pre {
+            font-size: 0.75rem;
+            padding: 1rem;
+        }
+
+        table {
+            font-size: 0.8rem;
+
+            th, td {
+                padding: 0.4rem 0.5rem;
+            }
+        }
+    }
+
+    .terminal .terminal-body {
+        font-size: 0.75rem;
+    }
 }
