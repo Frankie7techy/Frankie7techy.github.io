@@ -1,18 +1,30 @@
-name: Build and Deploy Hugo to GitHub Pages
+name: Build site and publish to public/
 
+# Pages for this repo is configured to deploy from a branch, not from
+# GitHub Actions, so `actions/deploy-pages` cannot be used. GitHub's own
+# "pages build and deployment" job publishes whatever is committed under
+# the published directory. So CI builds Hugo and commits the result to
+# main, and Pages picks it up from there.
 on:
   push:
     branches: [main]
+    paths:
+      - "content/**"
+      - "assets/**"
+      - "layouts/**"
+      - "static/**"
+      - "config.toml"
+      - "themes/PaperMod"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
+# Never let this workflow retrigger itself when it commits public/.
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: build-site
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -23,28 +35,28 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - uses: actions/configure-pages@v5
-
       - name: Install Hugo (extended)
         run: |
-          wget -q https://github.com/gohugoio/hugo/releases/download/v0.167.0/hugo_extended_0.167.0_linux-amd64.tar.gz
-          tar -xzf hugo_extended_0.167.0_linux-amd64.tar.gz hugo
-          sudo mv hugo /usr/local/bin/hugo
-          hugo version
+          curl -sSL -o hugo.deb \
+            https://github.com/gohugoio/hugo/releases/download/v0.167.0/hugo_extended_0.167.0_linux-amd64.deb
+          sudo dpkg -i hugo.deb
 
+      # No --minify here. Minification leaves newlines in the bundle, and
+      # Hugo signs the exact output bytes with an SRI integrity hash. If
+      # anything later rewrites those line endings, the browser rejects
+      # the stylesheet and the whole site renders unstyled. This keeps the
+      # integrity hash and the served bytes provably identical.
       - name: Build
-        run: hugo --gc --minify --baseURL "${{ steps.pages.outputs.base_url }}/"
+        run: hugo --gc --destination public
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./public
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit rebuilt site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all public
+          if git diff --staged --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "build: regenerate public/ [skip ci]"
+          git push origin HEAD:main
