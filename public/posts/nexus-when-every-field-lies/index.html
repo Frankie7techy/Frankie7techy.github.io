@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Nexus — When Every Field Lies, Trust the Scorer | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Reverse Engineering, Binary Analysis, Crypto">
+<meta name="description" content="A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.d884abd64967d1cfa6f4ba092eb90983000ae66198f81c43b6db65f729195e4c.css" integrity="sha256-2ISr1kln0c&#43;m9LoJLrkJgwAK5mGY&#43;BxDtttl9ykZXkw=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Nexus — When Every Field Lies, Trust the Scorer">
+  <meta property="og:description" content="A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-01T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-01T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Binary Analysis">
+    <meta property="article:tag" content="Crypto">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nexus — When Every Field Lies, Trust the Scorer">
+<meta name="twitter:description" content="A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Nexus — When Every Field Lies, Trust the Scorer",
+      "item": "https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Nexus — When Every Field Lies, Trust the Scorer",
+  "name": "Nexus — When Every Field Lies, Trust the Scorer",
+  "description": "A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.",
+  "keywords": [
+    "CTF", "Reverse Engineering", "Binary Analysis", "Crypto"
+  ],
+  "articleBody": "Challenge Overview Field Value Platform AfricaHackon Challenge Nexus Author Dr Programmer Category Reverse Engineering Difficulty Hard Points 400 Given 02_NEXUS.zip → check, validator, nexus.bin “A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes — but the binary contains a 72-byte ‘decoy header’ declaring a different block order (01234567), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a hash_chain_init field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.”\nTL;DR The description reads like a spec for a hash-chain processor. It’s actually a misdirection engine with a sense of humor. The intended path — extract the true init state, derive the block order from its nibbles, run the custom hash chain, XOR-decrypt the ciphertext — has a fatal flaw: the custom hash chain is specified nowhere. Not in the binaries (neither one even opens the file), not in the data. The one thing the intended path requires is the one thing the challenge never gives you.\nMeanwhile exactly one sentence in the whole challenge tells the truth, and it’s printed by the decoy tool: “Submit to ./check for official scoring.” So check is the real scorer — and its “protection” is a 4-byte repeating XOR with a key sitting in plain sight in .rodata. Reversing that loop recovers the flag statically. No chain required.\nThe five moves:\nUnpack the zip and map nexus.bin’s decoy anatomy Burn an evening proving every labeled field is a lie (including the chain itself) Disassemble the scorer’s decode loop Dodge the decoy gauntlet — the validator blesses a fake literally labeled DECOY Recover the flag from .rodata and feed the real scorer Step 1 — Unpack and Smell the Story Three files: two tiny ELFs and a 688-byte data file. The header of nexus.bin sets the tone before you’ve parsed a single field:\nNEXS | 01234567 | NEXUS v1.0 hash chain processor A magic value, a “declared block order,” a version string. The description already told me this header is a decoy — it declares the order 01234567 while the real order supposedly comes from nibble-decomposition of the initial state. When a binary structure announces itself this confidently, my suspicion gland starts tingling. This is the same challenge family as Dead Reckoning, and the house style is consistent: the documentation sells you a method; the method is the trap.\nStep 2 — The Field Anatomy (Every Label Is a Lie) Per the description, the layout is: a 72-byte decoy header, a 64-byte scrambled state, a 32-byte hash_chain_init field, 8 data blocks, and a ciphertext. The arithmetic fits perfectly — 72 + 64 + 32 + 256 + 264 = 688 bytes exactly. A tidy file. A tidy lie.\nHere’s the part that cost me an evening. I took the intended path seriously:\nEvery 32-byte window in the file (all 656 of them) as the true init state Seven order derivations — first-occurrence nibble dedupe, high/low nibbles, argsort, the first 8 nibbles raw, the full 64-nibble sequence Seventeen chain constructions — SHA256 chains (state‖block, block‖state, index-mixed), rotate-XOR, add/sub mixes, hash-state-XOR-block, CBC-style chaining over the ciphertext itself Eight keystream expansions — final state repeated, init repeated, SHA256 expansion, intermediate states concatenated, per-chunk mapping Somewhere north of five million combinations. Result: zero printable plaintext, zero flag fragments, no repeating-XOR periodicity anywhere in the file, no hash relationships between regions. The chain that would make the intended path work simply is not in the files.\nAnd that’s the trap within the trap. The description says “execute a custom hash chain” — and never defines it. The intended path isn’t just guarded by decoys; it’s unwalkable by design. Every labeled field lies, and the one instruction that matters has no label at all.\nStep 3 — The One Honest Sentence The validator greets a candidate with a warm VALID and prints: “Submit to ./check for official scoring.”\nThat sentence is the only truth in the entire challenge — and it’s printed by the decoy. I love that. The misdirection tool is honest about where the real scorer lives, because knowing where to submit is worthless if you can’t produce the string. The challenge doesn’t hide the door; it hides the key.\nSo: check is the real scorer. Let’s read what it actually does.\nStep 4 — Disassembling the Scorer check is a ~14 KB ELF that reads a line from stdin, strips the newline, builds an expected string, and strcmps your input against it. The build is the whole game:\n1247: and $0x3,%ecx # i \u0026 3 124a: movzbl (%rdi,%rcx,1),%ecx # key[i \u0026 3] \u003c- rdi = .rodata+0x20 124e: xor (%rsi,%rax,1),%cl # ^= data[i] \u003c- rsi = .rodata+0x40 1255: mov %cl,-0x1(%rdx) # expected[i] Plus one instruction before the loop hardcoding expected[0] = 0x72 — the leading r. From the section dump:\nKey: 8c 2b 97 59 at .rodata+0x20 Payload: 36 bytes at .rodata+0x40 That’s the entire “protection”: expected[i] = key[i \u0026 3] ^ data[i], a 4-byte repeating XOR whose key ships inside the binary. The section header table will happily walk you straight to it — no symbol names, no labels, no help. The challenge’s own philosophy, applied to itself: the scorer has no labels either.\nStep 5 — The Decoy Gauntlet The validator deserves its own paragraph. It blesses exactly one string:\nr00t{n3xus_DECOY_40187c7d04ac816824f4d81f} A decoy that literally self-identifies — but only after you’ve fed it through, watched it print VALID, marched it over to check, and been told WRONG. Its XOR key is de c0 ad be — “deadcode,” a decoy field inside a decoy tool. The gauntlet rounds out to three planted wrong answers (the header’s order, the scrambled state, the validator’s blessing) and one real scorer.\nStep 6 — The Flag r00t{n3xus_a5f383c453ce4d7ad21f7d6d} CORRECT per the official scorer. The description promised that every shortcut and labeled field would be wrong — it went 4 for 4, and then the checker went the other way.\nWhy You Should Care at 2 AM (Defender Notes) A description is not a spec. “Execute a custom hash chain” is not an algorithm — it’s a wish. If your security design depends on a step that’s never defined, you haven’t built protection; you’ve built a story about protection. In real systems this is the undocumented KDF whose parameters live in a header comment, or the “proprietary encryption” with no reference implementation.\nVerify the verifier. Two scorers with two different truths is a supply-chain story in miniature. The validator blessed a string with total confidence — and total wrongness. If you don’t know where your verification logic’s truth comes from, you’re just running someone else’s bug with better UX.\nEvery labeled field is an attack surface. A declared block order, a “scrambled” state, a hash_chain_init field — each one exists to steer an analyst. Real formats have the same problem: any field an attacker can read, they can also misread on purpose if the format’s documentation emphasizes the wrong things.\nThe best traps aren’t broken — they’re under-specified. Nothing in this challenge was corrupted or malformed. The misdirection lived entirely in what the description emphasized versus what the files actually contained. That’s also what good incident response looks like: trust artifacts over narratives.\nOne custom hash chain that doesn’t exist is a red herring. A custom hash chain that doesn’t exist plus a decoy tool vouching for the wrong answer — that’s a Tuesday.\nThe Full Solver #!/usr/bin/env python3 \"\"\"Nexus — offline flag recovery from the official scorer's embedded rodata. Every labeled field in nexus.bin is a decoy. The only thing that tells the truth is `check` — the official scorer. It XOR-decodes its expected answer with a 4-byte key hidden in .rodata, so we can recover the flag statically. \"\"\" import struct import sys def find_section(elf, wanted): \"\"\"Walk the section header table and return (offset, size) of a section.\"\"\" e_shoff, = struct.unpack_from('",
+  "wordCount" : "1668",
+  "inLanguage": "en",
+  "datePublished": "2026-10-01T00:00:00Z",
+  "dateModified": "2026-10-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Nexus — When Every Field Lies, Trust the Scorer
+    </h1>
+    <div class="post-description">
+      A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.
+    </div>
+    <div class="post-meta"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#challenge-overview" aria-label="Challenge Overview">Challenge Overview</a></li>
+                <li>
+                    <a href="#tldr" aria-label="TL;DR">TL;DR</a></li>
+                <li>
+                    <a href="#step-1--unpack-and-smell-the-story" aria-label="Step 1 — Unpack and Smell the Story">Step 1 — Unpack and Smell the Story</a></li>
+                <li>
+                    <a href="#step-2--the-field-anatomy-every-label-is-a-lie" aria-label="Step 2 — The Field Anatomy (Every Label Is a Lie)">Step 2 — The Field Anatomy (Every Label Is a Lie)</a></li>
+                <li>
+                    <a href="#step-3--the-one-honest-sentence" aria-label="Step 3 — The One Honest Sentence">Step 3 — The One Honest Sentence</a></li>
+                <li>
+                    <a href="#step-4--disassembling-the-scorer" aria-label="Step 4 — Disassembling the Scorer">Step 4 — Disassembling the Scorer</a></li>
+                <li>
+                    <a href="#step-5--the-decoy-gauntlet" aria-label="Step 5 — The Decoy Gauntlet">Step 5 — The Decoy Gauntlet</a></li>
+                <li>
+                    <a href="#step-6--the-flag" aria-label="Step 6 — The Flag">Step 6 — The Flag</a></li>
+                <li>
+                    <a href="#why-you-should-care-at-2-am-defender-notes" aria-label="Why You Should Care at 2 AM (Defender Notes)">Why You Should Care at 2 AM (Defender Notes)</a></li>
+                <li>
+                    <a href="#the-full-solver" aria-label="The Full Solver">The Full Solver</a></li>
+                <li>
+                    <a href="#recap--five-moves" aria-label="Recap — Five Moves">Recap — Five Moves</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="challenge-overview">Challenge Overview<a hidden class="anchor" aria-hidden="true" href="#challenge-overview">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>Field</th>
+					<th>Value</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>Platform</strong></td>
+					<td>AfricaHackon</td>
+			</tr>
+			<tr>
+					<td><strong>Challenge</strong></td>
+					<td>Nexus</td>
+			</tr>
+			<tr>
+					<td><strong>Author</strong></td>
+					<td>Dr Programmer</td>
+			</tr>
+			<tr>
+					<td><strong>Category</strong></td>
+					<td>Reverse Engineering</td>
+			</tr>
+			<tr>
+					<td><strong>Difficulty</strong></td>
+					<td>Hard</td>
+			</tr>
+			<tr>
+					<td><strong>Points</strong></td>
+					<td>400</td>
+			</tr>
+			<tr>
+					<td><strong>Given</strong></td>
+					<td><code>02_NEXUS.zip</code> → <code>check</code>, <code>validator</code>, <code>nexus.bin</code></td>
+			</tr>
+	</tbody>
+</table>
+<blockquote>
+<p><em>&ldquo;A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes — but the binary contains a 72-byte &lsquo;decoy header&rsquo; declaring a different block order (<code>01234567</code>), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a <code>hash_chain_init</code> field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.&rdquo;</em></p>
+</blockquote>
+<hr>
+<h2 id="tldr">TL;DR<a hidden class="anchor" aria-hidden="true" href="#tldr">#</a></h2>
+<p>The description reads like a spec for a hash-chain processor. It&rsquo;s actually a misdirection engine with a sense of humor. The intended path — extract the true init state, derive the block order from its nibbles, run the custom hash chain, XOR-decrypt the ciphertext — has a fatal flaw: <strong>the custom hash chain is specified nowhere.</strong> Not in the binaries (neither one even opens the file), not in the data. The one thing the intended path requires is the one thing the challenge never gives you.</p>
+<p>Meanwhile exactly one sentence in the whole challenge tells the truth, and it&rsquo;s printed by the decoy tool: <em>&ldquo;Submit to ./check for official scoring.&rdquo;</em> So <code>check</code> is the real scorer — and its &ldquo;protection&rdquo; is a 4-byte repeating XOR with a key sitting in plain sight in <code>.rodata</code>. Reversing that loop recovers the flag statically. No chain required.</p>
+<p><strong>The five moves:</strong></p>
+<ol>
+<li>Unpack the zip and map <code>nexus.bin</code>&rsquo;s decoy anatomy</li>
+<li>Burn an evening proving every labeled field is a lie (including the chain itself)</li>
+<li>Disassemble the scorer&rsquo;s decode loop</li>
+<li>Dodge the decoy gauntlet — the validator blesses a fake literally labeled <code>DECOY</code></li>
+<li>Recover the flag from <code>.rodata</code> and feed the real scorer</li>
+</ol>
+<hr>
+<h2 id="step-1--unpack-and-smell-the-story">Step 1 — Unpack and Smell the Story<a hidden class="anchor" aria-hidden="true" href="#step-1--unpack-and-smell-the-story">#</a></h2>
+<p><img alt="Extracting the challenge files and the decoy header" loading="lazy" src="/public/images/nexus/01_challenge_files.png"></p>
+<p>Three files: two tiny ELFs and a 688-byte data file. The header of <code>nexus.bin</code> sets the tone before you&rsquo;ve parsed a single field:</p>
+<pre tabindex="0"><code>NEXS | 01234567 | NEXUS v1.0 hash chain processor
+</code></pre><p>A magic value, a &ldquo;declared block order,&rdquo; a version string. The description already told me this header is a decoy — it declares the order <code>01234567</code> while the <em>real</em> order supposedly comes from nibble-decomposition of the initial state. When a binary structure announces itself this confidently, my suspicion gland starts tingling. This is the same challenge family as <a href="/public/posts/dead-reckoning-when-the-paperwork-lies/">Dead Reckoning</a>, and the house style is consistent: <em>the documentation sells you a method; the method is the trap.</em></p>
+<hr>
+<h2 id="step-2--the-field-anatomy-every-label-is-a-lie">Step 2 — The Field Anatomy (Every Label Is a Lie)<a hidden class="anchor" aria-hidden="true" href="#step-2--the-field-anatomy-every-label-is-a-lie">#</a></h2>
+<p><img alt="The field map of nexus.bin" loading="lazy" src="/public/images/nexus/02_bin_anatomy.png"></p>
+<p>Per the description, the layout is: a 72-byte decoy header, a 64-byte scrambled state, a 32-byte <code>hash_chain_init</code> field, 8 data blocks, and a ciphertext. The arithmetic fits perfectly — 72 + 64 + 32 + 256 + 264 = 688 bytes exactly. A tidy file. A tidy lie.</p>
+<p>Here&rsquo;s the part that cost me an evening. I took the intended path seriously:</p>
+<ul>
+<li><strong>Every 32-byte window</strong> in the file (all 656 of them) as the true init state</li>
+<li><strong>Seven order derivations</strong> — first-occurrence nibble dedupe, high/low nibbles, argsort, the first 8 nibbles raw, the full 64-nibble sequence</li>
+<li><strong>Seventeen chain constructions</strong> — SHA256 chains (<code>state‖block</code>, <code>block‖state</code>, index-mixed), rotate-XOR, add/sub mixes, hash-state-XOR-block, CBC-style chaining over the ciphertext itself</li>
+<li><strong>Eight keystream expansions</strong> — final state repeated, init repeated, SHA256 expansion, intermediate states concatenated, per-chunk mapping</li>
+</ul>
+<p>Somewhere north of <strong>five million combinations</strong>. Result: zero printable plaintext, zero flag fragments, no repeating-XOR periodicity anywhere in the file, no hash relationships between regions. The chain that would make the intended path work simply is not in the files.</p>
+<p>And that&rsquo;s the trap within the trap. The description says <em>&ldquo;execute a custom hash chain&rdquo;</em> — and never defines it. The intended path isn&rsquo;t just guarded by decoys; it&rsquo;s <strong>unwalkable by design</strong>. Every labeled field lies, and the one instruction that matters has no label at all.</p>
+<hr>
+<h2 id="step-3--the-one-honest-sentence">Step 3 — The One Honest Sentence<a hidden class="anchor" aria-hidden="true" href="#step-3--the-one-honest-sentence">#</a></h2>
+<p>The <code>validator</code> greets a candidate with a warm <strong>VALID</strong> and prints: <em>&ldquo;Submit to ./check for official scoring.&rdquo;</em></p>
+<p>That sentence is the only truth in the entire challenge — and it&rsquo;s printed by the decoy. I love that. The misdirection tool is honest about where the real scorer lives, because knowing <em>where</em> to submit is worthless if you can&rsquo;t produce the string. The challenge doesn&rsquo;t hide the door; it hides the key.</p>
+<p>So: <code>check</code> is the real scorer. Let&rsquo;s read what it actually does.</p>
+<hr>
+<h2 id="step-4--disassembling-the-scorer">Step 4 — Disassembling the Scorer<a hidden class="anchor" aria-hidden="true" href="#step-4--disassembling-the-scorer">#</a></h2>
+<p><img alt="The XOR decode loop inside check" loading="lazy" src="/public/images/nexus/03_check_disasm.png"></p>
+<p><code>check</code> is a ~14 KB ELF that reads a line from stdin, strips the newline, builds an expected string, and <code>strcmp</code>s your input against it. The build is the whole game:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-asm" data-lang="asm"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">1247:</span> <span style="color:#a6e22e">and</span>  <span style="color:#66d9ef">$0x3</span>,%ecx              <span style="color:#75715e"># i &amp; 3
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">124</span>a: <span style="color:#a6e22e">movzbl</span> (%rdi,%rcx,<span style="color:#ae81ff">1</span>),%ecx   <span style="color:#75715e"># key[i &amp; 3]   &lt;- rdi = .rodata+0x20
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">124</span>e: <span style="color:#a6e22e">xor</span>  (%rsi,%rax,<span style="color:#ae81ff">1</span>),%cl      <span style="color:#75715e"># ^= data[i]   &lt;- rsi = .rodata+0x40
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">1255:</span> <span style="color:#a6e22e">mov</span>  %cl,-<span style="color:#ae81ff">0x1</span>(%rdx)         <span style="color:#75715e"># expected[i]
+</span></span></span></code></pre></div><p>Plus one instruction before the loop hardcoding <code>expected[0] = 0x72</code> — the leading <code>r</code>. From the section dump:</p>
+<ul>
+<li><strong>Key:</strong> <code>8c 2b 97 59</code> at <code>.rodata+0x20</code></li>
+<li><strong>Payload:</strong> 36 bytes at <code>.rodata+0x40</code></li>
+</ul>
+<p>That&rsquo;s the entire &ldquo;protection&rdquo;: <code>expected[i] = key[i &amp; 3] ^ data[i]</code>, a 4-byte repeating XOR whose key ships inside the binary. The section header table will happily walk you straight to it — no symbol names, no labels, no help. The challenge&rsquo;s own philosophy, applied to itself: the scorer has no labels either.</p>
+<hr>
+<h2 id="step-5--the-decoy-gauntlet">Step 5 — The Decoy Gauntlet<a hidden class="anchor" aria-hidden="true" href="#step-5--the-decoy-gauntlet">#</a></h2>
+<p><img alt="The decoy validator blessing a flag the real scorer rejects" loading="lazy" src="/public/images/nexus/04_decoy_gauntlet.png"></p>
+<p>The <code>validator</code> deserves its own paragraph. It blesses exactly one string:</p>
+<pre tabindex="0"><code>r00t{n3xus_DECOY_40187c7d04ac816824f4d81f}
+</code></pre><p>A decoy that <em>literally self-identifies</em> — but only after you&rsquo;ve fed it through, watched it print <strong>VALID</strong>, marched it over to <code>check</code>, and been told <strong>WRONG</strong>. Its XOR key is <code>de c0 ad be</code> — &ldquo;deadcode,&rdquo; a decoy field inside a decoy tool. The gauntlet rounds out to three planted wrong answers (the header&rsquo;s order, the scrambled state, the validator&rsquo;s blessing) and one real scorer.</p>
+<hr>
+<h2 id="step-6--the-flag">Step 6 — The Flag<a hidden class="anchor" aria-hidden="true" href="#step-6--the-flag">#</a></h2>
+<p><img alt="check confirming the real flag" loading="lazy" src="/public/images/nexus/05_flag_revealed.png"></p>
+<pre tabindex="0"><code>r00t{n3xus_a5f383c453ce4d7ad21f7d6d}
+</code></pre><p><strong>CORRECT</strong> per the official scorer. The description promised that every shortcut and labeled field would be wrong — it went 4 for 4, and then the checker went the other way.</p>
+<hr>
+<h2 id="why-you-should-care-at-2-am-defender-notes">Why You Should Care at 2 AM (Defender Notes)<a hidden class="anchor" aria-hidden="true" href="#why-you-should-care-at-2-am-defender-notes">#</a></h2>
+<ol>
+<li>
+<p><strong>A description is not a spec.</strong> &ldquo;Execute a custom hash chain&rdquo; is not an algorithm — it&rsquo;s a wish. If your security design depends on a step that&rsquo;s never defined, you haven&rsquo;t built protection; you&rsquo;ve built a story about protection. In real systems this is the undocumented KDF whose parameters live in a header comment, or the &ldquo;proprietary encryption&rdquo; with no reference implementation.</p>
+</li>
+<li>
+<p><strong>Verify the verifier.</strong> Two scorers with two different truths is a supply-chain story in miniature. The validator blessed a string with total confidence — and total wrongness. If you don&rsquo;t know where your verification logic&rsquo;s truth comes from, you&rsquo;re just running someone else&rsquo;s bug with better UX.</p>
+</li>
+<li>
+<p><strong>Every labeled field is an attack surface.</strong> A declared block order, a &ldquo;scrambled&rdquo; state, a <code>hash_chain_init</code> field — each one exists to steer an analyst. Real formats have the same problem: any field an attacker can read, they can also <em>misread on purpose</em> if the format&rsquo;s documentation emphasizes the wrong things.</p>
+</li>
+<li>
+<p><strong>The best traps aren&rsquo;t broken — they&rsquo;re under-specified.</strong> Nothing in this challenge was corrupted or malformed. The misdirection lived entirely in what the description <em>emphasized</em> versus what the files actually contained. That&rsquo;s also what good incident response looks like: trust artifacts over narratives.</p>
+</li>
+</ol>
+<p>One custom hash chain that doesn&rsquo;t exist is a red herring. A custom hash chain that doesn&rsquo;t exist <em>plus</em> a decoy tool vouching for the wrong answer — that&rsquo;s a Tuesday.</p>
+<hr>
+<h2 id="the-full-solver">The Full Solver<a hidden class="anchor" aria-hidden="true" href="#the-full-solver">#</a></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!/usr/bin/env python3</span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;Nexus — offline flag recovery from the official scorer&#39;s embedded rodata.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">Every labeled field in nexus.bin is a decoy. The only thing that tells the
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">truth is `check` — the official scorer. It XOR-decodes its expected answer
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">with a 4-byte key hidden in .rodata, so we can recover the flag statically.
+</span></span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> struct
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> sys
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">find_section</span>(elf, wanted):
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;&#34;&#34;Walk the section header table and return (offset, size) of a section.&#34;&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>    e_shoff, <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;Q&#39;</span>, elf, <span style="color:#ae81ff">0x28</span>)
+</span></span><span style="display:flex;"><span>    e_shentsize, e_shnum, e_shstrndx <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;HHH&#39;</span>, elf, <span style="color:#ae81ff">0x3A</span>)
+</span></span><span style="display:flex;"><span>    shstr_off, <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;I&#39;</span>, elf,
+</span></span><span style="display:flex;"><span>                                    e_shoff <span style="color:#f92672">+</span> e_shstrndx <span style="color:#f92672">*</span> e_shentsize <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x18</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(e_shnum):
+</span></span><span style="display:flex;"><span>        base <span style="color:#f92672">=</span> e_shoff <span style="color:#f92672">+</span> i <span style="color:#f92672">*</span> e_shentsize
+</span></span><span style="display:flex;"><span>        name_off, <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;I&#39;</span>, elf, base)
+</span></span><span style="display:flex;"><span>        sh_type, <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;I&#39;</span>, elf, base <span style="color:#f92672">+</span> <span style="color:#ae81ff">4</span>)
+</span></span><span style="display:flex;"><span>        offset, size <span style="color:#f92672">=</span> struct<span style="color:#f92672">.</span>unpack_from(<span style="color:#e6db74">&#39;&lt;QQ&#39;</span>, elf, base <span style="color:#f92672">+</span> <span style="color:#ae81ff">0x18</span>)
+</span></span><span style="display:flex;"><span>        end <span style="color:#f92672">=</span> elf<span style="color:#f92672">.</span>index(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;</span><span style="color:#ae81ff">\0</span><span style="color:#e6db74">&#39;</span>, shstr_off <span style="color:#f92672">+</span> name_off)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> elf[shstr_off <span style="color:#f92672">+</span> name_off:end] <span style="color:#f92672">==</span> wanted <span style="color:#f92672">and</span> sh_type <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> offset, size
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">ValueError</span>(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;section </span><span style="color:#e6db74">{</span>wanted<span style="color:#e6db74">!r}</span><span style="color:#e6db74"> not found&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">extract_flag</span>(check_path<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;check&#39;</span>):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">with</span> open(check_path, <span style="color:#e6db74">&#39;rb&#39;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>        elf <span style="color:#f92672">=</span> f<span style="color:#f92672">.</span>read()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ro_off, ro_size <span style="color:#f92672">=</span> find_section(elf, <span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;.rodata&#39;</span>)
+</span></span><span style="display:flex;"><span>    rodata <span style="color:#f92672">=</span> elf[ro_off:ro_off <span style="color:#f92672">+</span> ro_size]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># From the decode loop:</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   and  $0x3,%ecx              # i &amp; 3</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   movzbl (%rdi,%rcx,1),%ecx   # rdi = key   (rodata + 0x20)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#   xor  (%rsi,%rax,1),%cl      # rsi = data  (rodata + 0x40)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># plus expected[0] hardcoded to 0x72 (&#39;r&#39;).</span>
+</span></span><span style="display:flex;"><span>    key <span style="color:#f92672">=</span> rodata[<span style="color:#ae81ff">0x20</span>:<span style="color:#ae81ff">0x24</span>]
+</span></span><span style="display:flex;"><span>    payload <span style="color:#f92672">=</span> rodata[<span style="color:#ae81ff">0x40</span>:<span style="color:#ae81ff">0x40</span> <span style="color:#f92672">+</span> <span style="color:#ae81ff">36</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    flag <span style="color:#f92672">=</span> bytearray(<span style="color:#e6db74">b</span><span style="color:#e6db74">&#39;r&#39;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">36</span>):
+</span></span><span style="display:flex;"><span>        flag<span style="color:#f92672">.</span>append(key[i <span style="color:#f92672">&amp;</span> <span style="color:#ae81ff">3</span>] <span style="color:#f92672">^</span> payload[i])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> flag<span style="color:#f92672">.</span>decode(<span style="color:#e6db74">&#39;ascii&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;__main__&#39;</span>:
+</span></span><span style="display:flex;"><span>    path <span style="color:#f92672">=</span> sys<span style="color:#f92672">.</span>argv[<span style="color:#ae81ff">1</span>] <span style="color:#66d9ef">if</span> len(sys<span style="color:#f92672">.</span>argv) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;check&#39;</span>
+</span></span><span style="display:flex;"><span>    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Flag: </span><span style="color:#e6db74">{</span>extract_flag(path)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
+</span></span></code></pre></div><p>One run, no arguments, no chain:</p>
+<pre tabindex="0"><code>$ python3 solve_nexus.py ./check
+Flag: r00t{n3xus_a5f383c453ce4d7ad21f7d6d}
+$ echo &#39;r00t{n3xus_a5f383c453ce4d7ad21f7d6d}&#39; | ./check
+CORRECT
+</code></pre><hr>
+<h2 id="recap--five-moves">Recap — Five Moves<a hidden class="anchor" aria-hidden="true" href="#recap--five-moves">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>Step</th>
+					<th>Action</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>1</td>
+					<td>Unpack the zip; read the decoy header (<code>NEXS</code> + order <code>01234567</code>)</td>
+			</tr>
+			<tr>
+					<td>2</td>
+					<td>Prove the intended path is unwalkable — the custom hash chain is defined nowhere</td>
+			</tr>
+			<tr>
+					<td>3</td>
+					<td>Follow the one honest sentence: <code>check</code> is the official scorer</td>
+			</tr>
+			<tr>
+					<td>4</td>
+					<td>Disassemble the decode loop: <code>expected[i] = key[i &amp; 3] ^ data[i]</code></td>
+			</tr>
+			<tr>
+					<td>5</td>
+					<td>Recover the flag from <code>.rodata</code>, reject the <code>DECOY</code> blessing</td>
+			</tr>
+	</tbody>
+</table>
+<p>The description promised every shortcut and labeled field would be wrong. It kept its word — all four lies landed exactly where advertised, and the unlabeled key in <code>.rodata</code> went the other way.</p>
+<p>Trust the scorer. Read the loop.</p>
+<hr>
+<p><em>Scripts: <a href="/public/files/nexus/solve_nexus.py">solve_nexus.py</a></em></p>
+<p><em>— Frank Ngaruiya (@z3r0bme)</em></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/binary-analysis/">Binary Analysis</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/crypto/">Crypto</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

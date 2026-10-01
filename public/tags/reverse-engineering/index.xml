@@ -6,8 +6,15 @@
     <description>Recent content in Reverse Engineering on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/reverse-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nexus — When Every Field Lies, Trust the Scorer</title>
+      <link>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</guid>
+      <description>A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.</description>
+    </item>
     <item>
       <title>AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything</title>
       <link>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</link>

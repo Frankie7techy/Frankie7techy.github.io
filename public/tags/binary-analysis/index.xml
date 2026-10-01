@@ -15,5 +15,12 @@
       <guid>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</guid>
       <description>A corrupted flight data recorder log, 13 ghost entries, and four different pieces of paperwork all trying to send me to the wrong answer. Reconstructing a Cessna&amp;#39;s true flight path with nothing but dead-reckoning physics.</description>
     </item>
+    <item>
+      <title>Nexus — When Every Field Lies, Trust the Scorer</title>
+      <link>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</guid>
+      <description>A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.</description>
+    </item>
   </channel>
 </rss>

@@ -11,7 +11,16 @@
     <loc>https://frankie7techy.github.io/public/tags/binary-analysis/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/categories/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/crypto/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/ctf/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/categories/ctf-writeups/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/cve/</loc>
@@ -32,10 +41,16 @@
     <loc>https://frankie7techy.github.io/public/tags/fuzzing/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/posts/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/rce/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/reverse-engineering/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/</loc>
@@ -53,12 +68,6 @@
     <loc>https://frankie7techy.github.io/public/tags/android/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/categories/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/categories/ctf-writeups/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/dns/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
@@ -72,9 +81,6 @@
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/reverse-engineering/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/categories/hackthebox/</loc>

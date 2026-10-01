@@ -5,12 +5,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>CTF | z3ro :: CTF &amp; Security Research</title>
+<title>Crypto | z3ro :: CTF &amp; Security Research</title>
 <meta name="keywords" content="">
 <meta name="description" content="CTF Writeups and Security Research">
 <meta name="author" content="z3ro">
-<link rel="canonical" href="https://frankie7techy.github.io/public/tags/ctf/">
-<link crossorigin="anonymous" href="/public/assets/css/stylesheet.78d3407d2c9bea398ad18067769717b0c275704878ca4638c311d0e4dd3a7f0d.css" integrity="sha256-eNNAfSyb6jmK0YBndpcXsMJ1cEh4ykY4wxHQ5N06fw0=" rel="preload stylesheet" as="style">
+<link rel="canonical" href="https://frankie7techy.github.io/public/tags/crypto/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.d884abd64967d1cfa6f4ba092eb90983000ae66198f81c43b6db65f729195e4c.css" integrity="sha256-2ISr1kln0c&#43;m9LoJLrkJgwAK5mGY&#43;BxDtttl9ykZXkw=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
@@ -18,8 +18,8 @@
 <link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://frankie7techy.github.io/public/tags/ctf/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/tags/ctf/">
+<link rel="alternate" type="application/rss+xml" href="https://frankie7techy.github.io/public/tags/crypto/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/tags/crypto/">
 <noscript>
     <style>
         #theme-toggle,
@@ -34,14 +34,14 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://frankie7techy.github.io/public/tags/ctf/">
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/tags/crypto/">
   <meta property="og:site_name" content="z3ro :: CTF & Security Research">
-  <meta property="og:title" content="CTF">
+  <meta property="og:title" content="Crypto">
   <meta property="og:description" content="CTF Writeups and Security Research">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CTF">
+<meta name="twitter:title" content="Crypto">
 <meta name="twitter:description" content="CTF Writeups and Security Research">
 
 </head>
@@ -90,24 +90,9 @@
 <main class="main"> 
 <header class="page-header">
   <h1>
-    CTF
+    Crypto
   </h1>
 </header>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Dead Reckoning — When the Paperwork Lies, Trust the Physics
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Dead Reckoning Author Dr Programmer Category Forensics Difficulty Hard Points 400 Given fdr.bin (1,158 bytes), fdr-spec.txt, aircraft-manual.txt, validator, check “A corrupted flight data recorder log from a SkyTrack-7 avionics unit contains 39 entries mixed with injected ‘ghost’ entries. The aircraft’s true flight path must be reconstructed using dead-reckoning physics. Ghost entries are detectable because they violate aerodynamic constraints.”
-Flag: r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b}
-TL;DR A Cessna 172S flew Nairobi Wilson → Mombasa. Its flight data recorder caught 39 fixes — but a firmware fault (Advisory SA-019, a story the spec really wants you to believe) injected “ghost” entries with plausible timestamps and impossible positions.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Dead Reckoning — When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
-</article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
@@ -120,56 +105,6 @@ TL;DR A Cessna 172S flew Nairobi Wilson → Mombasa. Its flight data recorder ca
   </div>
   <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
   <a class="entry-link" aria-label="post link to Nexus — When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
-</article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
-Files: Rooted or not.zip → vaultapp.apk
-TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
-</article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Packet Whisperer — The One Where DNS Snitched on Itself
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Packet Whisperer Author p3rf3ctr00t Category Network Forensics Difficulty Easy Points 100 Given chall.pcap (1,279 packets) “Analyze the provided PCAP and identify the hidden DNS-related flag.”
-Flag: r00t{1ts_4lw4y5_DNS_r1ght}
-TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Packet Whisperer — The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
-</article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">HackTheBox: SecretCorp Writeup
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
-🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
-80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.
-Unzipped credentials for `admin:SuperSecure123`.
-Login exposed an LFI vulnerability at `index.php?file=…`.
-```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
-🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.
-Exploited it via `bash -p` to spawn a root shell.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to HackTheBox: SecretCorp Writeup" href="https://frankie7techy.github.io/public/posts/htb-secretcorp/"></a>
 </article>
     </main>
     
