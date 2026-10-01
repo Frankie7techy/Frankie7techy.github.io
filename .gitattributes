@@ -1,0 +1,11 @@
+# Normalize source text files in the working tree.
+* text=auto eol=lf
+
+# Hugo minifies the stylesheet and writes an SRI integrity hash of the
+# exact bytes. If git rewrites a single LF to CRLF the hash no longer
+# matches, the browser rejects the stylesheet, and the site renders as
+# unstyled HTML. Never let git transform build output.
+public/** -text
+*.css -text
+*.js -text
+*.map -text
