@@ -2,6 +2,20 @@ baseURL = "https://frankie7techy.github.io/public/"
 title = "z3ro :: CTF & Security Research"
 theme = "PaperMod"
 
+[markup]
+  [markup.highlight]
+    # Hugo's default wrapperClass is empty, which means Chroma emits a bare
+    # <pre><code> with no wrapper element for every tagged fence.
+    # portfolio-theme.css hangs the terminal frame off ".highlight", so
+    # without this the traffic-light bar never renders. Fences with no
+    # language still skip Chroma entirely; the CSS covers both shapes.
+    wrapperClass = "highlight"
+    lineNos = false
+    noClasses = false
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
 [params]
   description = "CTF Writeups and Security Research"
   author = "z3ro"

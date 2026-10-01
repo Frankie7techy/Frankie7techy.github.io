@@ -10,7 +10,7 @@
 <meta name="description" content="CTF Writeups and Security Research">
 <meta name="author" content="z3ro">
 <link rel="canonical" href="https://frankie7techy.github.io/public/tags/forensics/">
-<link crossorigin="anonymous" href="/public/assets/css/stylesheet.78d3407d2c9bea398ad18067769717b0c275704878ca4638c311d0e4dd3a7f0d.css" integrity="sha256-eNNAfSyb6jmK0YBndpcXsMJ1cEh4ykY4wxHQ5N06fw0=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.2e9596eb0a4be44362e84d18a97c975d280ce315277cfb69c076efa9dbdd5809.css" integrity="sha256-LpWW6wpL5ENi6E0YqXyXXSgM4xUnfPtpwHbvqdvdWAk=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
@@ -100,9 +100,8 @@
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Dead Reckoning Author Dr Programmer Category Forensics Difficulty Hard Points 400 Given fdr.bin (1,158 bytes), fdr-spec.txt, aircraft-manual.txt, validator, check “A corrupted flight data recorder log from a SkyTrack-7 avionics unit contains 39 entries mixed with injected ‘ghost’ entries. The aircraft’s true flight path must be reconstructed using dead-reckoning physics. Ghost entries are detectable because they violate aerodynamic constraints.”
-Flag: r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b}
-TL;DR A Cessna 172S flew Nairobi Wilson → Mombasa. Its flight data recorder caught 39 fixes — but a firmware fault (Advisory SA-019, a story the spec really wants you to believe) injected “ghost” entries with plausible timestamps and impossible positions.
+    <p> Forensics Hard 400 pts AfricaHackon · Dr Programmer DEAD RECKONING A SkyTrack-7 flight data recorder logged a Cessna 172S flying Nairobi Wilson → Mombasa. A firmware fault (Advisory SA-019) injected ghost fixes with plausible timestamps and impossible positions. The paperwork offers four ways to spot them. All four are lies. Only Newton tells the truth.
+39Log entries 26Authentic fixes 13Ghost fixes 0.04–148km off-path Flag r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b} TL;DR The challenge hands you a binary log, a detailed format spec, an aircraft performance manual, and two scorer binaries. The spec contains two advisories, a buried “analyst shortcut,” and a reference solver — all agreeing with each other. That much agreement in forensic documentation is not a help; it’s a hook.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>

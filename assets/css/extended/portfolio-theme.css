@@ -55,12 +55,6 @@ pre,
     border-radius: 4px;
 }
 
-/* code block frame */
-.post-content pre {
-    border: 1px solid rgb(26, 26, 26);
-    border-radius: var(--radius);
-}
-
 /* post cards on lists: bordered entry like portfolio cards */
 .post-entry {
     border: 1px solid var(--border);
@@ -225,16 +219,30 @@ pre,
     background: rgba(0, 255, 65, 0.04);
 }
 
-/* ---- code blocks: terminal frame with a title bar ---- */
+/* ---- code blocks: terminal frame with a traffic-light title bar ----
+   Two shapes reach the browser depending on the fence in the markdown:
+     tagged:    <div class="highlight"><pre><code>   (Chroma ran)
+     bare ```:  <pre><code>                          (Chroma skipped)
+   Hugo only emits the wrapper for the first, so the bar has to be
+   drawable from either element or one path renders flat. */
+
+.post-content pre,
 .post-content .highlight {
     position: relative;
     margin: 1.75rem 0;
-    border: 1px solid var(--z3ro-line);
-    border-radius: 8px;
-    overflow: hidden;
     background: #0a0a0a;
+    font-size: 0.85rem;
+    line-height: 1.65;
 }
 
+.post-content pre {
+    padding: 2.1rem 1.1rem 1rem;
+    overflow-x: auto;
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+}
+
+.post-content pre::before,
 .post-content .highlight::before {
     content: '';
     display: block;
@@ -247,15 +255,24 @@ pre,
     border-bottom: 1px solid var(--z3ro-line);
 }
 
-.post-content pre {
+/* the wrapper is the frame when Chroma supplied one */
+.post-content .highlight {
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-content .highlight pre {
     margin: 0;
     padding: 1rem 1.1rem;
     overflow-x: auto;
     border: none;
     border-radius: 0;
-    background: #0a0a0a;
-    font-size: 0.85rem;
-    line-height: 1.65;
+}
+
+/* the wrapper already draws the bar, so suppress the inner duplicate */
+.post-content .highlight pre::before {
+    content: none;
 }
 
 .post-content pre code {
@@ -399,4 +416,313 @@ pre,
         font-size: 0.78rem;
         padding: 0.85rem;
     }
+}
+
+/* ============================================================
+   WRITEUP COMPONENTS — hero, stats, callouts, traps, chips
+   (flat CSS on purpose: PaperMod concats + minifies, no Sass)
+   ============================================================ */
+
+/* ---- hero panel: challenge header card ---- */
+.dr-hero {
+    margin: 1.25rem 0 2rem;
+    padding: 1.5rem 1.5rem 1.4rem;
+    background:
+        radial-gradient(900px 90px at 0% 0%, rgba(0, 255, 65, 0.07), transparent 65%),
+        var(--z3ro-card);
+    border: 1px solid var(--z3ro-line);
+    border-radius: 10px;
+}
+
+.dr-hero .dr-hero-top {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.dr-badge {
+    display: inline-block;
+    font-family: var(--z3ro-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0a0a0a;
+    background: var(--z3ro-green);
+    padding: 0.2em 0.65em;
+    border-radius: 4px;
+}
+
+.dr-badge.red {
+    color: #fff;
+    background: #ff5f56;
+}
+
+.dr-badge.cyan {
+    color: #0a0a0a;
+    background: var(--z3ro-cyan);
+}
+
+.dr-badge.ghost {
+    color: var(--z3ro-green);
+    background: transparent;
+    border: 1px solid var(--z3ro-line);
+}
+
+.dr-hero .dr-title {
+    font-family: var(--z3ro-mono);
+    font-size: 1.55rem;
+    font-weight: 600;
+    color: rgb(235, 235, 235);
+    margin: 0.85rem 0 0.3rem;
+    letter-spacing: -0.01em;
+}
+
+.dr-hero .dr-sub {
+    color: var(--z3ro-dim);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.65;
+}
+
+.dr-hero .dr-sub strong {
+    color: var(--z3ro-cyan);
+}
+
+/* ---- stat cards ---- */
+.dr-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin: 1.4rem 0;
+}
+
+.dr-stat {
+    padding: 0.9rem 1rem;
+    background: var(--z3ro-card);
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+    text-align: center;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dr-stat:hover {
+    border-color: rgba(0, 255, 65, 0.4);
+    box-shadow: 0 0 18px rgba(0, 255, 65, 0.12);
+}
+
+.dr-stat .n {
+    display: block;
+    font-family: var(--z3ro-mono);
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: var(--z3ro-green);
+    line-height: 1.2;
+}
+
+.dr-stat .n.red { color: #ff5f56; }
+.dr-stat .n.cyan { color: var(--z3ro-cyan); }
+
+.dr-stat .l {
+    display: block;
+    font-family: var(--z3ro-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--z3ro-dim);
+    margin-top: 0.3rem;
+}
+
+/* ---- callout boxes ---- */
+.dr-callout {
+    margin: 1.6rem 0;
+    padding: 0.95rem 1.15rem;
+    background: var(--z3ro-card);
+    border: 1px solid var(--z3ro-line);
+    border-left: 3px solid var(--z3ro-cyan);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.dr-callout p { margin: 0.3rem 0; }
+.dr-callout strong { color: var(--z3ro-cyan); }
+
+.dr-callout .t {
+    display: block;
+    font-family: var(--z3ro-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+    color: var(--z3ro-cyan);
+}
+
+.dr-callout.warn { border-left-color: #ffbd2e; }
+.dr-callout.warn .t, .dr-callout.warn strong { color: #ffbd2e; }
+
+.dr-callout.danger { border-left-color: #ff5f56; }
+.dr-callout.danger .t, .dr-callout.danger strong { color: #ff5f56; }
+
+.dr-callout.ok { border-left-color: var(--z3ro-green); }
+.dr-callout.ok .t, .dr-callout.ok strong { color: var(--z3ro-green); }
+
+/* ---- trap cards: the "four lies" grid ---- */
+.dr-traps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.85rem;
+    margin: 1.6rem 0;
+}
+
+.dr-trap {
+    padding: 0.95rem 1.1rem;
+    background: var(--z3ro-card);
+    border: 1px solid rgba(255, 95, 86, 0.28);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.dr-trap:hover {
+    border-color: rgba(255, 95, 86, 0.55);
+    box-shadow: 0 0 18px rgba(255, 95, 86, 0.10);
+}
+
+.dr-trap .t {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--z3ro-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ff8a80;
+    margin-bottom: 0.4rem;
+}
+
+.dr-trap .x {
+    color: #ff5f56;
+    font-weight: 700;
+}
+
+.dr-trap code {
+    color: var(--z3ro-cyan);
+    background: rgba(0, 212, 255, 0.08);
+    padding: 0.08em 0.3em;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+.dr-trap .truth {
+    display: block;
+    margin-top: 0.45rem;
+    color: var(--z3ro-green);
+    font-family: var(--z3ro-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.03em;
+}
+
+.dr-trap .truth::before {
+    content: 'truth \2192  ';
+    opacity: 0.7;
+}
+
+/* ---- ghost index chips ---- */
+.dr-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 1rem 0 1.4rem;
+}
+
+.dr-chip {
+    font-family: var(--z3ro-mono);
+    font-size: 0.78rem;
+    color: #ff8a80;
+    background: rgba(255, 95, 86, 0.08);
+    border: 1px solid rgba(255, 95, 86, 0.3);
+    border-radius: 4px;
+    padding: 0.18em 0.6em;
+}
+
+.dr-chip.ok {
+    color: var(--z3ro-green);
+    background: rgba(0, 255, 65, 0.07);
+    border-color: var(--z3ro-line);
+}
+
+/* ---- flag banner ---- */
+.dr-flag {
+    margin: 1.6rem 0;
+    padding: 1.15rem 1.3rem;
+    background: radial-gradient(700px 50px at 50% 0%, rgba(0, 255, 65, 0.10), transparent 70%), #0a0a0a;
+    border: 1px solid rgba(0, 255, 65, 0.35);
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 34px rgba(0, 255, 65, 0.08);
+}
+
+.dr-flag .l {
+    display: block;
+    font-family: var(--z3ro-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--z3ro-dim);
+    margin-bottom: 0.45rem;
+}
+
+.dr-flag code {
+    font-family: var(--z3ro-mono);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--z3ro-green);
+    background: none;
+    padding: 0;
+    text-shadow: 0 0 16px rgba(0, 255, 65, 0.45);
+    word-break: break-all;
+}
+
+/* ---- verdict strip: authentic vs ghost split ---- */
+.dr-verdict {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+
+.dr-verdict .half {
+    flex: 1 1 240px;
+    padding: 0.9rem 1.1rem;
+    border-radius: 8px;
+    font-family: var(--z3ro-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.dr-verdict .half.auth {
+    background: rgba(0, 255, 65, 0.05);
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    color: var(--z3ro-green);
+}
+
+.dr-verdict .half.ghosts {
+    background: rgba(255, 95, 86, 0.05);
+    border: 1px solid rgba(255, 95, 86, 0.3);
+    color: #ff8a80;
+}
+
+.dr-verdict .big {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .dr-hero .dr-title { font-size: 1.25rem; }
+    .dr-stats { grid-template-columns: repeat(2, 1fr); }
+    .dr-traps { grid-template-columns: 1fr; }
 }

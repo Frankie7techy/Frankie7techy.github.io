@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 640" role="img" aria-label="Flight track: Nairobi Wilson to Mombasa with 13 ghost fixes marked">
+<defs>
+  <radialGradient id="glowG" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#00ff41" stop-opacity="0.25"/><stop offset="100%" stop-color="#00ff41" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="glowR" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#ff5f56" stop-opacity="0.30"/><stop offset="100%" stop-color="#ff5f56" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="1160" height="640" fill="#0a0a0a" rx="12"/>
+<line x1="198" y1="45" x2="198" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="325" y1="45" x2="325" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="452" y1="45" x2="452" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="580" y1="45" x2="580" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="708" y1="45" x2="708" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="835" y1="45" x2="835" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="962" y1="45" x2="962" y2="595" stroke="#1a2612" stroke-width="1"/>
+<line x1="45" y1="170" x2="1115" y2="170" stroke="#1a2612" stroke-width="1"/>
+<line x1="45" y1="270" x2="1115" y2="270" stroke="#1a2612" stroke-width="1"/>
+<line x1="45" y1="370" x2="1115" y2="370" stroke="#1a2612" stroke-width="1"/>
+<line x1="45" y1="470" x2="1115" y2="470" stroke="#1a2612" stroke-width="1"/>
+<line x1="170.5" y1="105.3" x2="1132.7" y2="587.9" stroke="#00ff41" stroke-opacity="0.18" stroke-width="2" stroke-dasharray="7 7"/>
+<polyline points="170.4,105.3 203.8,124.8 237.1,144.2 270.5,163.7 303.8,183.1 337.2,202.6 370.5,222.1 405.9,240.5 441.4,259.0 476.8,277.5 512.2,295.9 547.7,314.4 583.1,332.8 618.6,351.3 654.1,369.8 689.5,388.2 727.5,405.4 765.4,422.5 803.4,439.6 841.3,456.7 879.3,473.8 917.2,490.9 955.2,508.0 993.2,525.1 1031.2,542.2 1069.2,559.3" fill="none" stroke="#00ff41" stroke-width="2.5" stroke-opacity="0.9"/>
+<circle cx="170.4" cy="105.3" r="7" fill="url(#glowG)"/>
+<circle cx="170.4" cy="105.3" r="3" fill="#00ff41"/>
+<circle cx="203.8" cy="124.8" r="7" fill="url(#glowG)"/>
+<circle cx="203.8" cy="124.8" r="3" fill="#00ff41"/>
+<circle cx="237.1" cy="144.2" r="7" fill="url(#glowG)"/>
+<circle cx="237.1" cy="144.2" r="3" fill="#00ff41"/>
+<circle cx="270.5" cy="163.7" r="7" fill="url(#glowG)"/>
+<circle cx="270.5" cy="163.7" r="3" fill="#00ff41"/>
+<circle cx="303.8" cy="183.1" r="7" fill="url(#glowG)"/>
+<circle cx="303.8" cy="183.1" r="3" fill="#00ff41"/>
+<circle cx="337.2" cy="202.6" r="7" fill="url(#glowG)"/>
+<circle cx="337.2" cy="202.6" r="3" fill="#00ff41"/>
+<circle cx="370.5" cy="222.1" r="7" fill="url(#glowG)"/>
+<circle cx="370.5" cy="222.1" r="3" fill="#00ff41"/>
+<circle cx="405.9" cy="240.5" r="7" fill="url(#glowG)"/>
+<circle cx="405.9" cy="240.5" r="3" fill="#00ff41"/>
+<circle cx="441.4" cy="259.0" r="7" fill="url(#glowG)"/>
+<circle cx="441.4" cy="259.0" r="3" fill="#00ff41"/>
+<circle cx="476.8" cy="277.5" r="7" fill="url(#glowG)"/>
+<circle cx="476.8" cy="277.5" r="3" fill="#00ff41"/>
+<circle cx="512.2" cy="295.9" r="7" fill="url(#glowG)"/>
+<circle cx="512.2" cy="295.9" r="3" fill="#00ff41"/>
+<circle cx="547.7" cy="314.4" r="7" fill="url(#glowG)"/>
+<circle cx="547.7" cy="314.4" r="3" fill="#00ff41"/>
+<circle cx="583.1" cy="332.8" r="7" fill="url(#glowG)"/>
+<circle cx="583.1" cy="332.8" r="3" fill="#00ff41"/>
+<circle cx="618.6" cy="351.3" r="7" fill="url(#glowG)"/>
+<circle cx="618.6" cy="351.3" r="3" fill="#00ff41"/>
+<circle cx="654.1" cy="369.8" r="7" fill="url(#glowG)"/>
+<circle cx="654.1" cy="369.8" r="3" fill="#00ff41"/>
+<circle cx="689.5" cy="388.2" r="7" fill="url(#glowG)"/>
+<circle cx="689.5" cy="388.2" r="3" fill="#00ff41"/>
+<circle cx="727.5" cy="405.4" r="7" fill="url(#glowG)"/>
+<circle cx="727.5" cy="405.4" r="3" fill="#00ff41"/>
+<circle cx="765.4" cy="422.5" r="7" fill="url(#glowG)"/>
+<circle cx="765.4" cy="422.5" r="3" fill="#00ff41"/>
+<circle cx="803.4" cy="439.6" r="7" fill="url(#glowG)"/>
+<circle cx="803.4" cy="439.6" r="3" fill="#00ff41"/>
+<circle cx="841.3" cy="456.7" r="7" fill="url(#glowG)"/>
+<circle cx="841.3" cy="456.7" r="3" fill="#00ff41"/>
+<circle cx="879.3" cy="473.8" r="7" fill="url(#glowG)"/>
+<circle cx="879.3" cy="473.8" r="3" fill="#00ff41"/>
+<circle cx="917.2" cy="490.9" r="7" fill="url(#glowG)"/>
+<circle cx="917.2" cy="490.9" r="3" fill="#00ff41"/>
+<circle cx="955.2" cy="508.0" r="7" fill="url(#glowG)"/>
+<circle cx="955.2" cy="508.0" r="3" fill="#00ff41"/>
+<circle cx="993.2" cy="525.1" r="7" fill="url(#glowG)"/>
+<circle cx="993.2" cy="525.1" r="3" fill="#00ff41"/>
+<circle cx="1031.2" cy="542.2" r="7" fill="url(#glowG)"/>
+<circle cx="1031.2" cy="542.2" r="3" fill="#00ff41"/>
+<circle cx="1069.2" cy="559.3" r="7" fill="url(#glowG)"/>
+<circle cx="1069.2" cy="559.3" r="3" fill="#00ff41"/>
+<circle cx="242.2" cy="147.7" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="236.2" y1="141.7" x2="248.2" y2="153.7"/><line x1="236.2" y1="153.7" x2="248.2" y2="141.7"/></g>
+<text x="242.2" y="131.7" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#3</text>
+<circle cx="275.7" cy="160.1" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="269.7" y1="154.1" x2="281.7" y2="166.1"/><line x1="269.7" y1="166.1" x2="281.7" y2="154.1"/></g>
+<text x="275.7" y="144.1" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#4</text>
+<circle cx="90.8" cy="80.7" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="84.8" y1="74.7" x2="96.8" y2="86.7"/><line x1="84.8" y1="86.7" x2="96.8" y2="74.7"/></g>
+<text x="90.8" y="64.7" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#6</text>
+<circle cx="370.8" cy="227.3" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="364.8" y1="221.3" x2="376.8" y2="233.3"/><line x1="364.8" y1="233.3" x2="376.8" y2="221.3"/></g>
+<text x="370.8" y="211.3" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#10</text>
+<circle cx="150.8" cy="97.4" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="144.8" y1="91.4" x2="156.8" y2="103.4"/><line x1="144.8" y1="103.4" x2="156.8" y2="91.4"/></g>
+<text x="150.8" y="81.4" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#11</text>
+<circle cx="404.7" cy="234.9" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="398.7" y1="228.9" x2="410.7" y2="240.9"/><line x1="398.7" y1="240.9" x2="410.7" y2="228.9"/></g>
+<text x="404.7" y="218.9" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#12</text>
+<circle cx="465.4" cy="275.8" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="459.4" y1="269.8" x2="471.4" y2="281.8"/><line x1="459.4" y1="281.8" x2="471.4" y2="269.8"/></g>
+<text x="465.4" y="259.8" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#16</text>
+<circle cx="155.8" cy="106.3" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="149.8" y1="100.3" x2="161.8" y2="112.3"/><line x1="149.8" y1="112.3" x2="161.8" y2="100.3"/></g>
+<text x="155.8" y="90.3" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#17</text>
+<circle cx="540.6" cy="312.5" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="534.6" y1="306.5" x2="546.6" y2="318.5"/><line x1="534.6" y1="318.5" x2="546.6" y2="306.5"/></g>
+<text x="540.6" y="296.5" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#19</text>
+<circle cx="605.9" cy="353.6" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="599.9" y1="347.6" x2="611.9" y2="359.6"/><line x1="599.9" y1="359.6" x2="611.9" y2="347.6"/></g>
+<text x="605.9" y="337.6" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#23</text>
+<circle cx="734.2" cy="406.0" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="728.2" y1="400.0" x2="740.2" y2="412.0"/><line x1="728.2" y1="412.0" x2="740.2" y2="400.0"/></g>
+<text x="734.2" y="390.0" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#26</text>
+<circle cx="795.4" cy="440.0" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="789.4" y1="434.0" x2="801.4" y2="446.0"/><line x1="789.4" y1="446.0" x2="801.4" y2="434.0"/></g>
+<text x="795.4" y="424.0" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#30</text>
+<circle cx="894.4" cy="471.9" r="14" fill="url(#glowR)"/>
+<g stroke="#ff5f56" stroke-width="2.4" stroke-linecap="round"><line x1="888.4" y1="465.9" x2="900.4" y2="477.9"/><line x1="888.4" y1="477.9" x2="900.4" y2="465.9"/></g>
+<text x="894.4" y="455.9" fill="#ff8a80" font-family="Fira Code, monospace" font-size="12" text-anchor="middle">#32</text>
+<circle cx="170.5" cy="105.3" r="5" fill="#00d4ff"/>
+<circle cx="170.5" cy="105.3" r="11" fill="none" stroke="#00d4ff" stroke-opacity="0.4"/>
+<text x="184.5" y="109.3" fill="#7dd3fc" font-family="Fira Code, monospace" font-size="13" text-anchor="start">HKNW · Nairobi Wilson</text>
+<circle cx="1132.7" cy="587.9" r="5" fill="#00d4ff"/>
+<circle cx="1132.7" cy="587.9" r="11" fill="none" stroke="#00d4ff" stroke-opacity="0.4"/>
+<text x="1118.7" y="591.9" fill="#7dd3fc" font-family="Fira Code, monospace" font-size="13" text-anchor="end">HKMO · Mombasa</text>
+<circle cx="30" cy="618" r="3.5" fill="#00ff41"/>
+<text x="40" y="622" fill="#9ca3af" font-family="Fira Code, monospace" font-size="12">26 authentic fixes (300 s apart)</text>
+<g stroke="#ff5f56" stroke-width="2.2" stroke-linecap="round"><line x1="360" y1="613" x2="371" y2="624"/><line x1="360" y1="624" x2="371" y2="613"/></g>
+<text x="382" y="622" fill="#9ca3af" font-family="Fira Code, monospace" font-size="12">13 ghost fixes (SA-019)</text>
+</svg>
