@@ -1,1 +1,19 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>RCE on z3ro :: CTF &amp; Security Research</title><link>https://frankie7techy.github.io/public/tags/rce/</link><description>Recent content in RCE on z3ro :: CTF &amp; Security Research</description><generator>Hugo -- 0.167.0</generator><language>en</language><lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://frankie7techy.github.io/public/tags/rce/index.xml" rel="self" type="application/rss+xml"/><item><title>40+ RCE Chains I've Analyzed: From Firefox NSS to Discord — A Deep Dive into Modern Exploitation</title><link>https://frankie7techy.github.io/public/posts/exploitarium-40-rce-chains/</link><pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate><guid>https://frankie7techy.github.io/public/posts/exploitarium-40-rce-chains/</guid><description>A comprehensive breakdown of 40+ remote code execution proof-of-concepts across major software — Firefox, Discord, Ghidra, Docker, Nextcloud, and more. Root cause analysis, exploitation chains, and remediation.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>RCE on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/rce/</link>
+    <description>Recent content in RCE on z3ro :: CTF &amp; Security Research</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://frankie7techy.github.io/public/tags/rce/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>40&#43; RCE Chains I&#39;ve Analyzed: From Firefox NSS to Discord — A Deep Dive into Modern Exploitation</title>
+      <link>https://frankie7techy.github.io/public/posts/exploitarium-40-rce-chains/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/exploitarium-40-rce-chains/</guid>
+      <description>A comprehensive breakdown of 40&#43; remote code execution proof-of-concepts across major software — Firefox, Discord, Ghidra, Docker, Nextcloud, and more. Root cause analysis, exploitation chains, and remediation.</description>
+    </item>
+  </channel>
+</rss>
