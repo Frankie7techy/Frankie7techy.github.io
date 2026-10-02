@@ -32,6 +32,12 @@
     <loc>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/digital-forensics/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/exfiltration/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/exploitation/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
@@ -39,6 +45,9 @@
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/fuzzing/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/insider-threat/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</loc>
@@ -56,10 +65,16 @@
     <loc>https://frankie7techy.github.io/public/tags/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/vulnerability-research/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/</loc>
+    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/windows-event-logs/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</loc>
@@ -69,9 +84,6 @@
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/dns/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/exfiltration/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/mobile/</loc>

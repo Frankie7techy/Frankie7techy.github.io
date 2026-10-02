@@ -51,6 +51,20 @@
       <description></description>
     </item>
     <item>
+      <title>Digital Forensics</title>
+      <link>https://frankie7techy.github.io/public/tags/digital-forensics/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/digital-forensics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Exfiltration</title>
+      <link>https://frankie7techy.github.io/public/tags/exfiltration/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/exfiltration/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Exploitation</title>
       <link>https://frankie7techy.github.io/public/tags/exploitation/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
@@ -69,6 +83,13 @@
       <link>https://frankie7techy.github.io/public/tags/fuzzing/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/fuzzing/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Insider Threat</title>
+      <link>https://frankie7techy.github.io/public/tags/insider-threat/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/insider-threat/</guid>
       <description></description>
     </item>
     <item>
@@ -93,6 +114,13 @@
       <description></description>
     </item>
     <item>
+      <title>Windows Event Logs</title>
+      <link>https://frankie7techy.github.io/public/tags/windows-event-logs/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/windows-event-logs/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Android</title>
       <link>https://frankie7techy.github.io/public/tags/android/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
@@ -104,13 +132,6 @@
       <link>https://frankie7techy.github.io/public/tags/dns/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/dns/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Exfiltration</title>
-      <link>https://frankie7techy.github.io/public/tags/exfiltration/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/exfiltration/</guid>
       <description></description>
     </item>
     <item>

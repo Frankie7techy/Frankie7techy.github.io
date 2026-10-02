@@ -23,6 +23,13 @@
       <description>A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.</description>
     </item>
     <item>
+      <title>The Last Day — HR Said It Was Routine. The Logs Disagreed.</title>
+      <link>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</guid>
+      <description>An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
+    </item>
+    <item>
       <title>AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything</title>
       <link>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>

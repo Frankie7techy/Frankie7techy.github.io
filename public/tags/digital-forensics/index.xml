@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Exfiltration on z3ro :: CTF &amp; Security Research</title>
-    <link>https://frankie7techy.github.io/public/tags/exfiltration/</link>
-    <description>Recent content in Exfiltration on z3ro :: CTF &amp; Security Research</description>
+    <title>Digital Forensics on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/digital-forensics/</link>
+    <description>Recent content in Digital Forensics on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
     <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://frankie7techy.github.io/public/tags/exfiltration/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://frankie7techy.github.io/public/tags/digital-forensics/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>The Last Day — HR Said It Was Routine. The Logs Disagreed.</title>
       <link>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</guid>
       <description>An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
-    </item>
-    <item>
-      <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
-      <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
-      <description>DNS exfiltration reversed from a PCAP — pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
     </item>
   </channel>
 </rss>

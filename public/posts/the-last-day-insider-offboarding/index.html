@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>The Last Day — HR Said It Was Routine. The Logs Disagreed. | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Digital Forensics, Windows Event Logs, Insider Threat, Exfiltration">
+<meta name="description" content="An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&#39;s own paperwork.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.2e9596eb0a4be44362e84d18a97c975d280ce315277cfb69c076efa9dbdd5809.css" integrity="sha256-LpWW6wpL5ENi6E0YqXyXXSgM4xUnfPtpwHbvqdvdWAk=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="The Last Day — HR Said It Was Routine. The Logs Disagreed.">
+  <meta property="og:description" content="An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&#39;s own paperwork.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-01T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-01T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Digital Forensics">
+    <meta property="article:tag" content="Windows Event Logs">
+    <meta property="article:tag" content="Insider Threat">
+    <meta property="article:tag" content="Exfiltration">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Last Day — HR Said It Was Routine. The Logs Disagreed.">
+<meta name="twitter:description" content="An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&#39;s own paperwork.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "The Last Day — HR Said It Was Routine. The Logs Disagreed.",
+      "item": "https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "The Last Day — HR Said It Was Routine. The Logs Disagreed.",
+  "name": "The Last Day — HR Said It Was Routine. The Logs Disagreed.",
+  "description": "An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR's own paperwork.",
+  "keywords": [
+    "CTF", "Digital Forensics", "Windows Event Logs", "Insider Threat", "Exfiltration"
+  ],
+  "articleBody": " Forensics Medium 400 pts r00t CTF · k4p3re THE LAST DAY HR flagged it as routine: an employee's last day, standard offboarding. But between 02:47 and 03:07 one morning, an offboarded employee RDP'd back into WKSTN-14, staged sensitive files, read Finance contracts and saved browser passwords with a renamed binary, 7-Zip'd the lot, and uploaded it to a personal \"vault\" domain. Meanwhile HR's own paperwork quietly carried the flag.\n78Records in the files 13Event Viewer could show 20 minAttack window 7/7Solved — 400 pts Flag r00t{th3_l4st_d4y_1ns1d3r_thr34t} TL;DR Two log exports land on your desk. You open them and Event Viewer shows 13 events. The file sizes say 528 KB and 200 KB — and that math does not add up. The real story is in the records Event Viewer physically cannot show.\nThe seven moves:\nNotice the file sizes don’t match the event counts Spot the after-hours RDP logon (Q1 + Q2) Carve the EVTX files — 53 + 25 records, not 6 + 7 Find the Finance share access via a renamed wsus.exe Catch the 7z.exe a -p client_exports_final.7z F:\\Staging\\* command (Q3 + Q4) Catch the exfil upload to vault-personal-sync.io (Q5 + Q6) Read HR’s account-disable records — one of them is not like the others (Q7) Step 0 — First Impressions: The Math Doesn’t Add Up Two log exports, and the numbers are already arguing with each other.\nThe Security log is 528 KB but opens with 6 events. The Sysmon log, 200 KB, shows 7. Real EVTX files pack hundreds of records into 64 KB chunks — half a megabyte for thirteen events is not how event logs work.\nSuspicion triggered Either someone shipped half a megabyte of empty padding, or something in these files is hidden. Hold that thought — and hold the one line in the visible six that already stands out: TargetUserName: n.wanjiru, LogonType: 10, at 2:47 in the morning.\nStep 1 — The After-Hours Logon (Q1 + Q2) The visible 4624 is the anchor of the whole story:\nn.wanjiru (P3RFCORP) — the employee who was offboarded that same morning LogonType 10 — RemoteInteractive. That’s RDP. Not a service, not a scheduled task — a person, at a remote desktop 203.0.113.77 — an external IP 02:47:12 AM — well after anyone would normally have gone home That’s Q1 and Q2 banked. Everything that follows belongs to this session.\nStep 2 — The Carve: What Event Viewer Can’t Show You Here’s the part that makes this challenge special.\nEvent Viewer and Get-WinEvent both go through the Windows Event Log API, which trusts the file’s own index — its chunk headers. Check those first:\n\"ElfChnk\" magic: not found FileHeader.nextRecordId: 8 (we only saw 6 events) No valid chunk headers. Hand-crafted EVTX. The API can only recover a fraction of what’s physically in the file, because the index it relies on was stripped out.\nSo stop trusting the index and carve the records directly:\nimport Evtx.Evtx as evtx for record in evtx.Evtx('Security.evtx').records(): print(record.xml()) Security: 53 records. Sysmon: 25. Versus the 13 Event Viewer showed.\nThe pivot of the whole challenge EVTX records render through templates stored per-chunk, and some of these records reference templates that live in a different chunk than the one they sit in. python-evtx only looks in the record's own chunk — a few records still refuse to render until you pool every chunk's templates together and cross-reference. The hidden events are where the entire insider story lives.\nStep 3 — The Folders No One Should Be Touching Hidden among the recovered Security records: four 4663 file-access events, all at 2:56 AM, all under n.wanjiru’s session:\nC:\\Shares\\Finance\\Q3_Client_Contracts.xlsx C:\\Shares\\Finance\\Client_Master_List.xlsx ...\\Firefox\\Profiles\\kushu3sd.default\\logins.json ...\\Chrome\\User Data\\Default\\Login Data Finance contracts and saved browser passwords — this is what the description meant by “folders this employee had no reason to touch.”\nAnd the process doing the reading: C:\\Users\\Defau1t\\wsus.exe. WSUS is a Windows service that lives in C:\\Windows\\System32 — never in a user profile with a suspiciously familiar-looking name (Defau1t, with a one). A renamed binary masquerading as Windows Update. Classic T1036.\nStep 4 — Two Answers in One Command Line (Q3 + Q4) An archiver has exactly one job: read files, write archives. But first, the process creation event at 3:03:45 AM in the carved Sysmon log hands us two answers gift-wrapped:\nImage: C:\\Program Files\\7-Zip\\7z.exe User: P3RFCORP\\n.wanjiru CommandLine: 7z.exe a -p client_exports_final.7z F:\\Staging\\* Read it like a sentence:\nF:\\Staging — where the sensitive files were staged before archiving (Q3). Sysmon’s file-create events confirm it: F:\\Staging\\ClientExports_Raw.xlsx appeared at 2:52 AM. client_exports_final.7z — the exact archive filename (Q4) -p — password-protected. The attacker locked the box before moving it. Step 5 — The Upload, Timestamped (Q5 + Q6) An archiver does not make network connections. Ever. So when the carved Sysmon log shows 7z.exe opening a TCP socket, you pay attention:\nImage: C:\\Program Files\\7-Zip\\7z.exe Protocol: tcp Initiated: True DestinationHostname: vault-personal-sync.io DestinationPort: 443 (https) TimeCreated: 2026-09-14 00:07:22 UTC (03:07:22 AM local) The archive leaves the machine from the archiver itself, to vault-personal-sync.io on 443 (Q5) — a domain pretending to be a personal cloud-sync service. The timestamp: 00:07:22 UTC (Q6).\nTimezone note — this one cost me a submission The log stores 00:07:22 UTC, which displays as 03:07:22 AM on a UTC+3 machine. Which one does the platform want? After a few format guesses: the accepted answer was the full stored timestamp with the date — r00t{2026-09-14 00:07:22}. When a CTF asks \"what time,\" try the exact timestamp as recorded in the log before anything cleverer.\nStep 6 — The Paperwork Lies (Q7 + The Flag) The final question points at HR: “several account deactivations that same morning — standard offboarding, nothing unusual on the surface. But whoever handled the paperwork for this specific departure may have left something behind in the record.”\nThe carved Security log contains six 4725 (account disabled) events from HR-ADMIN01 — same template, same morning: j.omondi, s.achieng, p.mutua, l.karanja, d.njoroge… and n.wanjiru. Every decoy shows the same actor: SubjectUserName: it.admin. Then you reach the record for this departure:\nTargetUserName: n.wanjiru SubjectUserName: r00t{th3_l4st_d4y_1ns1d3r_thr34t} Whoever “handled the paperwork” left the flag in the actor field of the account-disable record itself. HR’s own paperwork was the hiding place. That’s the kind of touch that makes a forensics challenge memorable.\nTo be sure it was the only one: regex the raw bytes of both files for any r00t{...} — both UTF-16 byte alignments, both encodings. Exactly one flag exists in the entire dataset, and it only survives as a raw byte string inside that hidden record.\nStep 7 — Scoreboard Q Answer Where it hid Q1 r00t{n.wanjiru} visible 4624, LogonType 10 Q2 r00t{203.0.113.77} visible 4624, IpAddress Q3 r00t{F:\\Staging} hidden Sysmon EID 11 + the 7z command line Q4 r00t{client_exports_final.7z} hidden Sysmon EID 1, CommandLine Q5 r00t{vault-personal-sync.io} hidden Sysmon EID 3, DestinationHostname Q6 r00t{2026-09-14 00:07:22} hidden Sysmon EID 3, TimeCreated Q7 r00t{th3_l4st_d4y_1ns1d3r_thr34t} hidden 4725, SubjectUserName 7/7 — 400/400.\nFormat gotcha for anyone playing this platform Every answer needs the r00t{...} wrapper, not just the final flag. Five of mine bounced before I wrapped them. Don't be me.\nNoise That Eats Your Time Half of forensics is knowing what to ignore. This challenge scatters decent decoys:\n✗ C:\\ProgramData\\Intel\\CV.exe + wwlib.dll An unsigned binary masquerading as Intel graphics, spawning calc.exe. Genuinely suspicious-looking — but it's set dressing, not the story. not connected to the staged files ✗ lync.zip + i.exe + cmdkey.exe A whole separate malware chain, timestamped at midnight. Credential juggling that goes nowhere near F:\\Staging. a different campaign, not this incident ✗ nc.exe → 127.0.0.1:9299 A netcat connection to localhost. Not exfiltration — just a local listener. loopback traffic, nothing leaves the host ✗ The UtcTime fields inside Sysmon events 2020-10-17, 2020-08-02... stale template junk the author never patched. The real story timeline lives in TimeCreated. template leftovers, will lead you to 2020 The thread that never breaks: n.wanjiru’s session, 02:47 → 03:07.\nThe Full Carve Script The one that recovers records Event Viewer can’t — including the cross-chunk template pooling:\n#!/usr/bin/env python3 \"\"\"Carve every recoverable record from a hand-crafted EVTX file. Pools templates across chunks so cross-chunk template references resolve.\"\"\" import struct import Evtx.Evtx as evtx from Evtx.Evtx import Record class PoolChunk: # stand-in chunk with every template def __init__(self, templates): self._offset = 0 self._templates = templates def templates(self): return self._templates def carve_offsets(buf): \"\"\"scan raw bytes for record magic, walk by declared size, check footer\"\"\" offs, seen, n, i = [], set(), len(buf), 0 while i \u003c n - 28: if buf[i:i+4] == b'\\x2a\\x2a\\x00\\x00': size = struct.unpack_from('",
+  "wordCount" : "1933",
+  "inLanguage": "en",
+  "datePublished": "2026-10-01T00:00:00Z",
+  "dateModified": "2026-10-01T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      The Last Day — HR Said It Was Routine. The Logs Disagreed.
+    </h1>
+    <div class="post-description">
+      An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&#39;s own paperwork.
+    </div>
+    <div class="post-meta"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#tldr" aria-label="TL;DR">TL;DR</a></li>
+                <li>
+                    <a href="#step-0--first-impressions-the-math-doesnt-add-up" aria-label="Step 0 — First Impressions: The Math Doesn&rsquo;t Add Up">Step 0 — First Impressions: The Math Doesn&rsquo;t Add Up</a></li>
+                <li>
+                    <a href="#step-1--the-after-hours-logon-q1--q2" aria-label="Step 1 — The After-Hours Logon (Q1 &#43; Q2)">Step 1 — The After-Hours Logon (Q1 + Q2)</a></li>
+                <li>
+                    <a href="#step-2--the-carve-what-event-viewer-cant-show-you" aria-label="Step 2 — The Carve: What Event Viewer Can&rsquo;t Show You">Step 2 — The Carve: What Event Viewer Can&rsquo;t Show You</a></li>
+                <li>
+                    <a href="#step-3--the-folders-no-one-should-be-touching" aria-label="Step 3 — The Folders No One Should Be Touching">Step 3 — The Folders No One Should Be Touching</a></li>
+                <li>
+                    <a href="#step-4--two-answers-in-one-command-line-q3--q4" aria-label="Step 4 — Two Answers in One Command Line (Q3 &#43; Q4)">Step 4 — Two Answers in One Command Line (Q3 + Q4)</a></li>
+                <li>
+                    <a href="#step-5--the-upload-timestamped-q5--q6" aria-label="Step 5 — The Upload, Timestamped (Q5 &#43; Q6)">Step 5 — The Upload, Timestamped (Q5 + Q6)</a></li>
+                <li>
+                    <a href="#step-6--the-paperwork-lies-q7--the-flag" aria-label="Step 6 — The Paperwork Lies (Q7 &#43; The Flag)">Step 6 — The Paperwork Lies (Q7 + The Flag)</a></li>
+                <li>
+                    <a href="#step-7--scoreboard" aria-label="Step 7 — Scoreboard">Step 7 — Scoreboard</a></li>
+                <li>
+                    <a href="#noise-that-eats-your-time" aria-label="Noise That Eats Your Time">Noise That Eats Your Time</a></li>
+                <li>
+                    <a href="#the-full-carve-script" aria-label="The Full Carve Script">The Full Carve Script</a></li>
+                <li>
+                    <a href="#why-you-should-care-at-2-am-defender-notes" aria-label="Why You Should Care at 2 AM (Defender Notes)">Why You Should Care at 2 AM (Defender Notes)</a><ul>
+                        
+                <li>
+                    <a href="#detection-tells" aria-label="Detection Tells">Detection Tells</a></li></ul>
+                </li>
+                <li>
+                    <a href="#recap--seven-moves" aria-label="Recap — Seven Moves">Recap — Seven Moves</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Forensics</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge cyan">400 pts</span>
+    <span class="dr-badge ghost">r00t CTF · k4p3re</span>
+  </div>
+  <div class="dr-title">THE LAST DAY</div>
+  <p class="dr-sub">HR flagged it as routine: an employee's last day, standard offboarding. But between 02:47 and 03:07 one morning, an offboarded employee RDP'd back into <strong>WKSTN-14</strong>, staged sensitive files, read Finance contracts and saved browser passwords with a renamed binary, 7-Zip'd the lot, and uploaded it to a personal <strong>"vault"</strong> domain. Meanwhile HR's own paperwork quietly carried the flag.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n cyan">78</span><span class="l">Records in the files</span></div>
+  <div class="dr-stat"><span class="n red">13</span><span class="l">Event Viewer could show</span></div>
+  <div class="dr-stat"><span class="n">20<small> min</small></span><span class="l">Attack window</span></div>
+  <div class="dr-stat"><span class="n">7<small>/7</small></span><span class="l">Solved — 400 pts</span></div>
+</div>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{th3_l4st_d4y_1ns1d3r_thr34t}</code>
+</div>
+<h2 id="tldr">TL;DR<a hidden class="anchor" aria-hidden="true" href="#tldr">#</a></h2>
+<p>Two log exports land on your desk. You open them and Event Viewer shows <strong>13 events</strong>. The file sizes say 528 KB and 200 KB — and that math does not add up. The real story is in the records Event Viewer <em>physically cannot show</em>.</p>
+<p><strong>The seven moves:</strong></p>
+<ol>
+<li>Notice the file sizes don&rsquo;t match the event counts</li>
+<li>Spot the after-hours RDP logon (Q1 + Q2)</li>
+<li>Carve the EVTX files — 53 + 25 records, not 6 + 7</li>
+<li>Find the Finance share access via a renamed <code>wsus.exe</code></li>
+<li>Catch the <code>7z.exe a -p client_exports_final.7z F:\Staging\*</code> command (Q3 + Q4)</li>
+<li>Catch the exfil upload to <code>vault-personal-sync.io</code> (Q5 + Q6)</li>
+<li>Read HR&rsquo;s account-disable records — one of them is not like the others (Q7)</li>
+</ol>
+<p><img alt="The attack timeline: logon to exfiltration in twenty minutes" loading="lazy" src="/public/images/the-last-day/00_timeline.png"></p>
+<h2 id="step-0--first-impressions-the-math-doesnt-add-up">Step 0 — First Impressions: The Math Doesn&rsquo;t Add Up<a hidden class="anchor" aria-hidden="true" href="#step-0--first-impressions-the-math-doesnt-add-up">#</a></h2>
+<p>Two log exports, and the numbers are already arguing with each other.</p>
+<p><img alt="Two log exports — 528 KB, but only six events" loading="lazy" src="/public/images/the-last-day/01_first_look.png"></p>
+<p>The Security log is <strong>528 KB</strong> but opens with <strong>6 events</strong>. The Sysmon log, 200 KB, shows <strong>7</strong>. Real EVTX files pack hundreds of records into 64 KB chunks — half a megabyte for thirteen events is not how event logs work.</p>
+<div class="dr-callout warn">
+  <span class="t">Suspicion triggered</span>
+  <p>Either someone shipped half a megabyte of empty padding, or <strong>something in these files is hidden</strong>. Hold that thought — and hold the one line in the visible six that already stands out: <code>TargetUserName: n.wanjiru</code>, <code>LogonType: 10</code>, at 2:47 in the morning.</p>
+</div>
+<h2 id="step-1--the-after-hours-logon-q1--q2">Step 1 — The After-Hours Logon (Q1 + Q2)<a hidden class="anchor" aria-hidden="true" href="#step-1--the-after-hours-logon-q1--q2">#</a></h2>
+<p>The visible 4624 is the anchor of the whole story:</p>
+<p><img alt="Event 4624 — the after-hours RDP logon" loading="lazy" src="/public/images/the-last-day/02_logon.png"></p>
+<ul>
+<li><strong><code>n.wanjiru</code></strong> (P3RFCORP) — the employee who was offboarded <em>that same morning</em></li>
+<li><strong>LogonType 10</strong> — RemoteInteractive. That&rsquo;s RDP. Not a service, not a scheduled task — <em>a person, at a remote desktop</em></li>
+<li><strong><code>203.0.113.77</code></strong> — an external IP</li>
+<li><strong>02:47:12 AM</strong> — well after anyone would normally have gone home</li>
+</ul>
+<p>That&rsquo;s Q1 and Q2 banked. Everything that follows belongs to this session.</p>
+<h2 id="step-2--the-carve-what-event-viewer-cant-show-you">Step 2 — The Carve: What Event Viewer Can&rsquo;t Show You<a hidden class="anchor" aria-hidden="true" href="#step-2--the-carve-what-event-viewer-cant-show-you">#</a></h2>
+<p>Here&rsquo;s the part that makes this challenge special.</p>
+<p>Event Viewer and <code>Get-WinEvent</code> both go through the Windows Event Log API, which trusts the file&rsquo;s own index — its chunk headers. Check those first:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">&#34;ElfChnk&#34; magic:          not found
+</span></span><span class="line"><span class="cl">FileHeader.nextRecordId:  8        (we only saw 6 events)
+</span></span></code></pre></div><p>No valid chunk headers. <strong>Hand-crafted EVTX.</strong> The API can only recover a fraction of what&rsquo;s physically in the file, because the index it relies on was stripped out.</p>
+<p>So stop trusting the index and carve the records directly:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">Evtx.Evtx</span> <span class="k">as</span> <span class="nn">evtx</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">evtx</span><span class="o">.</span><span class="n">Evtx</span><span class="p">(</span><span class="s1">&#39;Security.evtx&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">records</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">xml</span><span class="p">())</span>
+</span></span></code></pre></div><p><img alt="Get-WinEvent shows 6 + 7; python-evtx recovers 53 + 25" loading="lazy" src="/public/images/the-last-day/03_hidden.png"></p>
+<p><strong>Security: 53 records. Sysmon: 25.</strong> Versus the 13 Event Viewer showed.</p>
+<div class="dr-callout danger">
+  <span class="t">The pivot of the whole challenge</span>
+  <p>EVTX records render through <strong>templates stored per-chunk</strong>, and some of these records reference templates that live in a <em>different chunk</em> than the one they sit in. python-evtx only looks in the record's own chunk — a few records still refuse to render until you pool every chunk's templates together and cross-reference. The hidden events are where the entire insider story lives.</p>
+</div>
+<h2 id="step-3--the-folders-no-one-should-be-touching">Step 3 — The Folders No One Should Be Touching<a hidden class="anchor" aria-hidden="true" href="#step-3--the-folders-no-one-should-be-touching">#</a></h2>
+<p>Hidden among the recovered Security records: four <strong>4663 file-access events</strong>, all at 2:56 AM, all under <code>n.wanjiru</code>&rsquo;s session:</p>
+<p><img alt="Event 4663 — Finance shares and browser credentials via wsus.exe" loading="lazy" src="/public/images/the-last-day/04_shares.png"></p>
+<ul>
+<li><code>C:\Shares\Finance\Q3_Client_Contracts.xlsx</code></li>
+<li><code>C:\Shares\Finance\Client_Master_List.xlsx</code></li>
+<li><code>...\Firefox\Profiles\kushu3sd.default\logins.json</code></li>
+<li><code>...\Chrome\User Data\Default\Login Data</code></li>
+</ul>
+<p>Finance contracts and saved browser passwords — <em>this</em> is what the description meant by &ldquo;folders this employee had no reason to touch.&rdquo;</p>
+<p>And the process doing the reading: <code>C:\Users\Defau1t\wsus.exe</code>. WSUS is a Windows service that lives in <code>C:\Windows\System32</code> — never in a user profile with a suspiciously familiar-looking name (<code>Defau1t</code>, with a one). <strong>A renamed binary masquerading as Windows Update.</strong> Classic T1036.</p>
+<h2 id="step-4--two-answers-in-one-command-line-q3--q4">Step 4 — Two Answers in One Command Line (Q3 + Q4)<a hidden class="anchor" aria-hidden="true" href="#step-4--two-answers-in-one-command-line-q3--q4">#</a></h2>
+<p>An archiver has exactly one job: read files, write archives. But first, the process creation event at 3:03:45 AM in the carved Sysmon log hands us two answers gift-wrapped:</p>
+<p><img alt="Sysmon EID 1 — the 7z archive command" loading="lazy" src="/public/images/the-last-day/05_7z.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Image:        C:\Program Files\7-Zip\7z.exe
+</span></span><span class="line"><span class="cl">User:         P3RFCORP\n.wanjiru
+</span></span><span class="line"><span class="cl">CommandLine:  7z.exe a -p client_exports_final.7z F:\Staging\*
+</span></span></code></pre></div><p>Read it like a sentence:</p>
+<ul>
+<li><strong><code>F:\Staging</code></strong> — where the sensitive files were staged before archiving (Q3). Sysmon&rsquo;s file-create events confirm it: <code>F:\Staging\ClientExports_Raw.xlsx</code> appeared at 2:52 AM.</li>
+<li><strong><code>client_exports_final.7z</code></strong> — the exact archive filename (Q4)</li>
+<li><strong><code>-p</code></strong> — password-protected. The attacker locked the box before moving it.</li>
+</ul>
+<h2 id="step-5--the-upload-timestamped-q5--q6">Step 5 — The Upload, Timestamped (Q5 + Q6)<a hidden class="anchor" aria-hidden="true" href="#step-5--the-upload-timestamped-q5--q6">#</a></h2>
+<p>An archiver does not make network connections. Ever. So when the carved Sysmon log shows <code>7z.exe</code> opening a TCP socket, you pay attention:</p>
+<p><img alt="Sysmon EID 3 — the exfiltration connection to vault-personal-sync.io" loading="lazy" src="/public/images/the-last-day/06_exfil.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Image:               C:\Program Files\7-Zip\7z.exe
+</span></span><span class="line"><span class="cl">Protocol:            tcp    Initiated: True
+</span></span><span class="line"><span class="cl">DestinationHostname: vault-personal-sync.io
+</span></span><span class="line"><span class="cl">DestinationPort:     443 (https)
+</span></span><span class="line"><span class="cl">TimeCreated:         2026-09-14 00:07:22 UTC   (03:07:22 AM local)
+</span></span></code></pre></div><p>The archive leaves the machine <em>from the archiver itself</em>, to <strong><code>vault-personal-sync.io</code></strong> on 443 (Q5) — a domain pretending to be a personal cloud-sync service. The timestamp: <strong>00:07:22 UTC</strong> (Q6).</p>
+<div class="dr-callout warn">
+  <span class="t">Timezone note — this one cost me a submission</span>
+  <p>The log stores <code>00:07:22</code> UTC, which displays as <code>03:07:22 AM</code> on a UTC+3 machine. Which one does the platform want? After a few format guesses: the accepted answer was the <strong>full stored timestamp with the date</strong> — <code>r00t{2026-09-14 00:07:22}</code>. When a CTF asks "what time," try the exact timestamp as recorded in the log before anything cleverer.</p>
+</div>
+<h2 id="step-6--the-paperwork-lies-q7--the-flag">Step 6 — The Paperwork Lies (Q7 + The Flag)<a hidden class="anchor" aria-hidden="true" href="#step-6--the-paperwork-lies-q7--the-flag">#</a></h2>
+<p>The final question points at HR: <em>&ldquo;several account deactivations that same morning — standard offboarding, nothing unusual on the surface. But whoever handled the paperwork for this specific departure may have left something behind in the record.&rdquo;</em></p>
+<p>The carved Security log contains six <strong>4725 (account disabled)</strong> events from <code>HR-ADMIN01</code> — same template, same morning: <code>j.omondi</code>, <code>s.achieng</code>, <code>p.mutua</code>, <code>l.karanja</code>, <code>d.njoroge</code>&hellip; and <code>n.wanjiru</code>. Every decoy shows the same actor: <code>SubjectUserName: it.admin</code>. Then you reach the record for <em>this</em> departure:</p>
+<p><img alt="The 4725 record — the flag left in the SubjectUserName field" loading="lazy" src="/public/images/the-last-day/07_flag.png"></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">TargetUserName:   n.wanjiru
+</span></span><span class="line"><span class="cl">SubjectUserName:  r00t{th3_l4st_d4y_1ns1d3r_thr34t}
+</span></span></code></pre></div><p>Whoever &ldquo;handled the paperwork&rdquo; left the flag <strong>in the actor field of the account-disable record itself</strong>. HR&rsquo;s own paperwork was the hiding place. That&rsquo;s the kind of touch that makes a forensics challenge memorable.</p>
+<p>To be sure it was the only one: regex the raw bytes of both files for any <code>r00t{...}</code> — both UTF-16 byte alignments, both encodings. Exactly <strong>one</strong> flag exists in the entire dataset, and it only survives as a raw byte string inside that hidden record.</p>
+<h2 id="step-7--scoreboard">Step 7 — Scoreboard<a hidden class="anchor" aria-hidden="true" href="#step-7--scoreboard">#</a></h2>
+<p><img alt="All seven answers accepted — 7/7, 400/400" loading="lazy" src="/public/images/the-last-day/08_answers.png"></p>
+<table>
+	<thead>
+			<tr>
+					<th>Q</th>
+					<th>Answer</th>
+					<th>Where it hid</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Q1</td>
+					<td><code>r00t{n.wanjiru}</code></td>
+					<td>visible 4624, LogonType 10</td>
+			</tr>
+			<tr>
+					<td>Q2</td>
+					<td><code>r00t{203.0.113.77}</code></td>
+					<td>visible 4624, IpAddress</td>
+			</tr>
+			<tr>
+					<td>Q3</td>
+					<td><code>r00t{F:\Staging}</code></td>
+					<td>hidden Sysmon EID 11 + the 7z command line</td>
+			</tr>
+			<tr>
+					<td>Q4</td>
+					<td><code>r00t{client_exports_final.7z}</code></td>
+					<td>hidden Sysmon EID 1, CommandLine</td>
+			</tr>
+			<tr>
+					<td>Q5</td>
+					<td><code>r00t{vault-personal-sync.io}</code></td>
+					<td>hidden Sysmon EID 3, DestinationHostname</td>
+			</tr>
+			<tr>
+					<td>Q6</td>
+					<td><code>r00t{2026-09-14 00:07:22}</code></td>
+					<td>hidden Sysmon EID 3, TimeCreated</td>
+			</tr>
+			<tr>
+					<td>Q7</td>
+					<td><code>r00t{th3_l4st_d4y_1ns1d3r_thr34t}</code></td>
+					<td>hidden 4725, SubjectUserName</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>7/7 — 400/400.</strong></p>
+<div class="dr-callout ok">
+  <span class="t">Format gotcha for anyone playing this platform</span>
+  <p><strong>Every answer needs the <code>r00t{...}</code> wrapper</strong>, not just the final flag. Five of mine bounced before I wrapped them. Don't be me.</p>
+</div>
+<h2 id="noise-that-eats-your-time">Noise That Eats Your Time<a hidden class="anchor" aria-hidden="true" href="#noise-that-eats-your-time">#</a></h2>
+<p>Half of forensics is knowing what to ignore. This challenge scatters decent decoys:</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> C:\ProgramData\Intel\CV.exe + wwlib.dll</span>
+    An unsigned binary masquerading as Intel graphics, spawning <code>calc.exe</code>. Genuinely suspicious-looking — but it's set dressing, not the story.
+    <span class="truth">not connected to the staged files</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> lync.zip + i.exe + cmdkey.exe</span>
+    A whole separate malware chain, timestamped at midnight. Credential juggling that goes nowhere near <code>F:\Staging</code>.
+    <span class="truth">a different campaign, not this incident</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> nc.exe → 127.0.0.1:9299</span>
+    A netcat connection to <em>localhost</em>. Not exfiltration — just a local listener.
+    <span class="truth">loopback traffic, nothing leaves the host</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> The UtcTime fields inside Sysmon events</span>
+    <code>2020-10-17</code>, <code>2020-08-02</code>... stale template junk the author never patched. The real story timeline lives in <code>TimeCreated</code>.
+    <span class="truth">template leftovers, will lead you to 2020</span>
+  </div>
+</div>
+<p>The thread that never breaks: <strong><code>n.wanjiru</code>&rsquo;s session, 02:47 → 03:07</strong>.</p>
+<h2 id="the-full-carve-script">The Full Carve Script<a hidden class="anchor" aria-hidden="true" href="#the-full-carve-script">#</a></h2>
+<p>The one that recovers records Event Viewer can&rsquo;t — including the cross-chunk template pooling:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!/usr/bin/env python3</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;Carve every recoverable record from a hand-crafted EVTX file.
+</span></span></span><span class="line"><span class="cl"><span class="s2">Pools templates across chunks so cross-chunk template references resolve.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">Evtx.Evtx</span> <span class="k">as</span> <span class="nn">evtx</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">Evtx.Evtx</span> <span class="kn">import</span> <span class="n">Record</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">PoolChunk</span><span class="p">:</span>                       <span class="c1"># stand-in chunk with every template</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templates</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_offset</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">_templates</span> <span class="o">=</span> <span class="n">templates</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_templates</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">carve_offsets</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;scan raw bytes for record magic, walk by declared size, check footer&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">offs</span><span class="p">,</span> <span class="n">seen</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="p">[],</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">buf</span><span class="p">),</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">28</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">buf</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x2a\x2a\x00\x00</span><span class="s1">&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&lt;I&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">4</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="mi">24</span> <span class="o">&lt;=</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mh">0x10000</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="n">n</span>
+</span></span><span class="line"><span class="cl">                    <span class="ow">and</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&lt;I&#39;</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="n">size</span><span class="o">-</span><span class="mi">4</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">size</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="n">offs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">i</span> <span class="o">+=</span> <span class="n">size</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">offs</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;Security.evtx&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">log</span> <span class="o">=</span> <span class="n">evtx</span><span class="o">.</span><span class="n">Evtx</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">log</span><span class="o">.</span><span class="fm">__enter__</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">buf</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">_buf</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 1. pool templates from every chunk</span>
+</span></span><span class="line"><span class="cl"><span class="n">pool_templates</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">log</span><span class="o">.</span><span class="n">chunks</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">pool_templates</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">templates</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">pass</span>
+</span></span><span class="line"><span class="cl"><span class="n">pool</span> <span class="o">=</span> <span class="n">PoolChunk</span><span class="p">(</span><span class="n">pool_templates</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2. render every carved record (pooled fallback for cross-chunk refs)</span>
+</span></span><span class="line"><span class="cl"><span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="n">carve_offsets</span><span class="p">(</span><span class="n">buf</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">xml</span> <span class="o">=</span> <span class="n">Record</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span><span class="o">.</span><span class="n">xml</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">xml</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+</span></span></code></pre></div><p>Dependencies: <code>pip install python-evtx</code>. The rest is standard library.</p>
+<h2 id="why-you-should-care-at-2-am-defender-notes">Why You Should Care at 2 AM (Defender Notes)<a hidden class="anchor" aria-hidden="true" href="#why-you-should-care-at-2-am-defender-notes">#</a></h2>
+<p>This challenge is fiction, but every technique in it shows up in real insider incidents.</p>
+<ol>
+<li><strong>Offboarding windows are attack windows.</strong> The last days of employment are when data theft peaks — and &ldquo;routine offboarding&rdquo; is exactly when nobody looks twice. If HR and log review don&rsquo;t talk to each other, you&rsquo;re running on hope.</li>
+<li><strong>Renamed binaries are free.</strong> <code>wsus.exe</code> in a user profile, <code>CV.exe</code> pretending to be Intel — Masquerading (T1036) costs an attacker nothing and defeats naive &ldquo;is this a known-good process?&rdquo; checks. Check <em>paths</em>, not just names.</li>
+<li><strong>Archivers don&rsquo;t phone home.</strong> <code>7z.exe</code> opening a TCP socket is a five-alarm anomaly. Baseline which processes legitimately make outbound connections and alert on the rest.</li>
+<li><strong>EVTX files can lie by omission.</strong> Tampered logs with stripped chunk headers hide records from every tool that trusts the file&rsquo;s index. When counts and file sizes disagree, carve.</li>
+</ol>
+<h3 id="detection-tells">Detection Tells<a hidden class="anchor" aria-hidden="true" href="#detection-tells">#</a></h3>
+<p>The same ones this challenge exhibited:</p>
+<ul>
+<li><strong>RDP logons (4624, LogonType 10) outside business hours</strong> for accounts flagged for departure</li>
+<li><strong>4663 file access to sensitive shares</strong> from processes whose paths don&rsquo;t match their names</li>
+<li><strong>Sysmon EID 1</strong> with archive tooling in the command line (<code>7z a -p</code>, especially <code>-p</code>)</li>
+<li><strong>Sysmon EID 3</strong> from any process that should never touch the network</li>
+<li><strong>File size vs. event count mismatch</strong> in exported EVTX files — a tampering tell</li>
+<li><strong>4725/4726 account changes</strong> where the actor field doesn&rsquo;t match the expected admin workflow</li>
+</ul>
+<p>One after-hours RDP login is a coincidence. An after-hours RDP login, a staging folder, a password-protected archive, and an upload to a personal &ldquo;sync vault&rdquo; in twenty minutes is a filing cabinet leaving the building — with HR signing the paperwork on the way out.</p>
+<h2 id="recap--seven-moves">Recap — Seven Moves<a hidden class="anchor" aria-hidden="true" href="#recap--seven-moves">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>Step</th>
+					<th>Action</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>1</td>
+					<td>Notice the file sizes don&rsquo;t match the event counts</td>
+			</tr>
+			<tr>
+					<td>2</td>
+					<td>Spot the after-hours RDP logon (Q1 + Q2)</td>
+			</tr>
+			<tr>
+					<td>3</td>
+					<td>Carve the EVTX — Event Viewer can&rsquo;t show what&rsquo;s inside</td>
+			</tr>
+			<tr>
+					<td>4</td>
+					<td>Find the Finance access via a renamed <code>wsus.exe</code></td>
+			</tr>
+			<tr>
+					<td>5</td>
+					<td>Catch the <code>7z a -p</code> archive command (Q3 + Q4)</td>
+			</tr>
+			<tr>
+					<td>6</td>
+					<td>Catch the upload to <code>vault-personal-sync.io</code> (Q5 + Q6)</td>
+			</tr>
+			<tr>
+					<td>7</td>
+					<td>Read HR&rsquo;s paperwork — the flag is in the record (Q7)</td>
+			</tr>
+	</tbody>
+</table>
+<p>HR said it was routine. The logs — all 78 of them, not just the 13 that render — said otherwise.</p>
+<p><strong>Trust the carve.</strong></p>
+<hr>
+<p><em>Tooling: python-evtx + a raw-bytes carve (full script above). All visuals recreated from the actual event data.</em></p>
+<p><em>— Frank Ngaruiya (@z3r0bme)</em></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/digital-forensics/">Digital Forensics</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/windows-event-logs/">Windows Event Logs</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/insider-threat/">Insider Threat</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/exfiltration/">Exfiltration</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
