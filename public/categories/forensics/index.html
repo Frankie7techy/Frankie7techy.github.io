@@ -10,7 +10,7 @@
 <meta name="description" content="CTF Writeups and Security Research">
 <meta name="author" content="z3ro">
 <link rel="canonical" href="https://frankie7techy.github.io/public/categories/forensics/">
-<link crossorigin="anonymous" href="/public/assets/css/stylesheet.93d6d4ffa5f195c72fc804a16d9c42ac95eb9a1e2084f3f3183cf4b70b2cb2d6.css" integrity="sha256-k9bU/6XxlccvyAShbZxCrJXrmh4ghPPzGDz0twssstY=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
@@ -96,31 +96,59 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Dead Reckoning — When the Paperwork Lies, Trust the Physics
+    <h2 class="entry-hint-parent">Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge
     </h2>
   </header>
   <div class="entry-content">
-    <p> Forensics Hard 400 pts AfricaHackon · Dr Programmer DEAD RECKONING A SkyTrack-7 flight data recorder logged a Cessna 172S flying Nairobi Wilson → Mombasa. A firmware fault (Advisory SA-019) injected ghost fixes with plausible timestamps and impossible positions. The paperwork offers four ways to spot them. All four are lies. Only Newton tells the truth.
-39Log entries 26Authentic fixes 13Ghost fixes 0.04–148km off-path Flag r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b} TL;DR The challenge hands you a binary log, a detailed format spec, an aircraft performance manual, and two scorer binaries. The spec contains two advisories, a buried “analyst shortcut,” and a reference solver — all agreeing with each other. That much agreement in forensic documentation is not a help; it’s a hook.
+    <p> Forensics Network 1 flag r00t CTF · Phantom Drop PHANTOM DROP A short packet capture from a workstation that made five requests it should not have made. One of them fetches an executable dressed up as a Windows Update cabinet. One of them posts credentials to a domain that is not a telemetry service. The whole intrusion fits in under a minute, and it never bothered to encrypt.
+45Packets total 52sCapture window 3Malicious domains 1Flag recovered Flag r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l} TL;DR The capture is small enough to read end to end, which is the whole gift here. The story it tells:
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Dead Reckoning — When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
+  <footer class="entry-footer"><span title='2026-10-13 00:00:00 +0000 UTC'>October 13, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge" href="https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Packet Whisperer — The One Where DNS Snitched on Itself
+    <h2 class="entry-hint-parent">Dead Reckoning: When the Paperwork Lies, Trust the Physics
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Hard 400 pts AfricaHackon · Dr Programmer DEAD RECKONING A SkyTrack-7 flight data recorder logged a Cessna 172S flying Nairobi Wilson → Mombasa. A firmware fault (Advisory SA-019) injected ghost fixes with plausible timestamps and impossible positions. The paperwork offers four ways to spot them. All four are lies. Only Newton tells the truth.
+39Log entries 26Authentic fixes 13Ghost fixes 0.04-148km off-path Flag r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b} TL;DR The challenge hands you a binary log, a detailed format spec, an aircraft performance manual, and two scorer binaries. The spec contains two advisories, a buried “analyst shortcut,” and a reference solver, all agreeing with each other. That much agreement in forensic documentation is not a help; it’s a hook.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Dead Reckoning: When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">The Last Day: HR Said It Was Routine. The Logs Disagreed.
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Medium 400 pts r00t CTF · k4p3re THE LAST DAY HR flagged it as routine: an employee&#39;s last day, standard offboarding. But between 02:47 and 03:07 one morning, an offboarded employee RDP&#39;d back into WKSTN-14, staged sensitive files, read Finance contracts and saved browser passwords with a renamed binary, 7-Zip&#39;d the lot, and uploaded it to a personal &#34;vault&#34; domain. Meanwhile HR&#39;s own paperwork quietly carried the flag.
+78Records in the files 13Event Viewer could show 20 minAttack window 7/7Solved, 400 pts Flag r00t{th3_l4st_d4y_1ns1d3r_thr34t} TL;DR Two log exports land on your desk. You open them and Event Viewer shows 13 events. The file sizes say 528 KB and 200 KB, and that math does not add up. The real story is in the records Event Viewer physically cannot show.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to The Last Day: HR Said It Was Routine. The Logs Disagreed." href="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Packet Whisperer: The One Where DNS Snitched on Itself
     </h2>
   </header>
   <div class="entry-content">
     <p>Challenge Overview Field Value Platform AfricaHackon Challenge Packet Whisperer Author p3rf3ctr00t Category Network Forensics Difficulty Easy Points 100 Given chall.pcap (1,279 packets) “Analyze the provided PCAP and identify the hidden DNS-related flag.”
 Flag: r00t{1ts_4lw4y5_DNS_r1ght}
-TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).
+TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it, zero Wireshark required (though it works there too).
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Packet Whisperer — The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
+  <a class="entry-link" aria-label="post link to Packet Whisperer: The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
 </article>
     </main>
     

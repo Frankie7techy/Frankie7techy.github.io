@@ -4,23 +4,37 @@
     <title>Forensics on z3ro :: CTF &amp; Security Research</title>
     <link>https://frankie7techy.github.io/public/categories/forensics/</link>
     <description>Recent content in Forensics on z3ro :: CTF &amp; Security Research</description>
-    <generator>Hugo -- 0.140.2</generator>
+    <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 13 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/categories/forensics/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Dead Reckoning — When the Paperwork Lies, Trust the Physics</title>
+      <title>Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge</title>
+      <link>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</guid>
+      <description>A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.</description>
+    </item>
+    <item>
+      <title>Dead Reckoning: When the Paperwork Lies, Trust the Physics</title>
       <link>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</guid>
       <description>A corrupted flight data recorder log, 13 ghost entries, and four different pieces of paperwork all trying to send me to the wrong answer. Reconstructing a Cessna&amp;#39;s true flight path with nothing but dead-reckoning physics.</description>
     </item>
     <item>
-      <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
+      <title>The Last Day: HR Said It Was Routine. The Logs Disagreed.</title>
+      <link>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</link>
+      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</guid>
+      <description>An insider threat hidden inside hand-crafted Windows event logs, records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
+    </item>
+    <item>
+      <title>Packet Whisperer: The One Where DNS Snitched on Itself</title>
       <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
-      <description>DNS exfiltration reversed from a PCAP — pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
+      <description>DNS exfiltration reversed from a PCAP, pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
     </item>
   </channel>
 </rss>

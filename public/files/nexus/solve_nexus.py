@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Nexus — offline flag recovery from the official scorer's embedded rodata.
+"""Nexus: offline flag recovery from the official scorer's embedded rodata.
 
 Every labeled field in nexus.bin is a decoy. The only thing that tells the
-truth is `check` — the official scorer. It XOR-decodes its expected answer
+truth is `check`, the official scorer. It XOR-decodes its expected answer
 with a 4-byte key hidden in .rodata, so we can recover the flag statically.
 """
 
