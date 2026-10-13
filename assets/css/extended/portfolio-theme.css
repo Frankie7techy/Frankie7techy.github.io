@@ -726,3 +726,63 @@ pre,
     .dr-stats { grid-template-columns: repeat(2, 1fr); }
     .dr-traps { grid-template-columns: 1fr; }
 }
+
+/* ---- home page: intro + recent posts list ---- */
+.home-intro {
+    margin-bottom: 2.25rem;
+}
+
+.home-subhead {
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--z3ro-line);
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.home-posts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.home-posts li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.95rem;
+    margin: 0.5rem 0;
+    background: var(--z3ro-card);
+    border: 1px solid var(--z3ro-line);
+    border-radius: 8px;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.home-posts li:hover {
+    border-color: var(--z3ro-green);
+    transform: translateX(3px);
+}
+
+.home-posts a {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.home-posts a:hover {
+    color: var(--z3ro-green);
+}
+
+.home-date {
+    flex: none;
+    font-family: var(--z3ro-mono);
+    font-size: 0.78rem;
+    color: var(--z3ro-dim);
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .home-posts li { flex-direction: column; gap: 0.15rem; }
+}
+

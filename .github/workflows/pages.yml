@@ -46,8 +46,11 @@ jobs:
       # anything later rewrites those line endings, the browser rejects
       # the stylesheet and the whole site renders unstyled. This keeps the
       # integrity hash and the served bytes provably identical.
+      # --cleanDestinationDir drops any file under public/ that the current
+      # build did not produce, so renamed/removed pages (for example the old
+      # taxonomy term pages) cannot linger as stale orphans.
       - name: Build
-        run: hugo --gc --destination public
+        run: hugo --gc --cleanDestinationDir --destination public
 
       - name: Commit rebuilt site
         run: |

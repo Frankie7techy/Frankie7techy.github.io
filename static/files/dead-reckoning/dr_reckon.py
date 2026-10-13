@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Dead Reckoning (SkyTrack-7 FDR) — ghost-entry filter via chain dead reckoning.
+"""Dead Reckoning (SkyTrack-7 FDR): ghost-entry filter via chain dead reckoning.
 
 Reconstructs the true flight path from a corrupted flight data recorder log:
 each entry is predicted from the LAST authentic fix using the spherical-Earth
@@ -15,7 +15,7 @@ Criteria (from the aircraft performance manual):
 import struct
 import math
 
-R = 6371.0          # spherical Earth radius (km) — manual §4.4
+R = 6371.0          # spherical Earth radius (km), manual §4.4
 HEADER_SIZE = 26
 ENTRY_SIZE = 28
 
@@ -63,7 +63,7 @@ def main():
     entries = parse_fdr('fdr.bin')
 
     # Sequential chain filtering: every candidate is predicted from the LAST
-    # authentic fix — ghosts never pollute the reference track.
+    # authentic fix, ghosts never pollute the reference track.
     authentic = [entries[0]]
     ghosts = []
     for e in entries[1:]:
