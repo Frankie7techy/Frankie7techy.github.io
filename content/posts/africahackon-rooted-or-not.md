@@ -1,8 +1,8 @@
 ---
-title: "AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything"
+title: "AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything"
 date: 2026-09-23
 draft: false
-description: "Android APK reversing — XOR key recovered, static analysis only. A vault app gates its debug panel behind a root check, but the flag is computed statically. No rooting, no emulator, no Frida needed."
+description: "Android APK reversing, XOR key recovered, static analysis only. A vault app gates its debug panel behind a root check, but the flag is computed statically. No rooting, no emulator, no Frida needed."
 tags: ["CTF", "AfricaHackon", "Mobile", "Reverse Engineering", "Android"]
 categories: ["CTF Writeups"]
 authors: ["z3ro"]
@@ -20,7 +20,7 @@ authors: ["z3ro"]
 | **Points** | 100 |
 | **Operation** | "PERFECT ROOT" |
 
-> A vault app exposes a debug panel — but the developers claim it's safe since it's gated behind a root check, and *"real users don't root their phones."*
+> A vault app exposes a debug panel, but the developers claim it's safe since it's gated behind a root check, and *"real users don't root their phones."*
 
 **Files:** `Rooted or not.zip` → `vaultapp.apk`
 
@@ -28,7 +28,7 @@ authors: ["z3ro"]
 
 ## TL;DR
 
-The app's entire security model is a single `File.exists("/system/bin/su")` check. The flag is computed **statically** via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
+The app's entire security model is a single `File.exists("/system/bin/su")` check. The flag is computed **statically** via XOR with a deterministic key, no rooting, no emulator, no Frida needed. Pure static analysis wins again.
 
 **The five moves:**
 1. Unpack the APK (it's just a ZIP)
@@ -39,9 +39,9 @@ The app's entire security model is a single `File.exists("/system/bin/su")` chec
 
 ---
 
-## Step 1 — Unpack the APK
+## Step 1: Unpack the APK
 
-An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and `classes.dex` is only 1.6 KB — tiny enough to tear apart by hand.
+An APK is just a ZIP archive, so no special tooling is needed to look inside. The entire app is ~8.5 KB and `classes.dex` is only 1.6 KB, tiny enough to tear apart by hand.
 
 ![Extracting the APK](/public/images/rooted-or-not/step1_extract.png)
 
@@ -52,20 +52,20 @@ unzip vaultapp.apk
 
 ---
 
-## Step 2 — Strings Recon
+## Step 2: Strings Recon
 
 Pulling printable strings out of `classes.dex` immediately reveals the attack surface:
 
-- `/system/bin/su` — the classic root-detection path
-- `unlockDebugFlag`, `deriveKey`, `ENCODED_FLAG`, `SEED` — the debug panel's "gate" and the crypto behind it
+- `/system/bin/su`, the classic root-detection path
+- `unlockDebugFlag`, `deriveKey`, `ENCODED_FLAG`, `SEED`, the debug panel's "gate" and the crypto behind it
 
 ![Strings in classes.dex](/public/images/rooted-or-not/step2_strings.png)
 
 ---
 
-## Step 3 — Disassemble the Gate
+## Step 3: Disassemble the Gate
 
-Using **androguard** (pure Python — runs fine on Windows where apktool/jadx wanted Java), the flow in `MainActivity.onCreate()` is clear:
+Using **androguard** (pure Python, runs fine on Windows where apktool/jadx wanted Java), the flow in `MainActivity.onCreate()` is clear:
 
 ```smali
 invoke-static RootCheck;->isDeviceRooted()Z
@@ -73,13 +73,13 @@ if-eqz v0, +0xa            # rooted → print "Root detected - access denied"
 invoke-static RootCheck;->unlockDebugFlag()Ljava/lang/String;   # not rooted → log flag
 ```
 
-If the device is **not** rooted, the app just calls `unlockDebugFlag()` and prints the flag to logcat. So the "debug panel" is a red herring — **the flag is computed statically in code**.
+If the device is **not** rooted, the app just calls `unlockDebugFlag()` and prints the flag to logcat. So the "debug panel" is a red herring, **the flag is computed statically in code**.
 
 ![Root check gate in onCreate](/public/images/rooted-or-not/step3_disasm.png)
 
 ---
 
-## Step 4 — The Whole "Protection"
+## Step 4: The Whole "Protection"
 
 `RootCheck.java` is the entire security model:
 
@@ -100,7 +100,7 @@ A single `File.exists()` check, and a deterministic XOR with a key anyone can re
 
 ---
 
-## Step 5 — Grab the Ciphertext
+## Step 5: Grab the Ciphertext
 
 The static initializer (`<clinit>`) fills `ENCODED_FLAG` with a 40-byte payload via `fill-array-data`:
 
@@ -114,9 +114,9 @@ b3 a2 e9 ac b9 8f 8d 8b 36 7a 63 24 6d 7a 58 5b
 
 ---
 
-## Step 6 — Replay the Crypto Offline
+## Step 6: Replay the Crypto Offline
 
-Since decryption is just `flag[i] = enc[i] ^ ((90 + 7*i) & 0xff)`, we can reproduce it in a Python one-liner — no rooted phone, no emulator, no Frida needed.
+Since decryption is just `flag[i] = enc[i] ^ ((90 + 7*i) & 0xff)`, we can reproduce it in a Python one-liner, no rooted phone, no emulator, no Frida needed.
 
 ![Decoding the flag](/public/images/rooted-or-not/step6_flag.png)
 
@@ -144,7 +144,7 @@ r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck}
 ## Lessons Learned
 
 - **A root check is not a vault.** Gating decryption keys behind runtime device state is meaningless when the ciphertext, key formula, and decrypt routine all ship in the APK.
-- **Static analysis beats dynamic bypasses.** Before reaching for Frida/Magisk hide, check if the secret is computed deterministically — replaying it offline takes seconds.
+- **Static analysis beats dynamic bypasses.** Before reaching for Frida/Magisk hide, check if the secret is computed deterministically, replaying it offline takes seconds.
 - **Small DEX = fast wins.** Even without apktool/jadx, system Python (`zipfile` + `re`) gets you 80% of the way; androguard covers the rest with no Java dependency.
 
 ---
@@ -153,7 +153,7 @@ r00t{st4t1c_4n4lys1s_byp4ss3s_th3_ch3ck}
 
 ```python
 #!/usr/bin/env python3
-"""Rooted or not? — offline flag decoder. No rooting required."""
+"""Rooted or not? - offline flag decoder. No rooting required."""
 
 import zipfile
 import re
@@ -189,4 +189,4 @@ if __name__ == '__main__':
 
 ---
 
-*— Frank Ngaruiya (@z3r0bme)*
+*Frank Ngaruiya (@z3r0bme)*

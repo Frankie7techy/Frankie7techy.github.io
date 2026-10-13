@@ -16,14 +16,14 @@ This challenge involved exploiting a misconfigured web app to gain unauthorized 
 nmap -sC -sV 10.10.10.10
 \`\`\`
 Discovered ports:
-- 80/tcp — HTTP (Apache 2.4.41)
-- 22/tcp — SSH (OpenSSH 8.2p1)
+- 80/tcp, HTTP (Apache 2.4.41)
+- 22/tcp, SSH (OpenSSH 8.2p1)
 
 ---
 
 ## 💥 Exploitation
-During directory fuzzing with \`ffuf\`, found \`/backup.zip\`.  
-Unzipped credentials for \`admin:SuperSecure123\`.  
+During directory fuzzing with \`ffuf\`, found \`/backup.zip\`. 
+Unzipped credentials for \`admin:SuperSecure123\`. 
 Login exposed an **LFI vulnerability** at \`index.php?file=...\`.
 
 \`\`\`bash
@@ -37,7 +37,7 @@ After gaining shell access:
 \`\`\`bash
 linpeas.sh | tee output.txt
 \`\`\`
-Found \`/usr/local/bin/backup\` with SUID bit.  
+Found \`/usr/local/bin/backup\` with SUID bit. 
 Exploited it via \`bash -p\` to spawn a root shell.
 
 ---
