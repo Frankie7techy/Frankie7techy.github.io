@@ -190,8 +190,8 @@ None of this is exotic, which is exactly why it is worth writing down. Four chan
 
 <div class="dr-traps">
   <div class="dr-trap">
-    <span class="t"><span class="x">✗</span> kgid/key path from the token</span>
-    Never derive a filesystem path from a token header. Pin the key to a known, mapped `kid` value and reject anything that does not match.
+    <span class="t"><span class="x">✗</span> Key path taken from the token</span>
+    Never derive a filesystem path from a token header. Pin the key to a known, mapped <code>kid</code> value and reject anything that does not match.
     <span class="truth">no traversal, no key swap</span>
   </div>
   <div class="dr-trap">
@@ -201,7 +201,7 @@ None of this is exotic, which is exactly why it is worth writing down. Four chan
   </div>
   <div class="dr-trap">
     <span class="t"><span class="x">✗</span> shelling out with a filename</span>
-    Pass arguments as a list to `subprocess` without `shell=True`, and validate the filename against a strict allowlist.
+    Pass arguments as a list to <code>subprocess</code> without <code>shell=True</code>, and validate the filename against a strict allowlist.
     <span class="truth">semicolons become literal text</span>
   </div>
   <div class="dr-trap">

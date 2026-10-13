@@ -145,7 +145,7 @@ The intrusion never needed encryption or a zero day. It needed a filename people
 <div class="dr-traps">
   <div class="dr-trap">
     <span class="t"><span class="x">✗</span> Trusting the filename over the bytes</span>
-    `wuident.cab` returned an executable. Checking the magic bytes of anything that lands in a temp or update path catches this instantly.
+    <code>wuident.cab</code> returned an executable. Checking the magic bytes of anything that lands in a temp or update path catches this instantly.
     <span class="truth">PE where a CAB belongs</span>
   </div>
   <div class="dr-trap">
