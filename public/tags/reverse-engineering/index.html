@@ -96,30 +96,30 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Nexus — When Every Field Lies, Trust the Scorer
+    <h2 class="entry-hint-parent">Nexus: When Every Field Lies, Trust the Scorer
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Nexus Author Dr Programmer Category Reverse Engineering Difficulty Hard Points 400 Given 02_NEXUS.zip → check, validator, nexus.bin “A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes — but the binary contains a 72-byte ‘decoy header’ declaring a different block order (01234567), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a hash_chain_init field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.”
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Nexus Author Dr Programmer Category Reverse Engineering Difficulty Hard Points 400 Given 02_NEXUS.zip → check, validator, nexus.bin “A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes, but the binary contains a 72-byte ‘decoy header’ declaring a different block order (01234567), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a hash_chain_init field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.”
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Nexus — When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
+  <a class="entry-link" aria-label="post link to Nexus: When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything
+    <h2 class="entry-hint-parent">AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel, but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
 Files: Rooted or not.zip → vaultapp.apk
-TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
+TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key, no rooting, no emulator, no Frida needed. Pure static analysis wins again.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
+  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
 </article>
     </main>
     

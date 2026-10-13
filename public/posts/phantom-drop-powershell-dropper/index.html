@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Forensics, Network Forensics, Malware Analysis, PowerShell">
+<meta name="description" content="A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.2e9596eb0a4be44362e84d18a97c975d280ce315277cfb69c076efa9dbdd5809.css" integrity="sha256-LpWW6wpL5ENi6E0YqXyXXSgM4xUnfPtpwHbvqdvdWAk=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge">
+  <meta property="og:description" content="A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-13T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-13T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Forensics">
+    <meta property="article:tag" content="Network Forensics">
+    <meta property="article:tag" content="Malware Analysis">
+    <meta property="article:tag" content="PowerShell">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge">
+<meta name="twitter:description" content="A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge",
+      "item": "https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge",
+  "name": "Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge",
+  "description": "A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.",
+  "keywords": [
+    "CTF", "Forensics", "Network Forensics", "Malware Analysis", "PowerShell"
+  ],
+  "articleBody": " Forensics Network 1 flag r00t CTF · Phantom Drop PHANTOM DROP A short packet capture from a workstation that made five requests it should not have made. One of them fetches an executable dressed up as a Windows Update cabinet. One of them posts credentials to a domain that is not a telemetry service. The whole intrusion fits in under a minute, and it never bothered to encrypt.\n45Packets total 52sCapture window 3Malicious domains 1Flag recovered Flag r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l} TL;DR The capture is small enough to read end to end, which is the whole gift here. The story it tells:\nThe host (WKSTN-09, user b.omondi, domain P3RFCORP) pulls a file from windowsupdate.com. It comes back with an MZ header, so it is an executable pretending to be a cabinet. It fetches /stage1/loader.ps1 from updates.cdn-delivery.net, a hex encoded, XOR obfuscated PowerShell loader. It beacons to api.cloudmetrics-push.com with host, user, OS and a campaign id, and gets told to fetch a payload. It fetches the payload, a base64 ZIP. It posts an exfil report to telemetry.winupdate-sync.io whose body is the same ZIP, now containing credentials.txt and system_info.txt. Decode the report body and the flag falls straight out.\nStep 0: Read the Capture Before You Tool It The archive holds one file, capture.pcap. Before reaching for anything, I ask it how big it is:\nForty five packets. Eighteen DNS, twenty seven TCP, ten HTTP frames. A capture this small means I do not need a strategy, I need to look at every request. The protocol hierarchy also says something useful out loud: there is no TLS. Every byte here is readable.\nFirst observation Eighteen DNS queries against ten HTTP requests, on a workstation, in under a minute. That ratio is normal for a chatty Windows box. What is not normal is which names appear.\nStep 1: Separate the Noise From the Names A workstation talks to a lot of legitimate services, and this one does too. www.google.com, login.microsoftonline.com, fonts.googleapis.com, ocsp.digicert.com. All expected, all boring. Then three names stand out because they are impersonating infrastructure:\nupdates.cdn-delivery.net serves the stage one loader. api.cloudmetrics-push.com runs the beacon and the payload. telemetry.winupdate-sync.io receives the exfil report. They are built to pass a glance. “cdn delivery”, “cloud metrics”, “telemetry”. No one reading a firewall log at 2am stops on those. But they are the only three names in the capture that are not a well known provider, and all three are on the same side of the conversation: the workstation is talking to them, not the reverse.\nStep 2: Carve the HTTP Objects With plain HTTP, the fastest path from capture to artifacts is object extraction:\nFive objects, and each one is a piece of the chain:\nwuident.cab Pulled from a real-looking Windows Update path, but its first bytes are 4d 5a 90. That is a PE executable, not a cabinet. loader.ps1 4170 bytes of ASCII hex that decodes to a XOR obfuscated PowerShell stage. The dropper itself. The .cab detail is the nicest part of the challenge. It borrows one of the most trusted filenames on a Windows machine, wuident.cab under the genuine windowsupdate.com host, and swaps the contents for an executable. Defender heuristics see a signed looking update path; a human sees “cab” and moves on.\nThe loader is a two layer wrap. First hex, to make it look like a blob, then a repeating key XOR to keep the strings away from strings. A printability search over candidate key lengths cracks it in seconds once you spot the pattern, because the plaintext is still PowerShell and PowerShell has a very specific vocabulary.\nStep 3: The Beacon Introduces the Host The third request is the check-in, and it volunteers a lot of context about the machine it has just compromised:\nDecoded, it is a tidy little census:\ncid d8f3c1a0-4e7b-4f2a-8c9d-2b1f0e3a5d7c host WKSTN-09 user b.omondi os Windows 10 Pro 22H2 ts 2026-11-10T09:01:44Z task ready The server’s reply to that beacon is a single instruction: fetch_payload. The implant obeys. A moment later it asks api.cloudmetrics-push.com for the payload and gets back 342 bytes of base64, a ZIP prefix delivered as a partial response. That is the second stage landing, and the name of the flag, appdAta_3xf1l, tells you where it is going: a dead drop in %AppData%.\nStep 3b: The Report That Carries the Flag The last request is the exfil. The implant posts a form to telemetry.winupdate-sync.io/report with five fields: machine, user, domain, ts, and a data blob. That data field is the same base64 ZIP, now complete:\nDecode it and the ZIP opens cleanly:\nexfil blob len: 371 magic: PK 03 04 zip entries: credentials.txt, system_info.txt system_info.txt is just confirmation: host WKSTN-09, Windows 10 Pro 22H2, user b.omondi, domain P3RFCORP. credentials.txt is the payload the attacker actually cared about, an internal credential export:\nAdminUser: p3rf_svc_backup AdminPass: S3cur3Backup!2026 DBConnStr: Server=DBSRV01;Database=HRCore;User=sa;Password=H!R_D@T4_2026 And at the bottom, the CTF flag, which the challenge author was kind enough to append:\nRecovered r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l}\nWhy It Worked, and What Would Have Caught It The intrusion never needed encryption or a zero day. It needed a filename people trust and a channel people rarely inspect. Two detections cover most of it:\n✗ Trusting the filename over the bytes `wuident.cab` returned an executable. Checking the magic bytes of anything that lands in a temp or update path catches this instantly. PE where a CAB belongs ✗ PowerShell reaching the internet A loader pulled over HTTP and executed by PowerShell is the loudest signal in the capture. Constrained Language Mode and script block logging both see it. stage 1 never runs ✗ Outbound POSTs with a base64 body The exfil is a single form POST to a domain with no business reason to exist. Egress filtering plus content inspection breaks the last hop. credentials stay on the host Takeaway Phantom Drop is a reminder that the quietest intrusions are the ones that look like the machine doing its job. \"Checking Windows Update\" is not suspicious. It is the absence of a second look that is the vulnerability.\nFlag Phantom Drop r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l} ",
+  "wordCount" : "1003",
+  "inLanguage": "en",
+  "datePublished": "2026-10-13T00:00:00Z",
+  "dateModified": "2026-10-13T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge
+    </h1>
+    <div class="post-description">
+      A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.
+    </div>
+    <div class="post-meta"><span title='2026-10-13 00:00:00 +0000 UTC'>October 13, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#tldr" aria-label="TL;DR">TL;DR</a></li>
+                <li>
+                    <a href="#step-0-read-the-capture-before-you-tool-it" aria-label="Step 0: Read the Capture Before You Tool It">Step 0: Read the Capture Before You Tool It</a></li>
+                <li>
+                    <a href="#step-1-separate-the-noise-from-the-names" aria-label="Step 1: Separate the Noise From the Names">Step 1: Separate the Noise From the Names</a></li>
+                <li>
+                    <a href="#step-2-carve-the-http-objects" aria-label="Step 2: Carve the HTTP Objects">Step 2: Carve the HTTP Objects</a></li>
+                <li>
+                    <a href="#step-3-the-beacon-introduces-the-host" aria-label="Step 3: The Beacon Introduces the Host">Step 3: The Beacon Introduces the Host</a></li>
+                <li>
+                    <a href="#step-3b-the-report-that-carries-the-flag" aria-label="Step 3b: The Report That Carries the Flag">Step 3b: The Report That Carries the Flag</a></li>
+                <li>
+                    <a href="#why-it-worked-and-what-would-have-caught-it" aria-label="Why It Worked, and What Would Have Caught It">Why It Worked, and What Would Have Caught It</a></li>
+                <li>
+                    <a href="#flag" aria-label="Flag">Flag</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Forensics</span>
+    <span class="dr-badge red">Network</span>
+    <span class="dr-badge cyan">1 flag</span>
+    <span class="dr-badge ghost">r00t CTF · Phantom Drop</span>
+  </div>
+  <div class="dr-title">PHANTOM DROP</div>
+  <p class="dr-sub">A short packet capture from a workstation that made <strong>five requests it should not have made</strong>. One of them fetches an executable dressed up as a Windows Update cabinet. One of them posts credentials to a domain that is not a telemetry service. The whole intrusion fits in under a minute, and it never bothered to encrypt.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n cyan">45</span><span class="l">Packets total</span></div>
+  <div class="dr-stat"><span class="n">52<small>s</small></span><span class="l">Capture window</span></div>
+  <div class="dr-stat"><span class="n red">3</span><span class="l">Malicious domains</span></div>
+  <div class="dr-stat"><span class="n">1</span><span class="l">Flag recovered</span></div>
+</div>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l}</code>
+</div>
+<h2 id="tldr">TL;DR<a hidden class="anchor" aria-hidden="true" href="#tldr">#</a></h2>
+<p>The capture is small enough to read end to end, which is the whole gift here. The story it tells:</p>
+<ol>
+<li>The host (<code>WKSTN-09</code>, user <code>b.omondi</code>, domain <code>P3RFCORP</code>) pulls a file from <code>windowsupdate.com</code>. It comes back with an <code>MZ</code> header, so it is an executable pretending to be a cabinet.</li>
+<li>It fetches <code>/stage1/loader.ps1</code> from <code>updates.cdn-delivery.net</code>, a hex encoded, XOR obfuscated PowerShell loader.</li>
+<li>It beacons to <code>api.cloudmetrics-push.com</code> with host, user, OS and a campaign id, and gets told to fetch a payload.</li>
+<li>It fetches the payload, a base64 ZIP.</li>
+<li>It posts an exfil report to <code>telemetry.winupdate-sync.io</code> whose body is the same ZIP, now containing <code>credentials.txt</code> and <code>system_info.txt</code>.</li>
+</ol>
+<p>Decode the report body and the flag falls straight out.</p>
+<p><img alt="Phantom Drop in five requests: a fake update, a loader, a beacon, a payload, and an exfil report" loading="lazy" src="/public/images/phantom-drop/00_timeline.svg"></p>
+<h2 id="step-0-read-the-capture-before-you-tool-it">Step 0: Read the Capture Before You Tool It<a hidden class="anchor" aria-hidden="true" href="#step-0-read-the-capture-before-you-tool-it">#</a></h2>
+<p>The archive holds one file, <code>capture.pcap</code>. Before reaching for anything, I ask it how big it is:</p>
+<p><img alt="The capture is 45 packets over 52 seconds, mostly DNS and plain HTTP" loading="lazy" src="/public/images/phantom-drop/01_pcap.png"></p>
+<p>Forty five packets. Eighteen DNS, twenty seven TCP, ten HTTP frames. A capture this small means I do not need a strategy, I need to look at every request. The protocol hierarchy also says something useful out loud: there is no TLS. Every byte here is readable.</p>
+<div class="dr-callout">
+  <span class="t">First observation</span>
+  <p>Eighteen DNS queries against ten HTTP requests, on a workstation, in under a minute. That ratio is normal for a chatty Windows box. What is not normal is <em>which</em> names appear.</p>
+</div>
+<h2 id="step-1-separate-the-noise-from-the-names">Step 1: Separate the Noise From the Names<a hidden class="anchor" aria-hidden="true" href="#step-1-separate-the-noise-from-the-names">#</a></h2>
+<p>A workstation talks to a lot of legitimate services, and this one does too. <code>www.google.com</code>, <code>login.microsoftonline.com</code>, <code>fonts.googleapis.com</code>, <code>ocsp.digicert.com</code>. All expected, all boring. Then three names stand out because they are impersonating infrastructure:</p>
+<ul>
+<li><code>updates.cdn-delivery.net</code> serves the stage one loader.</li>
+<li><code>api.cloudmetrics-push.com</code> runs the beacon and the payload.</li>
+<li><code>telemetry.winupdate-sync.io</code> receives the exfil report.</li>
+</ul>
+<p>They are built to pass a glance. &ldquo;cdn delivery&rdquo;, &ldquo;cloud metrics&rdquo;, &ldquo;telemetry&rdquo;. No one reading a firewall log at 2am stops on those. But they are the only three names in the capture that are not a well known provider, and all three are on the same side of the conversation: the workstation is talking to them, not the reverse.</p>
+<h2 id="step-2-carve-the-http-objects">Step 2: Carve the HTTP Objects<a hidden class="anchor" aria-hidden="true" href="#step-2-carve-the-http-objects">#</a></h2>
+<p>With plain HTTP, the fastest path from capture to artifacts is object extraction:</p>
+<p><img alt="tshark exports five HTTP objects, including a cab file with an MZ header" loading="lazy" src="/public/images/phantom-drop/02_objects.png"></p>
+<p>Five objects, and each one is a piece of the chain:</p>
+<div class="dr-verdict">
+  <div class="half ghosts">
+    <span class="big">wuident.cab</span>
+    Pulled from a real-looking Windows Update path, but its first bytes are <code>4d 5a 90</code>. That is a PE executable, not a cabinet.
+  </div>
+  <div class="half auth">
+    <span class="big">loader.ps1</span>
+    4170 bytes of ASCII hex that decodes to a XOR obfuscated PowerShell stage. The dropper itself.
+  </div>
+</div>
+<p>The <code>.cab</code> detail is the nicest part of the challenge. It borrows one of the most trusted filenames on a Windows machine, <code>wuident.cab</code> under the genuine <code>windowsupdate.com</code> host, and swaps the contents for an executable. Defender heuristics see a signed looking update path; a human sees &ldquo;cab&rdquo; and moves on.</p>
+<p>The loader is a two layer wrap. First hex, to make it look like a blob, then a repeating key XOR to keep the strings away from <code>strings</code>. A printability search over candidate key lengths cracks it in seconds once you spot the pattern, because the plaintext is still PowerShell and PowerShell has a very specific vocabulary.</p>
+<h2 id="step-3-the-beacon-introduces-the-host">Step 3: The Beacon Introduces the Host<a hidden class="anchor" aria-hidden="true" href="#step-3-the-beacon-introduces-the-host">#</a></h2>
+<p>The third request is the check-in, and it volunteers a lot of context about the machine it has just compromised:</p>
+<p><img alt="The beacon is base64 JSON that names the host, the user, and the operating system" loading="lazy" src="/public/images/phantom-drop/03_beacon.png"></p>
+<p>Decoded, it is a tidy little census:</p>
+<pre tabindex="0"><code>cid    d8f3c1a0-4e7b-4f2a-8c9d-2b1f0e3a5d7c
+host   WKSTN-09
+user   b.omondi
+os     Windows 10 Pro 22H2
+ts     2026-11-10T09:01:44Z
+task   ready
+</code></pre><p>The server&rsquo;s reply to that beacon is a single instruction: <code>fetch_payload</code>. The implant obeys. A moment later it asks <code>api.cloudmetrics-push.com</code> for the payload and gets back 342 bytes of base64, a ZIP prefix delivered as a partial response. That is the second stage landing, and the name of the flag, <code>appdAta_3xf1l</code>, tells you where it is going: a dead drop in <code>%AppData%</code>.</p>
+<h2 id="step-3b-the-report-that-carries-the-flag">Step 3b: The Report That Carries the Flag<a hidden class="anchor" aria-hidden="true" href="#step-3b-the-report-that-carries-the-flag">#</a></h2>
+<p>The last request is the exfil. The implant posts a form to <code>telemetry.winupdate-sync.io/report</code> with five fields: <code>machine</code>, <code>user</code>, <code>domain</code>, <code>ts</code>, and a <code>data</code> blob. That <code>data</code> field is the same base64 ZIP, now complete:</p>
+<p><img alt="The exfil report decodes to a zip containing credentials and host details" loading="lazy" src="/public/images/phantom-drop/04_exfil.png"></p>
+<p>Decode it and the ZIP opens cleanly:</p>
+<pre tabindex="0"><code>exfil blob len: 371   magic: PK 03 04
+zip entries: credentials.txt, system_info.txt
+</code></pre><p><code>system_info.txt</code> is just confirmation: host <code>WKSTN-09</code>, Windows 10 Pro 22H2, user <code>b.omondi</code>, domain <code>P3RFCORP</code>. <code>credentials.txt</code> is the payload the attacker actually cared about, an internal credential export:</p>
+<pre tabindex="0"><code>AdminUser:   p3rf_svc_backup
+AdminPass:   S3cur3Backup!2026
+DBConnStr:   Server=DBSRV01;Database=HRCore;User=sa;Password=H!R_D@T4_2026
+</code></pre><p>And at the bottom, the CTF flag, which the challenge author was kind enough to append:</p>
+<div class="dr-callout ok">
+  <span class="t">Recovered</span>
+  <p><code>r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l}</code></p>
+</div>
+<h2 id="why-it-worked-and-what-would-have-caught-it">Why It Worked, and What Would Have Caught It<a hidden class="anchor" aria-hidden="true" href="#why-it-worked-and-what-would-have-caught-it">#</a></h2>
+<p>The intrusion never needed encryption or a zero day. It needed a filename people trust and a channel people rarely inspect. Two detections cover most of it:</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Trusting the filename over the bytes</span>
+    `wuident.cab` returned an executable. Checking the magic bytes of anything that lands in a temp or update path catches this instantly.
+    <span class="truth">PE where a CAB belongs</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> PowerShell reaching the internet</span>
+    A loader pulled over HTTP and executed by PowerShell is the loudest signal in the capture. Constrained Language Mode and script block logging both see it.
+    <span class="truth">stage 1 never runs</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Outbound POSTs with a base64 body</span>
+    The exfil is a single form POST to a domain with no business reason to exist. Egress filtering plus content inspection breaks the last hop.
+    <span class="truth">credentials stay on the host</span>
+  </div>
+</div>
+<div class="dr-callout warn">
+  <span class="t">Takeaway</span>
+  <p>Phantom Drop is a reminder that the quietest intrusions are the ones that look like the machine doing its job. "Checking Windows Update" is not suspicious. It is the absence of a second look that <em>is</em> the vulnerability.</p>
+</div>
+<h2 id="flag">Flag<a hidden class="anchor" aria-hidden="true" href="#flag">#</a></h2>
+<div class="dr-flag">
+  <span class="l">Phantom Drop</span>
+  <code>r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l}</code>
+</div>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/forensics/">Forensics</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/network-forensics/">Network Forensics</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/malware-analysis/">Malware Analysis</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/powershell/">PowerShell</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

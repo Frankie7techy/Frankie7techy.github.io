@@ -6,42 +6,56 @@
     <description>Recent content in CTF on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 13 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/ctf/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Dead Reckoning — When the Paperwork Lies, Trust the Physics</title>
+      <title>Pearl Harbour: A Forged Captain and a Capability That Sailed to Root</title>
+      <link>https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/</guid>
+      <description>A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.</description>
+    </item>
+    <item>
+      <title>Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge</title>
+      <link>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</guid>
+      <description>A 45-packet capture, 52 seconds long, that shows a Windows implant checking in, pulling a payload, staging it, and mailing credentials home. Almost all of it is plain HTTP, and the flag is sitting in the exfil report.</description>
+    </item>
+    <item>
+      <title>Dead Reckoning: When the Paperwork Lies, Trust the Physics</title>
       <link>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/</guid>
       <description>A corrupted flight data recorder log, 13 ghost entries, and four different pieces of paperwork all trying to send me to the wrong answer. Reconstructing a Cessna&amp;#39;s true flight path with nothing but dead-reckoning physics.</description>
     </item>
     <item>
-      <title>Nexus — When Every Field Lies, Trust the Scorer</title>
+      <title>Nexus: When Every Field Lies, Trust the Scorer</title>
       <link>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</guid>
-      <description>A custom hash chain, 8 data blocks, a 32-byte initial state — and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.</description>
+      <description>A custom hash chain, 8 data blocks, a 32-byte initial state, and every labeled field in the binary pointing somewhere wrong. Plus a hash chain that turns out not to exist. Reversing the only field that tells the truth: the official scorer itself.</description>
     </item>
     <item>
-      <title>The Last Day — HR Said It Was Routine. The Logs Disagreed.</title>
+      <title>The Last Day: HR Said It Was Routine. The Logs Disagreed.</title>
       <link>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</guid>
-      <description>An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
+      <description>An insider threat hidden inside hand-crafted Windows event logs, records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
     </item>
     <item>
-      <title>AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything</title>
+      <title>AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything</title>
       <link>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</guid>
-      <description>Android APK reversing — XOR key recovered, static analysis only. A vault app gates its debug panel behind a root check, but the flag is computed statically. No rooting, no emulator, no Frida needed.</description>
+      <description>Android APK reversing, XOR key recovered, static analysis only. A vault app gates its debug panel behind a root check, but the flag is computed statically. No rooting, no emulator, no Frida needed.</description>
     </item>
     <item>
-      <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
+      <title>Packet Whisperer: The One Where DNS Snitched on Itself</title>
       <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
-      <description>DNS exfiltration reversed from a PCAP — pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
+      <description>DNS exfiltration reversed from a PCAP, pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
     </item>
     <item>
       <title>HackTheBox: SecretCorp Writeup</title>
@@ -57,13 +71,13 @@ nmap -sC -sV 10.10.10.10
 ```
 Discovered ports:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;80/tcp — HTTP (Apache 2.4.41)&lt;/li&gt;
-&lt;li&gt;22/tcp — SSH (OpenSSH 8.2p1)&lt;/li&gt;
+&lt;li&gt;80/tcp, HTTP (Apache 2.4.41)&lt;/li&gt;
+&lt;li&gt;22/tcp, SSH (OpenSSH 8.2p1)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;-exploitation&#34;&gt;💥 Exploitation&lt;/h2&gt;
-&lt;p&gt;During directory fuzzing with `ffuf`, found `/backup.zip`.&lt;br&gt;
-Unzipped credentials for `admin:SuperSecure123`.&lt;br&gt;
+&lt;p&gt;During directory fuzzing with `ffuf`, found `/backup.zip`.
+Unzipped credentials for `admin:SuperSecure123`.
 Login exposed an &lt;strong&gt;LFI vulnerability&lt;/strong&gt; at `index.php?file=&amp;hellip;`.&lt;/p&gt;
 &lt;p&gt;```bash
 curl &amp;ldquo;http://target/index.php?file=../../../../etc/passwd&amp;rdquo;
@@ -74,7 +88,7 @@ curl &amp;ldquo;http://target/index.php?file=../../../../etc/passwd&amp;rdquo;
 ```bash
 linpeas.sh | tee output.txt
 ```
-Found `/usr/local/bin/backup` with SUID bit.&lt;br&gt;
+Found `/usr/local/bin/backup` with SUID bit.
 Exploited it via `bash -p` to spawn a root shell.&lt;/p&gt;</description>
     </item>
   </channel>

@@ -96,73 +96,101 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Dead Reckoning — When the Paperwork Lies, Trust the Physics
+    <h2 class="entry-hint-parent">Pearl Harbour: A Forged Captain and a Capability That Sailed to Root
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Web Boot2Root 2 flags r00t CTF · Pearl Harbour PEARL HARBOUR A single Flask service calling itself the Pacific Fleet Cargo and Manifest Registry. It mints guest JWTs, then reads the verification key from a path you control and honours the algorithm you name. The admin export route runs pdftotext through a shell with a filename you also control. Past that, root is one Linux capability and one very suggestible execlp away.
+5000Only open port 2Bugs on the web face 1Capability to root 2Flags captured user.txt r00t{a_t0rp3d0_n4m3d_k1d} root.txt r00t{c4p_s3tu1d_s4nk_th3_f1l33t} TL;DR Pearl Harbour is a small Python app wearing a naval uniform. The whole box is four moves:
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-13 00:00:00 +0000 UTC'>October 13, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Pearl Harbour: A Forged Captain and a Capability That Sailed to Root" href="https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Network 1 flag r00t CTF · Phantom Drop PHANTOM DROP A short packet capture from a workstation that made five requests it should not have made. One of them fetches an executable dressed up as a Windows Update cabinet. One of them posts credentials to a domain that is not a telemetry service. The whole intrusion fits in under a minute, and it never bothered to encrypt.
+45Packets total 52sCapture window 3Malicious domains 1Flag recovered Flag r00t{p0w3rsh3ll_dr0pp3r_appdAta_3xf1l} TL;DR The capture is small enough to read end to end, which is the whole gift here. The story it tells:
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-13 00:00:00 +0000 UTC'>October 13, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge" href="https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Dead Reckoning: When the Paperwork Lies, Trust the Physics
     </h2>
   </header>
   <div class="entry-content">
     <p> Forensics Hard 400 pts AfricaHackon · Dr Programmer DEAD RECKONING A SkyTrack-7 flight data recorder logged a Cessna 172S flying Nairobi Wilson → Mombasa. A firmware fault (Advisory SA-019) injected ghost fixes with plausible timestamps and impossible positions. The paperwork offers four ways to spot them. All four are lies. Only Newton tells the truth.
-39Log entries 26Authentic fixes 13Ghost fixes 0.04–148km off-path Flag r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b} TL;DR The challenge hands you a binary log, a detailed format spec, an aircraft performance manual, and two scorer binaries. The spec contains two advisories, a buried “analyst shortcut,” and a reference solver — all agreeing with each other. That much agreement in forensic documentation is not a help; it’s a hook.
+39Log entries 26Authentic fixes 13Ghost fixes 0.04-148km off-path Flag r00t{d34d_r3ck0n_2bb5989ca909476c23e75ba6ad05c64b} TL;DR The challenge hands you a binary log, a detailed format spec, an aircraft performance manual, and two scorer binaries. The spec contains two advisories, a buried “analyst shortcut,” and a reference solver, all agreeing with each other. That much agreement in forensic documentation is not a help; it’s a hook.
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Dead Reckoning — When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
+  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Dead Reckoning: When the Paperwork Lies, Trust the Physics" href="https://frankie7techy.github.io/public/posts/dead-reckoning-when-the-paperwork-lies/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Nexus — When Every Field Lies, Trust the Scorer
+    <h2 class="entry-hint-parent">Nexus: When Every Field Lies, Trust the Scorer
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Nexus Author Dr Programmer Category Reverse Engineering Difficulty Hard Points 400 Given 02_NEXUS.zip → check, validator, nexus.bin “A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes — but the binary contains a 72-byte ‘decoy header’ declaring a different block order (01234567), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a hash_chain_init field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.”
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Nexus Author Dr Programmer Category Reverse Engineering Difficulty Hard Points 400 Given 02_NEXUS.zip → check, validator, nexus.bin “A custom hash chain processor receives 8 data blocks and a 32-byte initial state. The blocks must be applied in a specific order determined by nibble-decomposition of the initial state bytes, but the binary contains a 72-byte ‘decoy header’ declaring a different block order (01234567), a 64-byte scrambled state immediately after the declared order that looks like the real initial state, and a hash_chain_init field containing a SHA256-transformed variant of the true init state. Players must identify the correct field layout, extract the true initial state, derive the block ordering from its nibbles, execute a custom hash chain, and XOR-decrypt the ciphertext. Every shortcut and labeled field in the binary is wrong.”
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Nexus — When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
+  <a class="entry-link" aria-label="post link to Nexus: When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">The Last Day — HR Said It Was Routine. The Logs Disagreed.
+    <h2 class="entry-hint-parent">The Last Day: HR Said It Was Routine. The Logs Disagreed.
     </h2>
   </header>
   <div class="entry-content">
     <p> Forensics Medium 400 pts r00t CTF · k4p3re THE LAST DAY HR flagged it as routine: an employee&#39;s last day, standard offboarding. But between 02:47 and 03:07 one morning, an offboarded employee RDP&#39;d back into WKSTN-14, staged sensitive files, read Finance contracts and saved browser passwords with a renamed binary, 7-Zip&#39;d the lot, and uploaded it to a personal &#34;vault&#34; domain. Meanwhile HR&#39;s own paperwork quietly carried the flag.
-78Records in the files 13Event Viewer could show 20 minAttack window 7/7Solved — 400 pts Flag r00t{th3_l4st_d4y_1ns1d3r_thr34t} TL;DR Two log exports land on your desk. You open them and Event Viewer shows 13 events. The file sizes say 528 KB and 200 KB — and that math does not add up. The real story is in the records Event Viewer physically cannot show.
+78Records in the files 13Event Viewer could show 20 minAttack window 7/7Solved, 400 pts Flag r00t{th3_l4st_d4y_1ns1d3r_thr34t} TL;DR Two log exports land on your desk. You open them and Event Viewer shows 13 events. The file sizes say 528 KB and 200 KB, and that math does not add up. The real story is in the records Event Viewer physically cannot show.
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>10 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to The Last Day — HR Said It Was Routine. The Logs Disagreed." href="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/"></a>
+  <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to The Last Day: HR Said It Was Routine. The Logs Disagreed." href="https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything
+    <h2 class="entry-hint-parent">AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything
     </h2>
   </header>
   <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel — but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
+    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel, but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
 Files: Rooted or not.zip → vaultapp.apk
-TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key — no rooting, no emulator, no Frida needed. Pure static analysis wins again.
+TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key, no rooting, no emulator, no Frida needed. Pure static analysis wins again.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or not? — Root Check? Bypassed Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
+  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">Packet Whisperer — The One Where DNS Snitched on Itself
+    <h2 class="entry-hint-parent">Packet Whisperer: The One Where DNS Snitched on Itself
     </h2>
   </header>
   <div class="entry-content">
     <p>Challenge Overview Field Value Platform AfricaHackon Challenge Packet Whisperer Author p3rf3ctr00t Category Network Forensics Difficulty Easy Points 100 Given chall.pcap (1,279 packets) “Analyze the provided PCAP and identify the hidden DNS-related flag.”
 Flag: r00t{1ts_4lw4y5_DNS_r1ght}
-TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it — zero Wireshark required (though it works there too).
+TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT queries. This writeup walks through exactly how to spot it and reverse it, zero Wireshark required (though it works there too).
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to Packet Whisperer — The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
+  <a class="entry-link" aria-label="post link to Packet Whisperer: The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
 </article>
 
 <article class="post-entry tag-entry"> 
@@ -173,12 +201,9 @@ TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT quer
   <div class="entry-content">
     <p>🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
 🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
-80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.
-Unzipped credentials for `admin:SuperSecure123`.
-Login exposed an LFI vulnerability at `index.php?file=…`.
+80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=…`.
 ```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
-🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.
-Exploited it via `bash -p` to spawn a root shell.
+🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>

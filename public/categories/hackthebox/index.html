@@ -102,12 +102,9 @@
   <div class="entry-content">
     <p>🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
 🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
-80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.
-Unzipped credentials for `admin:SuperSecure123`.
-Login exposed an LFI vulnerability at `index.php?file=…`.
+80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=…`.
 ```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
-🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.
-Exploited it via `bash -p` to spawn a root shell.
+🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.
 ...</p>
   </div>
   <footer class="entry-footer"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>

@@ -6,8 +6,78 @@
     <description>Recent content in Tags on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 13 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Boot2Root</title>
+      <link>https://frankie7techy.github.io/public/tags/boot2root/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/boot2root/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Command Injection</title>
+      <link>https://frankie7techy.github.io/public/tags/command-injection/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/command-injection/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CTF</title>
+      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Forensics</title>
+      <link>https://frankie7techy.github.io/public/tags/forensics/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/forensics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>JWT</title>
+      <link>https://frankie7techy.github.io/public/tags/jwt/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/jwt/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Linux Privilege Escalation</title>
+      <link>https://frankie7techy.github.io/public/tags/linux-privilege-escalation/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/linux-privilege-escalation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Malware Analysis</title>
+      <link>https://frankie7techy.github.io/public/tags/malware-analysis/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/malware-analysis/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Network Forensics</title>
+      <link>https://frankie7techy.github.io/public/tags/network-forensics/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/network-forensics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>PowerShell</title>
+      <link>https://frankie7techy.github.io/public/tags/powershell/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/powershell/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Web Exploitation</title>
+      <link>https://frankie7techy.github.io/public/tags/web-exploitation/</link>
+      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/web-exploitation/</guid>
+      <description></description>
+    </item>
     <item>
       <title>AfricaHackon</title>
       <link>https://frankie7techy.github.io/public/tags/africahackon/</link>
@@ -27,13 +97,6 @@
       <link>https://frankie7techy.github.io/public/tags/crypto/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/crypto/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>CTF</title>
-      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
       <description></description>
     </item>
     <item>
@@ -69,13 +132,6 @@
       <link>https://frankie7techy.github.io/public/tags/exploitation/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/exploitation/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Forensics</title>
-      <link>https://frankie7techy.github.io/public/tags/forensics/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/forensics/</guid>
       <description></description>
     </item>
     <item>
@@ -142,24 +198,10 @@
       <description></description>
     </item>
     <item>
-      <title>Network Forensics</title>
-      <link>https://frankie7techy.github.io/public/tags/network-forensics/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/network-forensics/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>HackTheBox</title>
       <link>https://frankie7techy.github.io/public/tags/hackthebox/</link>
       <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/hackthebox/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Web Exploitation</title>
-      <link>https://frankie7techy.github.io/public/tags/web-exploitation/</link>
-      <pubDate>Mon, 03 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/web-exploitation/</guid>
       <description></description>
     </item>
   </channel>

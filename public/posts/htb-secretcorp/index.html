@@ -16,8 +16,8 @@ nmap -sC -sV 10.10.10.10
 ```
 Discovered ports:
 
-80/tcp — HTTP (Apache 2.4.41)
-22/tcp — SSH (OpenSSH 8.2p1)
+80/tcp, HTTP (Apache 2.4.41)
+22/tcp, SSH (OpenSSH 8.2p1)
 
 
 💥 Exploitation
@@ -65,12 +65,9 @@ Exploited it via `bash -p` to spawn a root shell.">
   <meta property="og:title" content="HackTheBox: SecretCorp Writeup">
   <meta property="og:description" content="🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
 🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
-80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.
-Unzipped credentials for `admin:SuperSecure123`.
-Login exposed an LFI vulnerability at `index.php?file=…`.
+80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=…`.
 ```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
-🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.
-Exploited it via `bash -p` to spawn a root shell.">
+🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -90,8 +87,8 @@ nmap -sC -sV 10.10.10.10
 ```
 Discovered ports:
 
-80/tcp — HTTP (Apache 2.4.41)
-22/tcp — SSH (OpenSSH 8.2p1)
+80/tcp, HTTP (Apache 2.4.41)
+22/tcp, SSH (OpenSSH 8.2p1)
 
 
 💥 Exploitation
@@ -137,12 +134,12 @@ Exploited it via `bash -p` to spawn a root shell.">
   "@type": "BlogPosting",
   "headline": "HackTheBox: SecretCorp Writeup",
   "name": "HackTheBox: SecretCorp Writeup",
-  "description": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.\nUnzipped credentials for `admin:SuperSecure123`.\nLogin exposed an LFI vulnerability at `index.php?file=\u0026hellip;`.\n```bash curl \u0026ldquo;http://target/index.php?file=../../../../etc/passwd\u0026rdquo; ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.\nExploited it via `bash -p` to spawn a root shell.\n",
+  "description": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=\u0026hellip;`.\n```bash curl \u0026ldquo;http://target/index.php?file=../../../../etc/passwd\u0026rdquo; ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.\n",
   "keywords": [
     "CTF", "HackTheBox", "Web Exploitation"
   ],
-  "articleBody": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp — HTTP (Apache 2.4.41) 22/tcp — SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`.\nUnzipped credentials for `admin:SuperSecure123`.\nLogin exposed an LFI vulnerability at `index.php?file=…`.\n```bash curl “http://target/index.php?file=../../../../etc/passwd” ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit.\nExploited it via `bash -p` to spawn a root shell.\n🧾 Lessons Learned Always check for exposed archives. Automate directory brute-forcing early. LFI → Config file disclosure → RCE chain is common in PHP apps. 📸 Screenshots ",
-  "wordCount" : "117",
+  "articleBody": "🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.\n🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:\n80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=…`.\n```bash curl “http://target/index.php?file=../../../../etc/passwd” ```\n🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.\n🧾 Lessons Learned Always check for exposed archives. Automate directory brute-forcing early. LFI → Config file disclosure → RCE chain is common in PHP apps. 📸 Screenshots ",
+  "wordCount" : "115",
   "inLanguage": "en",
   "datePublished": "2025-11-03T00:00:00Z",
   "dateModified": "2025-11-03T00:00:00Z",
@@ -252,13 +249,13 @@ nmap -sC -sV 10.10.10.10
 ```
 Discovered ports:</p>
 <ul>
-<li>80/tcp — HTTP (Apache 2.4.41)</li>
-<li>22/tcp — SSH (OpenSSH 8.2p1)</li>
+<li>80/tcp, HTTP (Apache 2.4.41)</li>
+<li>22/tcp, SSH (OpenSSH 8.2p1)</li>
 </ul>
 <hr>
 <h2 id="-exploitation">💥 Exploitation<a hidden class="anchor" aria-hidden="true" href="#-exploitation">#</a></h2>
-<p>During directory fuzzing with `ffuf`, found `/backup.zip`.<br>
-Unzipped credentials for `admin:SuperSecure123`.<br>
+<p>During directory fuzzing with `ffuf`, found `/backup.zip`.
+Unzipped credentials for `admin:SuperSecure123`.
 Login exposed an <strong>LFI vulnerability</strong> at `index.php?file=&hellip;`.</p>
 <p>```bash
 curl &ldquo;http://target/index.php?file=../../../../etc/passwd&rdquo;
@@ -269,7 +266,7 @@ curl &ldquo;http://target/index.php?file=../../../../etc/passwd&rdquo;
 ```bash
 linpeas.sh | tee output.txt
 ```
-Found `/usr/local/bin/backup` with SUID bit.<br>
+Found `/usr/local/bin/backup` with SUID bit.
 Exploited it via `bash -p` to spawn a root shell.</p>
 <hr>
 <h2 id="-lessons-learned">🧾 Lessons Learned<a hidden class="anchor" aria-hidden="true" href="#-lessons-learned">#</a></h2>

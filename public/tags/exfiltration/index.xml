@@ -9,18 +9,18 @@
     <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/exfiltration/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>The Last Day — HR Said It Was Routine. The Logs Disagreed.</title>
+      <title>The Last Day: HR Said It Was Routine. The Logs Disagreed.</title>
       <link>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</guid>
-      <description>An insider threat hidden inside hand-crafted Windows event logs — records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
+      <description>An insider threat hidden inside hand-crafted Windows event logs, records Event Viewer physically cannot show. The after-hours logon, the staged files, the 7-Zip exfil, and the flag buried in HR&amp;#39;s own paperwork.</description>
     </item>
     <item>
-      <title>Packet Whisperer — The One Where DNS Snitched on Itself</title>
+      <title>Packet Whisperer: The One Where DNS Snitched on Itself</title>
       <link>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</guid>
-      <description>DNS exfiltration reversed from a PCAP — pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
+      <description>DNS exfiltration reversed from a PCAP, pure Python, zero Wireshark. A complete walkthrough of how attackers smuggle data out via DNS TXT queries and how to catch them.</description>
     </item>
   </channel>
 </rss>
