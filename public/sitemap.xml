@@ -2,16 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://frankie7techy.github.io/public/categories/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/continued-fractions/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/categories/crypto/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/cryptography/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/ctf/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/python/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/rsa/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/wiener-attack/</loc>
+    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/</loc>
+    <lastmod>2026-10-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/ecdsa/</loc>
+    <lastmod>2026-10-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/nonce-reuse/</loc>
+    <lastmod>2026-10-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/secp256k1/</loc>
+    <lastmod>2026-10-14T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/boot2root/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/categories/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/command-injection/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/ctf/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/categories/ctf-writeups/</loc>
@@ -41,19 +83,10 @@
     <loc>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/posts/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/powershell/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/web-exploitation/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/exploitarium-40-rce-chains/</loc>

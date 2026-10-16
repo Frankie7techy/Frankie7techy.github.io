@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 308" font-family="Consolas, monospace" role="img">
+<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#00ff41"/></marker></defs>
+<rect x="0" y="0" width="1180" height="100%" fill="#0a0a0a"/>
+<text x="590.0" y="44" fill="#00ff41" font-size="26" font-weight="bold" text-anchor="middle">DEADBOLT</text>
+<text x="590.0" y="82" fill="#8c8c8c" font-size="15" text-anchor="middle">one repeated r, and the signing key falls out of the algebra</text>
+<rect x="30" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="44" y="191" fill="#00d4ff" font-size="17" font-weight="bold">1. Two signatures</text>
+<text x="44" y="214" fill="#9a9a9a" font-size="14">deadbolt.json</text>
+<text x="44" y="234" fill="#9a9a9a" font-size="14">s1, s2 over two</text>
+<text x="44" y="254" fill="#9a9a9a" font-size="14">release manifests</text>
+<rect x="258" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="272" y="191" fill="#ffbd2e" font-size="17" font-weight="bold">2. Same r</text>
+<text x="272" y="214" fill="#9a9a9a" font-size="14">r = x(kG) repeats</text>
+<text x="272" y="234" fill="#9a9a9a" font-size="14">so the nonce k</text>
+<text x="272" y="254" fill="#9a9a9a" font-size="14">repeated too</text>
+<rect x="486" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="500" y="191" fill="#ffbd2e" font-size="17" font-weight="bold">3. Solve for k</text>
+<text x="500" y="214" fill="#9a9a9a" font-size="14">k = (z1-z2) /</text>
+<text x="500" y="234" fill="#9a9a9a" font-size="14">(s1-s2) mod n</text>
+<text x="500" y="254" fill="#9a9a9a" font-size="14">pure arithmetic</text>
+<rect x="714" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="728" y="191" fill="#00d4ff" font-size="17" font-weight="bold">4. Solve for d</text>
+<text x="728" y="214" fill="#9a9a9a" font-size="14">d = (s1*k - z1)</text>
+<text x="728" y="234" fill="#9a9a9a" font-size="14">/ r  mod n</text>
+<text x="728" y="254" fill="#9a9a9a" font-size="14">private key done</text>
+<rect x="942" y="164" width="208" height="96" rx="10" fill="#0f0f0f" stroke="#00ff41" stroke-width="1.4"/>
+<text x="956" y="191" fill="#00ff41" font-size="17" font-weight="bold">5. Flag</text>
+<text x="956" y="214" fill="#9a9a9a" font-size="14">checker.py verifies</text>
+<text x="956" y="234" fill="#9a9a9a" font-size="14">d, prints the</text>
+<text x="956" y="254" fill="#9a9a9a" font-size="14">release flag</text>
+<path d="M230,212.0 C244.0,212.0 244.0,212.0 252,212.0" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M458,212.0 C472.0,212.0 472.0,212.0 480,212.0" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M686,212.0 C700.0,212.0 700.0,212.0 708,212.0" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M914,212.0 C928.0,212.0 928.0,212.0 936,212.0" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+</svg>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Cryptography, RSA, Wiener Attack, Continued Fractions, Python">
+<meta name="description" content="The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener&#39;s attack walks the continued fraction of e/N until the key falls out.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret">
+  <meta property="og:description" content="The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener&#39;s attack walks the continued fraction of e/N until the key falls out.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-15T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-15T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Cryptography">
+    <meta property="article:tag" content="RSA">
+    <meta property="article:tag" content="Wiener Attack">
+    <meta property="article:tag" content="Continued Fractions">
+    <meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret">
+<meta name="twitter:description" content="The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener&#39;s attack walks the continued fraction of e/N until the key falls out.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret",
+      "item": "https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret",
+  "name": "Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret",
+  "description": "The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener's attack walks the continued fraction of e/N until the key falls out.",
+  "keywords": [
+    "CTF", "Cryptography", "RSA", "Wiener Attack", "Continued Fractions", "Python"
+  ],
+  "articleBody": " Crypto Medium 200 pts r00t CTF · Fianchetto FIANCHETTO An RSA public key with a 2048-bit modulus and a 2045-bit exponent. That second number is the whole story: e has been pushed almost all the way up to N, which means the matching private exponent d is necessarily small. Wiener's attack does the rest.\n2048bit modulus 2045bit exponent 160bit secret d 1convergent hit The setup The challenge hands over the usual RSA triple — modulus N, public exponent e, ciphertext c — and nothing else.\n{ \"N\": 21628853238141112392066120644245035637898051301521204052519872151075354212443698775296090168658459312276352983699549274729155804235956629526312113416602639733429473907178534201345097956738939429821675635991804706536719193919299218725325426610479915745784150581786613187594190544043807937531855238571792755874655266611700399613886794830123768156910975745220764469350079208499568672814533678429759941695070917317557917187885501235988615040221677728711934446042777885017682530841992181918112024933992291183028539227111710747204983014217042929975351334353704016305501684756277651934831799015368242218199579694525917816719, \"e\": 3725470837699155909987625207037153662703837140688738513128863709032220178387659345919989529945025956137644475464351967605611793327937140837472370428628653822870924839498181949396738158371657317154475433483904587380509174760175047317765551184211444276125099988291254237454472313423839128237984472759831563492153797813054559232638671422015374554317712645554117517712544845924042726897774145978786047690779117712141604483362010906525122300505512839158332201760462607842667937645020436066720869513549852836815031204668824983050851301175224708340961578349445117670852078122821069992433947740448239085450560494245915708371, \"c\": 5201170649088591332605310462750685774395637632316021749389157151633601518544165491141167787223754634116301977400291282823120034768527229517623701470915194215470450464774937899890055808687869138315915543857543471214855245322202251357642156380898531759558452582091760960627191642137057690677925111725448594241531509652365334490289134292657675169881674671878705230072574509426409720881582146267593353707251990732547830032383737431776131744420483243903471758513317184875178603989719551828381719004971965279811950608661987162163280948214378914910926044409756731693670253674609082099830236030764876340817662797247475488143 } N is a full 2048 bits. Nothing to attack there. But count the bits in e: 2045. The public exponent is sitting almost exactly at the top of the modulus.\nWhy a huge e betrays a tiny d RSA wants e · d ≡ 1 (mod φ(N)). If e is enormous but φ(N) ≈ N is only 2048 bits, then for the product e · d to wrap back around to a value congruent to 1, d has to be small. Concretely, the relation e·d = 1 + k·φ(N) means:\ne / φ(N) ≈ k / d So k/d is an unusually good rational approximation of e/N. And rational approximations of that quality are exactly what continued fractions produce. Wiener’s theorem puts a number on it: if d \u003c ⅓ · N^(1/4) — about 512 bits for this modulus — then k/d appears among the convergents of e/N.\nHere d is 160 bits. The bound is not merely met, it is lapped.\nThe attack Take the continued fraction expansion of e/N, walk its convergents k/d, and for each candidate test whether it is the real thing. A candidate is correct when (e·d − 1) divides cleanly by k to give a φ, and φ is consistent with N factoring into two integers.\n#!/usr/bin/env python3 import json, math data = json.load(open(\"fianchetto_challenge.json\")) N, e, c = data[\"N\"], data[\"e\"], data[\"c\"] def contfrac(a, b): cf = [] while b: cf.append(a // b) a, b = b, a % b return cf def convergents(cf): n0, n1, d0, d1 = 0, 1, 1, 0 for q in cf: n0, n1 = n1, q * n1 + n0 d0, d1 = d1, q * d1 + d0 yield n1, d1 for k, d in convergents(contfrac(e, N)): if k == 0 or d == 0: continue if (e * d - 1) % k != 0: # phi must come out whole continue phi = (e * d - 1) // k s = N - phi + 1 # p + q disc = s * s - 4 * N # (p - q)^2 if disc \u003c 0: continue t = math.isqrt(disc) if t * t != disc: # not a perfect square -\u003e not our pair continue p, q = (s + t) // 2, (s - t) // 2 if p * q != N: continue m = pow(c, d, N) print(\"[+] d =\", d) print(\"[+] p =\", p) print(\"[+] q =\", q) print(\"[+] flag:\", m.to_bytes((m.bit_length() + 7) // 8, \"big\").decode()) break The loop exits on the first convergent that factors N. In this challenge that is essentially immediate — the winning k/d is early in the list.\nTwo guards do the work The congruent-1 check on (e·d − 1) % k throws out almost every convergent in O(1). The perfect-square check on the discriminant is the final filter. Together they turn \"search an unbounded space\" into \"try a handful of fractions\".\nRunning it $ python3 solve.py [+] found private exponent d = 772939447021895568703677949971438238727760492091 [+] p = 152347720032201232945300405703561050373510602137391821460463322411477450457323133518021964488189112705269670836847439929735697994290299910071778197743822439942495547365516018651701268861845785401535399298863239860624544471599552338532172130635194857543491450501239509211376735102397376039058423316462855265797 [+] q = 141970311295564471373256099041321436038176149146828187122507629494704558750806585715612433009909397244692587841863354135252384743993614555662281573837119871771240682290531374239143881702983313989806964819693265064784481326842670806267968497407603981982868149923000216613728308819175018537137426921788953546627 [+] plaintext (bytes): b'r00t{w13n3rs_4tt4ck_br34ks_sm4ll_d}' [+] plaintext (text) : r00t{w13n3rs_4tt4ck_br34ks_sm4ll_d} A 2048-bit key broken by 160-bit d and two perfect-square checks.\nFlag r00t{w13n3rs_4tt4ck_br34ks_sm4ll_d} Takeaway Fianchetto is a lesson in key balance. A big modulus is worthless if its exponent pair is lopsided.\nRead the exponent, not just the modulus. e ≈ N is the loudest possible hint. A healthy e is 65537; anything astronomically larger deserves suspicion. Wiener is cheap to try. If you suspect a small d, running continued fractions on e/N costs milliseconds and either finds the key or rules the idea out. Do not roll small d “for speed”. Modern libraries reject or warn on dangerously small private exponents. This class of implementation bug is decades old and still shows up. ",
+  "wordCount" : "724",
+  "inLanguage": "en",
+  "datePublished": "2026-10-15T00:00:00Z",
+  "dateModified": "2026-10-15T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret
+    </h1>
+    <div class="post-description">
+      The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener&#39;s attack walks the continued fraction of e/N until the key falls out.
+    </div>
+    <div class="post-meta"><span title='2026-10-15 00:00:00 +0000 UTC'>October 15, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-setup" aria-label="The setup">The setup</a></li>
+                <li>
+                    <a href="#why-a-huge-e-betrays-a-tiny-d" aria-label="Why a huge e betrays a tiny d">Why a huge e betrays a tiny d</a></li>
+                <li>
+                    <a href="#the-attack" aria-label="The attack">The attack</a></li>
+                <li>
+                    <a href="#running-it" aria-label="Running it">Running it</a></li>
+                <li>
+                    <a href="#takeaway" aria-label="Takeaway">Takeaway</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Crypto</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge cyan">200 pts</span>
+    <span class="dr-badge ghost">r00t CTF · Fianchetto</span>
+  </div>
+  <div class="dr-title">FIANCHETTO</div>
+  <p class="dr-sub">An RSA public key with a <strong>2048-bit</strong> modulus and a <strong>2045-bit</strong> exponent. That second number is the whole story: <code>e</code> has been pushed almost all the way up to <code>N</code>, which means the matching private exponent <code>d</code> is necessarily small. Wiener's attack does the rest.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">2048</span><span class="l">bit modulus</span></div>
+  <div class="dr-stat"><span class="n red">2045</span><span class="l">bit exponent</span></div>
+  <div class="dr-stat"><span class="n cyan">160</span><span class="l">bit secret d</span></div>
+  <div class="dr-stat"><span class="n">1</span><span class="l">convergent hit</span></div>
+</div>
+<h2 id="the-setup">The setup<a hidden class="anchor" aria-hidden="true" href="#the-setup">#</a></h2>
+<p>The challenge hands over the usual RSA triple — modulus <code>N</code>, public exponent <code>e</code>, ciphertext <code>c</code> — and nothing else.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;N&#34;</span><span class="p">:</span> <span class="mi">21628853238141112392066120644245035637898051301521204052519872151075354212443698775296090168658459312276352983699549274729155804235956629526312113416602639733429473907178534201345097956738939429821675635991804706536719193919299218725325426610479915745784150581786613187594190544043807937531855238571792755874655266611700399613886794830123768156910975745220764469350079208499568672814533678429759941695070917317557917187885501235988615040221677728711934446042777885017682530841992181918112024933992291183028539227111710747204983014217042929975351334353704016305501684756277651934831799015368242218199579694525917816719</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;e&#34;</span><span class="p">:</span> <span class="mi">3725470837699155909987625207037153662703837140688738513128863709032220178387659345919989529945025956137644475464351967605611793327937140837472370428628653822870924839498181949396738158371657317154475433483904587380509174760175047317765551184211444276125099988291254237454472313423839128237984472759831563492153797813054559232638671422015374554317712645554117517712544845924042726897774145978786047690779117712141604483362010906525122300505512839158332201760462607842667937645020436066720869513549852836815031204668824983050851301175224708340961578349445117670852078122821069992433947740448239085450560494245915708371</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;c&#34;</span><span class="p">:</span> <span class="mi">5201170649088591332605310462750685774395637632316021749389157151633601518544165491141167787223754634116301977400291282823120034768527229517623701470915194215470450464774937899890055808687869138315915543857543471214855245322202251357642156380898531759558452582091760960627191642137057690677925111725448594241531509652365334490289134292657675169881674671878705230072574509426409720881582146267593353707251990732547830032383737431776131744420483243903471758513317184875178603989719551828381719004971965279811950608661987162163280948214378914910926044409756731693670253674609082099830236030764876340817662797247475488143</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>N</code> is a full 2048 bits. Nothing to attack there. But count the bits in <code>e</code>: <strong>2045</strong>. The public exponent is sitting almost exactly at the top of the modulus.</p>
+<p><img alt="The Fianchetto chain: an oversized e, a tiny d, and Wiener&rsquo;s continued fraction" loading="lazy" src="/public/images/fianchetto/00_chain.svg"></p>
+<h2 id="why-a-huge-e-betrays-a-tiny-d">Why a huge e betrays a tiny d<a hidden class="anchor" aria-hidden="true" href="#why-a-huge-e-betrays-a-tiny-d">#</a></h2>
+<p>RSA wants <code>e · d ≡ 1 (mod φ(N))</code>. If <code>e</code> is enormous but <code>φ(N) ≈ N</code> is only 2048 bits, then for the product <code>e · d</code> to wrap back around to a value congruent to 1, <code>d</code> has to be <strong>small</strong>. Concretely, the relation <code>e·d = 1 + k·φ(N)</code> means:</p>
+<pre tabindex="0"><code>e / φ(N) ≈ k / d
+</code></pre><p>So <code>k/d</code> is an unusually good rational approximation of <code>e/N</code>. And rational approximations of that quality are exactly what <strong>continued fractions</strong> produce. Wiener&rsquo;s theorem puts a number on it: if <code>d &lt; ⅓ · N^(1/4)</code> — about 512 bits for this modulus — then <code>k/d</code> appears among the convergents of <code>e/N</code>.</p>
+<p>Here <code>d</code> is 160 bits. The bound is not merely met, it is lapped.</p>
+<h2 id="the-attack">The attack<a hidden class="anchor" aria-hidden="true" href="#the-attack">#</a></h2>
+<p>Take the continued fraction expansion of <code>e/N</code>, walk its convergents <code>k/d</code>, and for each candidate test whether it is the real thing. A candidate is correct when <code>(e·d − 1)</code> divides cleanly by <code>k</code> to give a <code>φ</code>, and <code>φ</code> is consistent with <code>N</code> factoring into two integers.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!/usr/bin/env python3</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&#34;fianchetto_challenge.json&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">N</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&#34;N&#34;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&#34;e&#34;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&#34;c&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">contfrac</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cf</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">b</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span> <span class="o">//</span> <span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">cf</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">convergents</span><span class="p">(</span><span class="n">cf</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">n0</span><span class="p">,</span> <span class="n">n1</span><span class="p">,</span> <span class="n">d0</span><span class="p">,</span> <span class="n">d1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">cf</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">n0</span><span class="p">,</span> <span class="n">n1</span> <span class="o">=</span> <span class="n">n1</span><span class="p">,</span> <span class="n">q</span> <span class="o">*</span> <span class="n">n1</span> <span class="o">+</span> <span class="n">n0</span>
+</span></span><span class="line"><span class="cl">        <span class="n">d0</span><span class="p">,</span> <span class="n">d1</span> <span class="o">=</span> <span class="n">d1</span><span class="p">,</span> <span class="n">q</span> <span class="o">*</span> <span class="n">d1</span> <span class="o">+</span> <span class="n">d0</span>
+</span></span><span class="line"><span class="cl">        <span class="k">yield</span> <span class="n">n1</span><span class="p">,</span> <span class="n">d1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">convergents</span><span class="p">(</span><span class="n">contfrac</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">N</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">k</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>          <span class="c1"># phi must come out whole</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="n">phi</span> <span class="o">=</span> <span class="p">(</span><span class="n">e</span> <span class="o">*</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">k</span>
+</span></span><span class="line"><span class="cl">    <span class="n">s</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="n">phi</span> <span class="o">+</span> <span class="mi">1</span>                    <span class="c1"># p + q</span>
+</span></span><span class="line"><span class="cl">    <span class="n">disc</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">s</span> <span class="o">-</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">N</span>               <span class="c1"># (p - q)^2</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">disc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="n">t</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">isqrt</span><span class="p">(</span><span class="n">disc</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">t</span> <span class="o">*</span> <span class="n">t</span> <span class="o">!=</span> <span class="n">disc</span><span class="p">:</span>                  <span class="c1"># not a perfect square -&gt; not our pair</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">p</span> <span class="o">*</span> <span class="n">q</span> <span class="o">!=</span> <span class="n">N</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">    <span class="n">m</span> <span class="o">=</span> <span class="nb">pow</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[+] d =&#34;</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[+] p =&#34;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[+] q =&#34;</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;[+] flag:&#34;</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&#34;big&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">    <span class="k">break</span>
+</span></span></code></pre></div><p>The loop exits on the first convergent that factors <code>N</code>. In this challenge that is essentially immediate — the winning <code>k/d</code> is early in the list.</p>
+<div class="dr-callout">
+  <span class="t">Two guards do the work</span>
+  <p>The congruent-1 check on <code>(e·d − 1) % k</code> throws out almost every convergent in O(1). The perfect-square check on the discriminant is the final filter. Together they turn "search an unbounded space" into "try a handful of fractions".</p>
+</div>
+<h2 id="running-it">Running it<a hidden class="anchor" aria-hidden="true" href="#running-it">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ python3 solve.py
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> found private exponent <span class="nv">d</span> <span class="o">=</span> <span class="m">772939447021895568703677949971438238727760492091</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> <span class="nv">p</span> <span class="o">=</span> <span class="m">152347720032201232945300405703561050373510602137391821460463322411477450457323133518021964488189112705269670836847439929735697994290299910071778197743822439942495547365516018651701268861845785401535399298863239860624544471599552338532172130635194857543491450501239509211376735102397376039058423316462855265797</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> <span class="nv">q</span> <span class="o">=</span> <span class="m">141970311295564471373256099041321436038176149146828187122507629494704558750806585715612433009909397244692587841863354135252384743993614555662281573837119871771240682290531374239143881702983313989806964819693265064784481326842670806267968497407603981982868149923000216613728308819175018537137426921788953546627</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> plaintext <span class="o">(</span>bytes<span class="o">)</span>: b<span class="s1">&#39;r00t{w13n3rs_4tt4ck_br34ks_sm4ll_d}&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>+<span class="o">]</span> plaintext <span class="o">(</span>text<span class="o">)</span> : r00t<span class="o">{</span>w13n3rs_4tt4ck_br34ks_sm4ll_d<span class="o">}</span>
+</span></span></code></pre></div><p>A 2048-bit key broken by 160-bit <code>d</code> and two perfect-square checks.</p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{w13n3rs_4tt4ck_br34ks_sm4ll_d}</code>
+</div>
+<h2 id="takeaway">Takeaway<a hidden class="anchor" aria-hidden="true" href="#takeaway">#</a></h2>
+<p>Fianchetto is a lesson in key <strong>balance</strong>. A big modulus is worthless if its exponent pair is lopsided.</p>
+<ul>
+<li><strong>Read the exponent, not just the modulus.</strong> <code>e ≈ N</code> is the loudest possible hint. A healthy <code>e</code> is 65537; anything astronomically larger deserves suspicion.</li>
+<li><strong>Wiener is cheap to try.</strong> If you suspect a small <code>d</code>, running continued fractions on <code>e/N</code> costs milliseconds and either finds the key or rules the idea out.</li>
+<li><strong>Do not roll small <code>d</code> &ldquo;for speed&rdquo;.</strong> Modern libraries reject or warn on dangerously small private exponents. This class of implementation bug is decades old and still shows up.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/cryptography/">Cryptography</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/rsa/">RSA</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/wiener-attack/">Wiener Attack</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/continued-fractions/">Continued Fractions</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/python/">Python</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
