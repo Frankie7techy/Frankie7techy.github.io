@@ -6,8 +6,22 @@
     <description>Recent content in Welcome to My CTF Lab on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 13 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 15 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret</title>
+      <link>https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/</link>
+      <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/</guid>
+      <description>The public modulus is a healthy 2048 bits. The public exponent is 2045 bits, which is the tell: when e is nearly as large as N, the private exponent d must be tiny. Wiener&amp;#39;s attack walks the continued fraction of e/N until the key falls out.</description>
+    </item>
+    <item>
+      <title>DeadBolt: Two Signatures, One Nonce, One Dead Key</title>
+      <link>https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/</link>
+      <pubDate>Wed, 14 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/</guid>
+      <description>A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.</description>
+    </item>
     <item>
       <title>Pearl Harbour: A Forged Captain and a Capability That Sailed to Root</title>
       <link>https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/</link>

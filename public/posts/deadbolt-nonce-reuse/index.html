@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>DeadBolt: Two Signatures, One Nonce, One Dead Key | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Cryptography, ECDSA, Nonce Reuse, secp256k1, Python">
+<meta name="description" content="A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="DeadBolt: Two Signatures, One Nonce, One Dead Key">
+  <meta property="og:description" content="A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-14T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-14T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Cryptography">
+    <meta property="article:tag" content="ECDSA">
+    <meta property="article:tag" content="Nonce Reuse">
+    <meta property="article:tag" content="Secp256k1">
+    <meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DeadBolt: Two Signatures, One Nonce, One Dead Key">
+<meta name="twitter:description" content="A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "DeadBolt: Two Signatures, One Nonce, One Dead Key",
+      "item": "https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "DeadBolt: Two Signatures, One Nonce, One Dead Key",
+  "name": "DeadBolt: Two Signatures, One Nonce, One Dead Key",
+  "description": "A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.",
+  "keywords": [
+    "CTF", "Cryptography", "ECDSA", "Nonce Reuse", "secp256k1", "Python"
+  ],
+  "articleBody": " Crypto Medium 200 pts r00t CTF · DeadBolt DEADBOLT A release-signing service signs its build manifests with secp256k1. It handed us the public key and two signatures over two different releases — and both of them share the same r. That single coincidence collapses the whole scheme.\n2signatures 1repeated nonce 1key recovered 0brute force The setup deadbolt.json is short. It names the curve, gives us a public key, and hands over two signatures over two different messages:\n{ \"curve\": \"secp256k1\", \"public_key\": { \"x\": 112663615484051465733958221339258257849063613947361413621230845351083321471652, \"y\": 20707203924145238549824648964187237183894019142576647064731492330797666162633 }, \"signatures\": [ { \"message\": \"RELEASE-MANIFEST-2026-10-01: build 4471, approved for production rollout\", \"r\": 81068046878512155195417425815628850251053346547441462714808971338416069090423, \"s\": 3840508737756347497406687710396332359740879825496539163063209443880034111304 }, { \"message\": \"RELEASE-MANIFEST-2026-10-02: build 4472, hotfix for build 4471, approved\", \"r\": 81068046878512155195417425815628850251053346547441462714808971338416069090423, \"s\": 113503929155425957381462365769873416436477654667784827574471421629337517804939 } ] } Read those two r values again. They are identical, digit for digit.\nThe whole challenge r is a function of the nonce, not of the message. In ECDSA, r = (k·G).x mod n. Two signatures with the same r were signed with the same k. Once you know that, the private key is two lines of arithmetic away.\nWhy a repeated r is fatal ECDSA signing for a message hash z with private key d and nonce k is:\nr = (k · G).x mod n s = k⁻¹ · (z + r · d) mod n r depends only on k and the generator G — the message never touches it. So if two signatures share an r, they share a k:\ns₁ = k⁻¹ (z₁ + r·d) s₂ = k⁻¹ (z₂ + r·d) Subtract them. The r·d term cancels:\ns₁ − s₂ = k⁻¹ (z₁ − z₂) Solve for the nonce:\nk = (z₁ − z₂) · (s₁ − s₂)⁻¹ mod n Now put k back into either signature and solve for d:\nd = (s₁ · k − z₁) · r⁻¹ mod n That is it. Every quantity on the right is public except nothing. z is just SHA-256(message) read as a big-endian integer, and n is the secp256k1 group order.\nThe one rule of deterministic-ish signing This is precisely why RFC 6979 exists. A nonce must be unique per message. Reusing it — or drawing it from a weak random source — leaks the key even if everything else is done perfectly.\nThe solver The order is the secp256k1 curve order, and the hash is plain SHA-256. Everything else is one modular inverse.\n#!/usr/bin/env python3 \"\"\"Recover an ECDSA private key from two signatures made with the same nonce k.\"\"\" import hashlib, json data = json.load(open(\"Deadbolt/deadbolt.json\")) # secp256k1 group order n = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 def z_of(msg: bytes) -\u003e int: return int.from_bytes(hashlib.sha256(msg).digest(), \"big\") sigs = data[\"signatures\"] (z1, r, s1) = (z_of(sigs[0][\"message\"].encode()), sigs[0][\"r\"], sigs[0][\"s\"]) (z2, _, s2) = (z_of(sigs[1][\"message\"].encode()), sigs[1][\"r\"], sigs[1][\"s\"]) assert r == sigs[1][\"r\"], \"the whole attack depends on r repeating\" # k = (z1 - z2) / (s1 - s2) mod n k = (z1 - z2) * pow(s1 - s2, -1, n) % n # d = (s1 * k - z1) / r mod n d = (s1 * k - z1) * pow(r, -1, n) % n print(\"k =\", hex(k)) print(\"d =\", hex(d)) Two modular inverses and we are done.\nk = 0x7576cf13562f78cfbaba95c33d489a77e6f7f22d9370c7220bbb5408501ee1b5 d = 0x5df81c47561875700a49e3010aeccb422b220c2c3d516b580a3d6ba2af4093a Sanity check We never had to touch the public key to find d. It is only useful afterwards, to confirm we did not fat-finger the arithmetic — which is exactly what the supplied checker.py does.\nHanding it to the checker The challenge ships a checker.py that recomputes the public key from a candidate d and only prints the flag if it matches:\n$ python3 Deadbolt/checker.py 2656466760151853485113498278724311908926037894305005865198209398276174907706 Key verified. r00t{n0nc3_reu5e_l34k5_th3_pr1v4t3_k3y} Flag r00t{n0nc3_reu5e_l34k5_th3_pr1v4t3_k3y} Takeaway DeadBolt is a two-line maths challenge wearing a “modern crypto” costume. The tell is structural, not statistical: you do not need to break secp256k1, you only need to notice that one field is byte-identical across two otherwise unrelated signatures.\nSpot the invariant. Two signatures, one r. That is the entire vulnerability, and it is visible without any tooling. Subtract, do not factor. Nonce reuse is a linear problem. No lattices, no Coppersmith, no brute force. The fix is old and boring. RFC 6979 (deterministic nonces) or a properly seeded CSPRNG for k. Signing libraries get this right; hand-rolled signers historically do not. ",
+  "wordCount" : "705",
+  "inLanguage": "en",
+  "datePublished": "2026-10-14T00:00:00Z",
+  "dateModified": "2026-10-14T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      DeadBolt: Two Signatures, One Nonce, One Dead Key
+    </h1>
+    <div class="post-description">
+      A release-signing service on secp256k1 published two ECDSA signatures that share the same r. That one repeated value is the whole challenge: the nonce falls out of it, and the nonce hands you the private key. No lattice, no brute force, just modular arithmetic.
+    </div>
+    <div class="post-meta"><span title='2026-10-14 00:00:00 +0000 UTC'>October 14, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-setup" aria-label="The setup">The setup</a></li>
+                <li>
+                    <a href="#why-a-repeated-r-is-fatal" aria-label="Why a repeated r is fatal">Why a repeated r is fatal</a></li>
+                <li>
+                    <a href="#the-solver" aria-label="The solver">The solver</a></li>
+                <li>
+                    <a href="#handing-it-to-the-checker" aria-label="Handing it to the checker">Handing it to the checker</a></li>
+                <li>
+                    <a href="#takeaway" aria-label="Takeaway">Takeaway</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Crypto</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge cyan">200 pts</span>
+    <span class="dr-badge ghost">r00t CTF · DeadBolt</span>
+  </div>
+  <div class="dr-title">DEADBOLT</div>
+  <p class="dr-sub">A release-signing service signs its build manifests with <strong>secp256k1</strong>. It handed us the public key and two signatures over two different releases — and both of them share the same <strong>r</strong>. That single coincidence collapses the whole scheme.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">2</span><span class="l">signatures</span></div>
+  <div class="dr-stat"><span class="n red">1</span><span class="l">repeated nonce</span></div>
+  <div class="dr-stat"><span class="n cyan">1</span><span class="l">key recovered</span></div>
+  <div class="dr-stat"><span class="n">0</span><span class="l">brute force</span></div>
+</div>
+<h2 id="the-setup">The setup<a hidden class="anchor" aria-hidden="true" href="#the-setup">#</a></h2>
+<p><code>deadbolt.json</code> is short. It names the curve, gives us a public key, and hands over two signatures over two different messages:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;curve&#34;</span><span class="p">:</span> <span class="s2">&#34;secp256k1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;public_key&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;x&#34;</span><span class="p">:</span> <span class="mi">112663615484051465733958221339258257849063613947361413621230845351083321471652</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;y&#34;</span><span class="p">:</span> <span class="mi">20707203924145238549824648964187237183894019142576647064731492330797666162633</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;signatures&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;RELEASE-MANIFEST-2026-10-01: build 4471, approved for production rollout&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;r&#34;</span><span class="p">:</span> <span class="mi">81068046878512155195417425815628850251053346547441462714808971338416069090423</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;s&#34;</span><span class="p">:</span> <span class="mi">3840508737756347497406687710396332359740879825496539163063209443880034111304</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;message&#34;</span><span class="p">:</span> <span class="s2">&#34;RELEASE-MANIFEST-2026-10-02: build 4472, hotfix for build 4471, approved&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;r&#34;</span><span class="p">:</span> <span class="mi">81068046878512155195417425815628850251053346547441462714808971338416069090423</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;s&#34;</span><span class="p">:</span> <span class="mi">113503929155425957381462365769873416436477654667784827574471421629337517804939</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Read those two <code>r</code> values again. They are <strong>identical</strong>, digit for digit.</p>
+<p><img alt="The DeadBolt chain: two signatures, one repeated r, one recovered private key" loading="lazy" src="/public/images/deadbolt/00_chain.svg"></p>
+<div class="dr-callout danger">
+  <span class="t">The whole challenge</span>
+  <p><strong>r is a function of the nonce, not of the message.</strong> In ECDSA, <code>r = (k·G).x mod n</code>. Two signatures with the same <code>r</code> were signed with the same <code>k</code>. Once you know that, the private key is two lines of arithmetic away.</p>
+</div>
+<h2 id="why-a-repeated-r-is-fatal">Why a repeated r is fatal<a hidden class="anchor" aria-hidden="true" href="#why-a-repeated-r-is-fatal">#</a></h2>
+<p>ECDSA signing for a message hash <code>z</code> with private key <code>d</code> and nonce <code>k</code> is:</p>
+<pre tabindex="0"><code>r = (k · G).x  mod n
+s = k⁻¹ · (z + r · d)  mod n
+</code></pre><p><code>r</code> depends only on <code>k</code> and the generator <code>G</code> — the message never touches it. So if two signatures share an <code>r</code>, they share a <code>k</code>:</p>
+<pre tabindex="0"><code>s₁ = k⁻¹ (z₁ + r·d)
+s₂ = k⁻¹ (z₂ + r·d)
+</code></pre><p>Subtract them. The <code>r·d</code> term cancels:</p>
+<pre tabindex="0"><code>s₁ − s₂ = k⁻¹ (z₁ − z₂)
+</code></pre><p>Solve for the nonce:</p>
+<pre tabindex="0"><code>k = (z₁ − z₂) · (s₁ − s₂)⁻¹   mod n
+</code></pre><p>Now put <code>k</code> back into either signature and solve for <code>d</code>:</p>
+<pre tabindex="0"><code>d = (s₁ · k − z₁) · r⁻¹        mod n
+</code></pre><p>That is it. Every quantity on the right is public except nothing. <code>z</code> is just <code>SHA-256(message)</code> read as a big-endian integer, and <code>n</code> is the secp256k1 group order.</p>
+<div class="dr-callout warn">
+  <span class="t">The one rule of deterministic-ish signing</span>
+  <p>This is precisely why RFC 6979 exists. A nonce must be <strong>unique per message</strong>. Reusing it — or drawing it from a weak random source — leaks the key even if everything else is done perfectly.</p>
+</div>
+<h2 id="the-solver">The solver<a hidden class="anchor" aria-hidden="true" href="#the-solver">#</a></h2>
+<p>The order is the secp256k1 curve order, and the hash is plain SHA-256. Everything else is one modular inverse.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!/usr/bin/env python3</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;Recover an ECDSA private key from two signatures made with the same nonce k.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">hashlib</span><span class="o">,</span> <span class="nn">json</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s2">&#34;Deadbolt/deadbolt.json&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># secp256k1 group order</span>
+</span></span><span class="line"><span class="cl"><span class="n">n</span> <span class="o">=</span> <span class="mh">0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">z_of</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">int</span><span class="o">.</span><span class="n">from_bytes</span><span class="p">(</span><span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">(),</span> <span class="s2">&#34;big&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sigs</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&#34;signatures&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">z1</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s1</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_of</span><span class="p">(</span><span class="n">sigs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&#34;message&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()),</span> <span class="n">sigs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&#34;r&#34;</span><span class="p">],</span> <span class="n">sigs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&#34;s&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="p">(</span><span class="n">z2</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">s2</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_of</span><span class="p">(</span><span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&#34;message&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">encode</span><span class="p">()),</span> <span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&#34;r&#34;</span><span class="p">],</span> <span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&#34;s&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">assert</span> <span class="n">r</span> <span class="o">==</span> <span class="n">sigs</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&#34;r&#34;</span><span class="p">],</span> <span class="s2">&#34;the whole attack depends on r repeating&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># k = (z1 - z2) / (s1 - s2)  mod n</span>
+</span></span><span class="line"><span class="cl"><span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">z1</span> <span class="o">-</span> <span class="n">z2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">s1</span> <span class="o">-</span> <span class="n">s2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># d = (s1 * k - z1) / r  mod n</span>
+</span></span><span class="line"><span class="cl"><span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="n">s1</span> <span class="o">*</span> <span class="n">k</span> <span class="o">-</span> <span class="n">z1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">pow</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">%</span> <span class="n">n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;k =&#34;</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;d =&#34;</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+</span></span></code></pre></div><p>Two modular inverses and we are done.</p>
+<pre tabindex="0"><code>k = 0x7576cf13562f78cfbaba95c33d489a77e6f7f22d9370c7220bbb5408501ee1b5
+d = 0x5df81c47561875700a49e3010aeccb422b220c2c3d516b580a3d6ba2af4093a
+</code></pre><div class="dr-callout">
+  <span class="t">Sanity check</span>
+  <p>We never had to touch the public key to <em>find</em> <code>d</code>. It is only useful afterwards, to confirm we did not fat-finger the arithmetic — which is exactly what the supplied <code>checker.py</code> does.</p>
+</div>
+<h2 id="handing-it-to-the-checker">Handing it to the checker<a hidden class="anchor" aria-hidden="true" href="#handing-it-to-the-checker">#</a></h2>
+<p>The challenge ships a <code>checker.py</code> that recomputes the public key from a candidate <code>d</code> and only prints the flag if it matches:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ python3 Deadbolt/checker.py <span class="m">2656466760151853485113498278724311908926037894305005865198209398276174907706</span>
+</span></span><span class="line"><span class="cl">Key verified.
+</span></span><span class="line"><span class="cl">r00t<span class="o">{</span>n0nc3_reu5e_l34k5_th3_pr1v4t3_k3y<span class="o">}</span>
+</span></span></code></pre></div><div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{n0nc3_reu5e_l34k5_th3_pr1v4t3_k3y}</code>
+</div>
+<h2 id="takeaway">Takeaway<a hidden class="anchor" aria-hidden="true" href="#takeaway">#</a></h2>
+<p>DeadBolt is a two-line maths challenge wearing a &ldquo;modern crypto&rdquo; costume. The tell is structural, not statistical: you do not need to break secp256k1, you only need to notice that one field is byte-identical across two otherwise unrelated signatures.</p>
+<ul>
+<li><strong>Spot the invariant.</strong> Two signatures, one <code>r</code>. That is the entire vulnerability, and it is visible without any tooling.</li>
+<li><strong>Subtract, do not factor.</strong> Nonce reuse is a linear problem. No lattices, no Coppersmith, no brute force.</li>
+<li><strong>The fix is old and boring.</strong> RFC 6979 (deterministic nonces) or a properly seeded CSPRNG for <code>k</code>. Signing libraries get this right; hand-rolled signers historically do not.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/cryptography/">Cryptography</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/ecdsa/">ECDSA</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/nonce-reuse/">Nonce Reuse</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/secp256k1/">Secp256k1</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/python/">Python</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
