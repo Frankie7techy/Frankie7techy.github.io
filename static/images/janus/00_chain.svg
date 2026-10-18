@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1256 318" font-family="Fira Code, Consolas, monospace" role="img">
+<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#00ff41"/></marker></defs>
+<rect x="0" y="0" width="1256" height="318" fill="#0a0a0a"/>
+<text x="628" y="46" fill="#00ff41" font-size="26" font-weight="bold" text-anchor="middle">JANUS</text>
+<text x="628" y="84" fill="#6a6a6a" font-size="15" text-anchor="middle">a ChaCha-flavoured cipher on the outside, a plain XOR on the inside</text>
+<rect x="30" y="150" width="220" height="108" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="44" y="180" fill="#00d4ff" font-size="16" font-weight="bold">1. Handout</text>
+<text x="44" y="204" fill="#9a9a9a" font-size="13">janus + janus2</text>
+<text x="44" y="224" fill="#9a9a9a" font-size="13">check + validator</text>
+<text x="44" y="244" fill="#9a9a9a" font-size="13">ciphertext.bin</text>
+<line x1="254" y1="204" x2="270" y2="204" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="274" y="150" width="220" height="108" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="288" y="180" fill="#ffbd2e" font-size="16" font-weight="bold">2. Disassemble</text>
+<text x="288" y="204" fill="#9a9a9a" font-size="13">check builds</text>
+<text x="288" y="224" fill="#9a9a9a" font-size="13">the expected flag</text>
+<text x="288" y="244" fill="#9a9a9a" font-size="13">at rsp+0x100</text>
+<line x1="498" y1="204" x2="514" y2="204" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="518" y="150" width="220" height="108" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="532" y="180" fill="#00d4ff" font-size="16" font-weight="bold">3. Formula</text>
+<text x="532" y="204" fill="#9a9a9a" font-size="13">expected[0]='r'</text>
+<text x="532" y="224" fill="#9a9a9a" font-size="13">expected[i]=</text>
+<text x="532" y="244" fill="#9a9a9a" font-size="13">key[i&3] ^ ct[i]</text>
+<line x1="742" y1="204" x2="758" y2="204" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="762" y="150" width="220" height="108" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="776" y="180" fill="#ffbd2e" font-size="16" font-weight="bold">4. Recover</text>
+<text x="776" y="204" fill="#9a9a9a" font-size="13">key ff c6 a5 e2</text>
+<text x="776" y="224" fill="#9a9a9a" font-size="13">ct 44 bytes</text>
+<text x="776" y="244" fill="#9a9a9a" font-size="13">.rodata 0x2040</text>
+<line x1="986" y1="204" x2="1002" y2="204" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="1006" y="150" width="220" height="108" rx="10" fill="#0f0f0f" stroke="#00ff41" stroke-width="1.4"/>
+<text x="1020" y="180" fill="#00ff41" font-size="16" font-weight="bold">5. Confirm</text>
+<text x="1020" y="204" fill="#9a9a9a" font-size="13">./check <flag></text>
+<text x="1020" y="224" fill="#9a9a9a" font-size="13">CORRECT</text>
+<text x="1020" y="244" fill="#9a9a9a" font-size="13">validator is a decoy</text>
+</svg>
