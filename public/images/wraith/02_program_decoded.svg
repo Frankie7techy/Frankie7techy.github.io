@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" font-family="Fira Code, Consolas, monospace" role="img">
+<rect x="0.5" y="0.5" width="899" height="499" rx="10" fill="#0f0f0f" stroke="#242424"/>
+<path d="M0,10 a10,10 0 0 1 10,-10 h880 a10,10 0 0 1 10,10 v24 h-900 z" fill="#161616"/>
+<circle cx="22" cy="17" r="6" fill="#ff5f56"/>
+<circle cx="42" cy="17" r="6" fill="#ffbd2e"/>
+<circle cx="62" cy="17" r="6" fill="#27c93f"/>
+<text x="450" y="22" fill="#6a6a6a" font-size="13" text-anchor="middle">decode.py  ·  the hidden program</text>
+<text x="20" y="54" fill="#6a6a6a" font-size="15" xml:space="preserve"># rodata[16:]  XOR  90 63 09 d2   -&gt;  331-byte program</text>
+<text x="20" y="76" fill="#c8c8c8" font-size="15" xml:space="preserve"></text>
+<text x="20" y="98" fill="#00ff41" font-size="15" xml:space="preserve">  0: de            group separator</text>
+<text x="20" y="120" fill="#c8c8c8" font-size="15" xml:space="preserve">  1: 42 00         push  input[0]</text>
+<text x="20" y="142" fill="#c8c8c8" font-size="15" xml:space="preserve">  3: 41 c2         push  0xc2</text>
+<text x="20" y="164" fill="#c8c8c8" font-size="15" xml:space="preserve">  5: 43            xor</text>
+<text x="20" y="186" fill="#c8c8c8" font-size="15" xml:space="preserve">  6: 45 07         rotl  7</text>
+<text x="20" y="208" fill="#c8c8c8" font-size="15" xml:space="preserve">  8: 41 58         push  0x58</text>
+<text x="20" y="230" fill="#c8c8c8" font-size="15" xml:space="preserve"> 10: 46            eq</text>
+<text x="20" y="252" fill="#c8c8c8" font-size="15" xml:space="preserve"> 11: 42 01         push  input[1]</text>
+<text x="20" y="274" fill="#c8c8c8" font-size="15" xml:space="preserve"> 13: 41 a4         push  0xa4</text>
+<text x="20" y="296" fill="#c8c8c8" font-size="15" xml:space="preserve"> 15: 43            xor</text>
+<text x="20" y="318" fill="#c8c8c8" font-size="15" xml:space="preserve"> 16: 45 04         rotl  4</text>
+<text x="20" y="340" fill="#c8c8c8" font-size="15" xml:space="preserve"> 18: 41 49         push  0x49</text>
+<text x="20" y="362" fill="#c8c8c8" font-size="15" xml:space="preserve"> 20: 46            eq</text>
+<text x="20" y="384" fill="#6a6a6a" font-size="15" xml:space="preserve">  ...            29 check blocks in total, grouped in threes ...</text>
+<text x="20" y="406" fill="#c8c8c8" font-size="15" xml:space="preserve">300: ad 00         nop</text>
+<text x="20" y="428" fill="#c8c8c8" font-size="15" xml:space="preserve">301: 47            and</text>
+<text x="20" y="450" fill="#6a6a6a" font-size="15" xml:space="preserve">302..329: 47      and  (x27)</text>
+<text x="20" y="472" fill="#00ff41" font-size="15" xml:space="preserve">330: 48            halt   &lt;- result = AND of every check</text>
+</svg>

@@ -6,8 +6,50 @@
     <description>Recent content in Tags on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 15 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Binary Analysis</title>
+      <link>https://frankie7techy.github.io/public/tags/binary-analysis/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/binary-analysis/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Bytecode VM</title>
+      <link>https://frankie7techy.github.io/public/tags/bytecode-vm/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/bytecode-vm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CTF</title>
+      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Python</title>
+      <link>https://frankie7techy.github.io/public/tags/python/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/python/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Reverse Engineering</title>
+      <link>https://frankie7techy.github.io/public/tags/reverse-engineering/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/reverse-engineering/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WebAssembly</title>
+      <link>https://frankie7techy.github.io/public/tags/webassembly/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/webassembly/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Continued Fractions</title>
       <link>https://frankie7techy.github.io/public/tags/continued-fractions/</link>
@@ -20,20 +62,6 @@
       <link>https://frankie7techy.github.io/public/tags/cryptography/</link>
       <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/cryptography/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>CTF</title>
-      <link>https://frankie7techy.github.io/public/tags/ctf/</link>
-      <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Python</title>
-      <link>https://frankie7techy.github.io/public/tags/python/</link>
-      <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/python/</guid>
       <description></description>
     </item>
     <item>
@@ -142,13 +170,6 @@
       <description></description>
     </item>
     <item>
-      <title>Binary Analysis</title>
-      <link>https://frankie7techy.github.io/public/tags/binary-analysis/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/binary-analysis/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Crypto</title>
       <link>https://frankie7techy.github.io/public/tags/crypto/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
@@ -209,13 +230,6 @@
       <link>https://frankie7techy.github.io/public/tags/rce/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/rce/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Reverse Engineering</title>
-      <link>https://frankie7techy.github.io/public/tags/reverse-engineering/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/reverse-engineering/</guid>
       <description></description>
     </item>
     <item>

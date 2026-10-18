@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, Reverse Engineering, WebAssembly, Bytecode VM, Binary Analysis, Python">
+<meta name="description" content="A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module">
+  <meta property="og:description" content="A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="WebAssembly">
+    <meta property="article:tag" content="Bytecode VM">
+    <meta property="article:tag" content="Binary Analysis">
+    <meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module">
+<meta name="twitter:description" content="A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module",
+      "item": "https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module",
+  "name": "Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module",
+  "description": "A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.",
+  "keywords": [
+    "CTF", "Reverse Engineering", "WebAssembly", "Bytecode VM", "Binary Analysis", "Python"
+  ],
+  "articleBody": " Rev Medium 200 pts r00t CTF · Wraith WRAITH One file in the handout: wraith.wasm, two kilobytes, a single exported function called check_flag, and no strings worth reading. It turns out to be a stack VM running a hidden bytecode program that tests the flag one byte at a time. Every check inverts in closed form, so there is nothing to brute force.\n2 KBwasm module 331hidden bytes 29byte checks 0brute force The handout The zip contains exactly one file. No README, no source, no hints:\nWraith/ └── wraith.wasm 2094 bytes file names it for you: a WebAssembly binary, module version 1. That is the whole challenge surface. Two kilobytes of compiled bytecode with nothing to strings and nothing to grep.\nThe first look at the structure tells the whole story:\nRead the import table. The module pulls in two host functions:\nThe two imports are the giveaway It imports env.js_print_ok and env.js_print_fail, and exports exactly one function, check_flag(i32) -\u003e i32. Someone compiled a flag checker to wasm and let the host JavaScript do the printing. That means the module is meant to run inside a small JS harness, so we can run it ourselves once we understand it.\nThere is also a data segment worth noting: a 347 byte .rodata blob loaded at offset 1024. That blob is the only real payload in the file, and it is not plaintext.\nThe tell: a checker wearing a VM costume Disassembling check_flag is where it gets fun. The function is doing something odd for a flag check. It never compares your input against a constant directly. Instead it does this:\nScans the input for its length (an unrolled loop looking for the first zero byte). De-obfuscates a second program into a buffer on the stack. Runs a small interpreter loop over that program, with a stack, a stack pointer and a halt flag. In other words, check_flag is not the check. It is a virtual machine, and the check is a bytecode program hidden inside .rodata.\nOnce you see the interpreter shape, the path is fixed. Recover the program, read the opcodes, invert the comparisons. Let me take each step in turn.\nStep 1: De-obfuscate the hidden program The module builds the real program by XORing the .rodata blob against a short repeating key. The code is specific about which bytes it uses:\nkey[i] = rodata[i \u0026 2] # only ever 2 values: rodata[0] or rodata[2] prog[j] = rodata[16 + j] XOR key[j % 4] # for every byte of the program The first sixteen bytes of .rodata are the key material (four bytes repeated), and the actual payload starts at byte sixteen. The de-obfuscation key is 90 63 09 d2, recovered straight from the blob, and the program comes out at 331 bytes:\nNow the program is readable, and it has a very regular shape.\nStep 2: Read the bytecode The interpreter is a textbook stack machine. I mapped every opcode by reading the dispatch loop in the WAT. The comparison is a single byte subtracted from 'A' (0x41) feeding a jump table, so the opcodes land neatly in the A to H range, plus two special bytes:\nOpcode Byte Meaning A 0x41 push immediate (next byte) B 0x42 push input[idx] (next byte is the index) C 0x43 xor top two, push result D 0x44 add immediate to top E 0x45 rotate top left by immediate (mod 8) F 0x46 compare top two, push 1 or 0 G 0x47 and top two, push result H 0x48 halt, return top of stack 0xDE group separator (no-op) 0xAD padding (no-op, skips a byte) With the table in hand, the program describes itself. It is ten groups of three checks, then a padding byte, then a folding and for every result, then halt:\nde ; group separator 42 00 41 c2 43 45 07 41 58 46 ; check byte 0 42 01 41 a4 43 45 04 41 49 46 ; check byte 1 42 02 41 fb 43 45 06 41 f2 46 ; check byte 2 ... 47 47 47 47 ... 47 ; and every result together (x28) 48 ; halt, the result is the AND of all 29 checks Every check has the same ten byte form:\npush input[i] ; B idx push k ; A k xor ; C rotl r ; E r push c ; A c eq ; F So for each index i, the program computes:\nrol8( input[i] XOR k , r ) == c and then ANDs all 29 boolean results together. The flag is accepted only if every check passes. There are 29 checks, so the flag is 29 bytes.\nStep 3: Invert the checks This is the moment the challenge collapses. There is no chaining between checks, no feedback, no state carried from one byte to the next. Each of the 29 comparisons stands alone, and it is a byte-level equation you can solve on paper:\nrol8( input[i] XOR k , r ) == c Rotate the other way, undo the XOR, and you have each byte in closed form:\ninput[i] = ror8(c, r) XOR k Two operations per byte. No solver, no SAT, no brute force. The whole thing is:\n#!/usr/bin/env python3 \"\"\"Pull the bytecode out of wraith.wasm, read each check, invert it.\"\"\" data = open(\"Wraith/wraith.wasm\", \"rb\").read() # 1. the 347-byte .rodata blob starts right after \"i32.const 1024\" (0x41 0x80 0x08 0x0b) needle = bytes([0x41, 0x80, 0x08, 0x0b]) p = data.find(needle) + len(needle) # LEB128 length prefix, then the blob size, shift = 0, 0 while True: b = data[p]; p += 1 size |= (b \u0026 0x7f) \u003c\u003c shift if not (b \u0026 0x80): break shift += 7 rodata = data[p:p + size] # 2. program = rodata[16:] XOR a repeating 4-byte key from rodata[0:4] key = rodata[:4] prog = bytes(b ^ key[i % 4] for i, b in enumerate(rodata[16:16 + 331])) # 3. each check is 10 bytes: B idx, A k, C, E r, A c, F def ror8(v, r): r \u0026= 7 return ((v \u003e\u003e r) | (v \u003c\u003c ((8 - r) \u0026 7))) \u0026 0xff flag = bytearray() i = 0 while i \u003c len(prog): if (prog[i] == 0x42 and prog[i + 2] == 0x41 and prog[i + 4] == 0x43 and prog[i + 5] == 0x45 and prog[i + 7] == 0x41 and prog[i + 9] == 0x46): idx, k, r, c = prog[i + 1], prog[i + 3], prog[i + 6], prog[i + 8] flag.append(ror8(c, r) ^ k) i += 10 else: i += 2 if prog[i] in (0x41, 0x42, 0x44, 0x45, 0xad) else 1 print(bytes(flag).decode()) Run it and the bytes fall out in order:\nr00t{w4sm_vm_byp4ss_unl0ck3d} Step 4: Prove it in a real engine A recovered flag from my own reimplementation is nice, but I want the actual .wasm to agree, not just my model of it. The module needs a host for its two imports, which is exactly what a wasm engine gives us. I loaded the binary with wasmtime, stubbed js_print_ok and js_print_fail to record which one fires, wrote the candidate into the module’s linear memory, and called check_flag:\nThe real flag returns 1 and calls js_print_ok. A one-bit change, a string of As, and the empty string all return 0 and call js_print_fail. The compiled artifact and my inversion agree byte for byte.\nFlag r00t{w4sm_vm_byp4ss_unl0ck3d} The traps, and what they teach This challenge is friendly once you spot the VM, but there are a few places to lose an evening.\n✗ Treating it as crypto An XOR plus a rotate looks cipher-ish, so the instinct is to reach for a keystream or a differential. It is neither. Each byte is an independent equation with a known answer, so you invert instead of attack. it is a lookup, not a cipher ✗ Reading .rodata as text The blob is obfuscated, so `strings` and hexdumps show noise. The plaintext is the de-obfuscated program, not the blob, and it never appears as a string at all. the payload is a program, not a message ✗ Getting the rotate backwards The VM encodes `rol8` and you must apply `ror8` to invert it. Rotate the wrong way and you get a plausible-looking but wrong byte, which is the most annoying kind of wrong. invert the direction, always ✗ Forgetting the length gate The input buffer is zero-filled past its real end, so a short flag fails the later checks with `0` bytes rather than crashing. The flag is exactly 29 bytes because there are 29 checks. 29 checks means 29 bytes Takeaway Wraith is a nice reminder that “compiled binary” does not mean “opaque binary”. Two kilobytes of wasm, no symbols and no strings, and the entire security model still came down to a handful of invertible byte operations that a forty line script undoes.\nLook at the imports and exports first. js_print_ok / js_print_fail told me this was a self-contained checker I could run, long before I understood a single opcode. Recognise the interpreter shape. A stack, a stack pointer, a halt flag and a jump table are the signature of a VM, and a VM usually means a hidden program you can recover instead of reverse. Invert, do not brute force. When each check is independent and closed form, the flag falls out in one pass. Trust but verify. Reimplementing the check is not proof. Running the artifact in a real engine against three wrong candidates is. For anyone building something similar: obfuscating a checker buys you time, not security. A determined reader recovers the program, reads the opcodes and inverts the comparisons. If a value has to stay secret, keep it out of the client entirely.\nWebAssemblywasm2watwasm-objdumpwasmtimestack VMbytecodeXOR + rol8 Solved on the r00t CTF platform. Challenge: Wraith by k4p3re. Full solver and decoder scripts available on request.\n",
+  "wordCount" : "1637",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module
+    </h1>
+    <div class="post-description">
+      A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#the-tell-a-checker-wearing-a-vm-costume" aria-label="The tell: a checker wearing a VM costume">The tell: a checker wearing a VM costume</a></li>
+                <li>
+                    <a href="#step-1-de-obfuscate-the-hidden-program" aria-label="Step 1: De-obfuscate the hidden program">Step 1: De-obfuscate the hidden program</a></li>
+                <li>
+                    <a href="#step-2-read-the-bytecode" aria-label="Step 2: Read the bytecode">Step 2: Read the bytecode</a></li>
+                <li>
+                    <a href="#step-3-invert-the-checks" aria-label="Step 3: Invert the checks">Step 3: Invert the checks</a></li>
+                <li>
+                    <a href="#step-4-prove-it-in-a-real-engine" aria-label="Step 4: Prove it in a real engine">Step 4: Prove it in a real engine</a></li>
+                <li>
+                    <a href="#the-traps-and-what-they-teach" aria-label="The traps, and what they teach">The traps, and what they teach</a></li>
+                <li>
+                    <a href="#takeaway" aria-label="Takeaway">Takeaway</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Rev</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge cyan">200 pts</span>
+    <span class="dr-badge ghost">r00t CTF · Wraith</span>
+  </div>
+  <div class="dr-title">WRAITH</div>
+  <p class="dr-sub">One file in the handout: <strong>wraith.wasm</strong>, two kilobytes, a single exported function called <code>check_flag</code>, and no strings worth reading. It turns out to be a <strong>stack VM running a hidden bytecode program</strong> that tests the flag one byte at a time. Every check inverts in closed form, so there is nothing to brute force.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">2 KB</span><span class="l">wasm module</span></div>
+  <div class="dr-stat"><span class="n cyan">331</span><span class="l">hidden bytes</span></div>
+  <div class="dr-stat"><span class="n red">29</span><span class="l">byte checks</span></div>
+  <div class="dr-stat"><span class="n">0</span><span class="l">brute force</span></div>
+</div>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p>The zip contains exactly one file. No README, no source, no hints:</p>
+<pre tabindex="0"><code>Wraith/
+└── wraith.wasm      2094 bytes
+</code></pre><p><code>file</code> names it for you: a WebAssembly binary, module version 1. That is the whole challenge surface. Two kilobytes of compiled bytecode with nothing to <code>strings</code> and nothing to grep.</p>
+<p>The first look at the structure tells the whole story:</p>
+<p><img alt="wasm-objdump -x on wraith.wasm, showing the imports, the check_flag export and a 347 byte rodata segment" loading="lazy" src="/public/images/wraith/01_wasm_module.svg"></p>
+<p>Read the import table. The module pulls in two host functions:</p>
+<div class="dr-callout">
+  <span class="t">The two imports are the giveaway</span>
+  <p>It imports <code>env.js_print_ok</code> and <code>env.js_print_fail</code>, and exports exactly one function, <code>check_flag(i32) -&gt; i32</code>. Someone compiled a flag checker to wasm and let the host JavaScript do the printing. That means the module is meant to run inside a small JS harness, so <strong>we can run it ourselves</strong> once we understand it.</p>
+</div>
+<p>There is also a data segment worth noting: a 347 byte <code>.rodata</code> blob loaded at offset <code>1024</code>. That blob is the only real payload in the file, and it is not plaintext.</p>
+<h2 id="the-tell-a-checker-wearing-a-vm-costume">The tell: a checker wearing a VM costume<a hidden class="anchor" aria-hidden="true" href="#the-tell-a-checker-wearing-a-vm-costume">#</a></h2>
+<p>Disassembling <code>check_flag</code> is where it gets fun. The function is doing something odd for a flag check. It never compares your input against a constant directly. Instead it does this:</p>
+<ol>
+<li>Scans the input for its length (an unrolled loop looking for the first zero byte).</li>
+<li><strong>De-obfuscates a second program</strong> into a buffer on the stack.</li>
+<li>Runs a small interpreter loop over that program, with a stack, a stack pointer and a halt flag.</li>
+</ol>
+<p>In other words, <code>check_flag</code> is not the check. It is a <strong>virtual machine</strong>, and the check is a bytecode program hidden inside <code>.rodata</code>.</p>
+<p><img alt="The Wraith pipeline: triage, de-obfuscate, decode the VM, invert the checks, verify" loading="lazy" src="/public/images/wraith/00_chain.svg"></p>
+<p>Once you see the interpreter shape, the path is fixed. Recover the program, read the opcodes, invert the comparisons. Let me take each step in turn.</p>
+<h2 id="step-1-de-obfuscate-the-hidden-program">Step 1: De-obfuscate the hidden program<a hidden class="anchor" aria-hidden="true" href="#step-1-de-obfuscate-the-hidden-program">#</a></h2>
+<p>The module builds the real program by XORing the <code>.rodata</code> blob against a short repeating key. The code is specific about which bytes it uses:</p>
+<pre tabindex="0"><code>key[i] = rodata[i &amp; 2]           # only ever 2 values: rodata[0] or rodata[2]
+prog[j] = rodata[16 + j] XOR key[j % 4]     # for every byte of the program
+</code></pre><p>The first sixteen bytes of <code>.rodata</code> are the key material (four bytes repeated), and the actual payload starts at byte sixteen. The de-obfuscation key is <code>90 63 09 d2</code>, recovered straight from the blob, and the program comes out at 331 bytes:</p>
+<p><img alt="The de-obfuscated 331 byte program, showing the push/xor/rotl/eq shape of each check" loading="lazy" src="/public/images/wraith/02_program_decoded.svg"></p>
+<p>Now the program is readable, and it has a very regular shape.</p>
+<h2 id="step-2-read-the-bytecode">Step 2: Read the bytecode<a hidden class="anchor" aria-hidden="true" href="#step-2-read-the-bytecode">#</a></h2>
+<p>The interpreter is a textbook stack machine. I mapped every opcode by reading the dispatch loop in the WAT. The comparison is a single byte subtracted from <code>'A'</code> (0x41) feeding a jump table, so the opcodes land neatly in the <code>A</code> to <code>H</code> range, plus two special bytes:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Opcode</th>
+					<th>Byte</th>
+					<th>Meaning</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>A</code></td>
+					<td><code>0x41</code></td>
+					<td>push immediate (next byte)</td>
+			</tr>
+			<tr>
+					<td><code>B</code></td>
+					<td><code>0x42</code></td>
+					<td>push <code>input[idx]</code> (next byte is the index)</td>
+			</tr>
+			<tr>
+					<td><code>C</code></td>
+					<td><code>0x43</code></td>
+					<td>xor top two, push result</td>
+			</tr>
+			<tr>
+					<td><code>D</code></td>
+					<td><code>0x44</code></td>
+					<td>add immediate to top</td>
+			</tr>
+			<tr>
+					<td><code>E</code></td>
+					<td><code>0x45</code></td>
+					<td>rotate top left by immediate (mod 8)</td>
+			</tr>
+			<tr>
+					<td><code>F</code></td>
+					<td><code>0x46</code></td>
+					<td>compare top two, push <code>1</code> or <code>0</code></td>
+			</tr>
+			<tr>
+					<td><code>G</code></td>
+					<td><code>0x47</code></td>
+					<td>and top two, push result</td>
+			</tr>
+			<tr>
+					<td><code>H</code></td>
+					<td><code>0x48</code></td>
+					<td>halt, return top of stack</td>
+			</tr>
+			<tr>
+					<td><code>0xDE</code></td>
+					<td></td>
+					<td>group separator (no-op)</td>
+			</tr>
+			<tr>
+					<td><code>0xAD</code></td>
+					<td></td>
+					<td>padding (no-op, skips a byte)</td>
+			</tr>
+	</tbody>
+</table>
+<p>With the table in hand, the program describes itself. It is <strong>ten groups of three checks</strong>, then a padding byte, then a folding <code>and</code> for every result, then <code>halt</code>:</p>
+<pre tabindex="0"><code>de                      ; group separator
+42 00 41 c2 43 45 07 41 58 46    ; check byte 0
+42 01 41 a4 43 45 04 41 49 46    ; check byte 1
+42 02 41 fb 43 45 06 41 f2 46    ; check byte 2
+...
+47 47 47 47 ... 47      ; and every result together (x28)
+48                      ; halt, the result is the AND of all 29 checks
+</code></pre><p>Every check has the same ten byte form:</p>
+<pre tabindex="0"><code>push input[i]     ; B idx
+push k            ; A k
+xor               ; C
+rotl r            ; E r
+push c            ; A c
+eq                ; F
+</code></pre><p>So for each index <code>i</code>, the program computes:</p>
+<pre tabindex="0"><code>rol8( input[i] XOR k , r )  ==  c
+</code></pre><p>and then ANDs all 29 boolean results together. The flag is accepted only if <strong>every</strong> check passes. There are 29 checks, so the flag is 29 bytes.</p>
+<h2 id="step-3-invert-the-checks">Step 3: Invert the checks<a hidden class="anchor" aria-hidden="true" href="#step-3-invert-the-checks">#</a></h2>
+<p>This is the moment the challenge collapses. There is no chaining between checks, no feedback, no state carried from one byte to the next. Each of the 29 comparisons stands alone, and it is a byte-level equation you can solve on paper:</p>
+<pre tabindex="0"><code>rol8( input[i] XOR k , r ) == c
+</code></pre><p>Rotate the other way, undo the XOR, and you have each byte in closed form:</p>
+<pre tabindex="0"><code>input[i] = ror8(c, r) XOR k
+</code></pre><p>Two operations per byte. No solver, no SAT, no brute force. The whole thing is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!/usr/bin/env python3</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;Pull the bytecode out of wraith.wasm, read each check, invert it.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;Wraith/wraith.wasm&#34;</span><span class="p">,</span> <span class="s2">&#34;rb&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 1. the 347-byte .rodata blob starts right after &#34;i32.const 1024&#34; (0x41 0x80 0x08 0x0b)</span>
+</span></span><span class="line"><span class="cl"><span class="n">needle</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="mh">0x0b</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">needle</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">needle</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># LEB128 length prefix, then the blob</span>
+</span></span><span class="line"><span class="cl"><span class="n">size</span><span class="p">,</span> <span class="n">shift</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">p</span><span class="p">];</span> <span class="n">p</span> <span class="o">+=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">size</span> <span class="o">|=</span> <span class="p">(</span><span class="n">b</span> <span class="o">&amp;</span> <span class="mh">0x7f</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">shift</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">b</span> <span class="o">&amp;</span> <span class="mh">0x80</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span>
+</span></span><span class="line"><span class="cl">    <span class="n">shift</span> <span class="o">+=</span> <span class="mi">7</span>
+</span></span><span class="line"><span class="cl"><span class="n">rodata</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">p</span><span class="p">:</span><span class="n">p</span> <span class="o">+</span> <span class="n">size</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2. program = rodata[16:] XOR a repeating 4-byte key from rodata[0:4]</span>
+</span></span><span class="line"><span class="cl"><span class="n">key</span> <span class="o">=</span> <span class="n">rodata</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">prog</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">b</span> <span class="o">^</span> <span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="mi">4</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rodata</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">16</span> <span class="o">+</span> <span class="mi">331</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 3. each check is 10 bytes: B idx, A k, C, E r, A c, F</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">ror8</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">&amp;=</span> <span class="mi">7</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">((</span><span class="n">v</span> <span class="o">&gt;&gt;</span> <span class="n">r</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="mi">8</span> <span class="o">-</span> <span class="n">r</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">7</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="mh">0xff</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">flag</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">prog</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">prog</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x42</span> <span class="ow">and</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x41</span> <span class="ow">and</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x43</span>
+</span></span><span class="line"><span class="cl">            <span class="ow">and</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">5</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x45</span> <span class="ow">and</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">7</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x41</span> <span class="ow">and</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">9</span><span class="p">]</span> <span class="o">==</span> <span class="mh">0x46</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">idx</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">],</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">3</span><span class="p">],</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">6</span><span class="p">],</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ror8</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span> <span class="o">^</span> <span class="n">k</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">+=</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">i</span> <span class="o">+=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">prog</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x42</span><span class="p">,</span> <span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x45</span><span class="p">,</span> <span class="mh">0xad</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p>Run it and the bytes fall out in order:</p>
+<pre tabindex="0"><code>r00t{w4sm_vm_byp4ss_unl0ck3d}
+</code></pre><h2 id="step-4-prove-it-in-a-real-engine">Step 4: Prove it in a real engine<a hidden class="anchor" aria-hidden="true" href="#step-4-prove-it-in-a-real-engine">#</a></h2>
+<p>A recovered flag from my own reimplementation is nice, but I want the actual <code>.wasm</code> to agree, not just my model of it. The module needs a host for its two imports, which is exactly what a wasm engine gives us. I loaded the binary with <strong>wasmtime</strong>, stubbed <code>js_print_ok</code> and <code>js_print_fail</code> to record which one fires, wrote the candidate into the module&rsquo;s linear memory, and called <code>check_flag</code>:</p>
+<p><img alt="Calling check_flag in wasmtime with the real flag and three wrong candidates" loading="lazy" src="/public/images/wraith/03_engine_verify.svg"></p>
+<p>The real flag returns <code>1</code> and calls <code>js_print_ok</code>. A one-bit change, a string of <code>A</code>s, and the empty string all return <code>0</code> and call <code>js_print_fail</code>. The compiled artifact and my inversion agree byte for byte.</p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{w4sm_vm_byp4ss_unl0ck3d}</code>
+</div>
+<h2 id="the-traps-and-what-they-teach">The traps, and what they teach<a hidden class="anchor" aria-hidden="true" href="#the-traps-and-what-they-teach">#</a></h2>
+<p>This challenge is friendly once you spot the VM, but there are a few places to lose an evening.</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Treating it as crypto</span>
+    An XOR plus a rotate looks cipher-ish, so the instinct is to reach for a keystream or a differential. It is neither. Each byte is an independent equation with a known answer, so you invert instead of attack.
+    <span class="truth">it is a lookup, not a cipher</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Reading .rodata as text</span>
+    The blob is obfuscated, so `strings` and hexdumps show noise. The plaintext is the de-obfuscated <em>program</em>, not the blob, and it never appears as a string at all.
+    <span class="truth">the payload is a program, not a message</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Getting the rotate backwards</span>
+    The VM encodes `rol8` and you must apply `ror8` to invert it. Rotate the wrong way and you get a plausible-looking but wrong byte, which is the most annoying kind of wrong.
+    <span class="truth">invert the direction, always</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">✗</span> Forgetting the length gate</span>
+    The input buffer is zero-filled past its real end, so a short flag fails the later checks with `0` bytes rather than crashing. The flag is exactly 29 bytes because there are 29 checks.
+    <span class="truth">29 checks means 29 bytes</span>
+  </div>
+</div>
+<h2 id="takeaway">Takeaway<a hidden class="anchor" aria-hidden="true" href="#takeaway">#</a></h2>
+<p>Wraith is a nice reminder that &ldquo;compiled binary&rdquo; does not mean &ldquo;opaque binary&rdquo;. Two kilobytes of wasm, no symbols and no strings, and the entire security model still came down to a handful of invertible byte operations that a forty line script undoes.</p>
+<ul>
+<li><strong>Look at the imports and exports first.</strong> <code>js_print_ok</code> / <code>js_print_fail</code> told me this was a self-contained checker I could run, long before I understood a single opcode.</li>
+<li><strong>Recognise the interpreter shape.</strong> A stack, a stack pointer, a halt flag and a jump table are the signature of a VM, and a VM usually means a hidden program you can recover instead of reverse.</li>
+<li><strong>Invert, do not brute force.</strong> When each check is independent and closed form, the flag falls out in one pass.</li>
+<li><strong>Trust but verify.</strong> Reimplementing the check is not proof. Running the artifact in a real engine against three wrong candidates is.</li>
+</ul>
+<p>For anyone building something similar: obfuscating a checker buys you time, not security. A determined reader recovers the program, reads the opcodes and inverts the comparisons. If a value has to stay secret, keep it out of the client entirely.</p>
+<div class="dr-chips">
+  <span class="dr-chip">WebAssembly</span><span class="dr-chip">wasm2wat</span><span class="dr-chip">wasm-objdump</span><span class="dr-chip">wasmtime</span><span class="dr-chip">stack VM</span><span class="dr-chip">bytecode</span><span class="dr-chip">XOR + rol8</span>
+</div>
+<p><em>Solved on the r00t CTF platform. Challenge: Wraith by k4p3re. Full solver and decoder scripts available on request.</em></p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/webassembly/">WebAssembly</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/bytecode-vm/">Bytecode VM</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/binary-analysis/">Binary Analysis</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/python/">Python</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

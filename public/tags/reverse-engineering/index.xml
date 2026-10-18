@@ -6,8 +6,15 @@
     <description>Recent content in Reverse Engineering on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 01 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/reverse-engineering/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module</title>
+      <link>https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/</guid>
+      <description>A 2 KB WebAssembly file with one exported function and two imports. No strings, no symbols, nothing readable. Inside it hides a tiny bytecode VM that checks the flag one byte at a time, and every check inverts in closed form.</description>
+    </item>
     <item>
       <title>Nexus: When Every Field Lies, Trust the Scorer</title>
       <link>https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/</link>

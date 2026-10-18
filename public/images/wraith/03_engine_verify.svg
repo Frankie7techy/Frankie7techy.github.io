@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 214" font-family="Fira Code, Consolas, monospace" role="img">
+<rect x="0.5" y="0.5" width="899" height="213" rx="10" fill="#0f0f0f" stroke="#242424"/>
+<path d="M0,10 a10,10 0 0 1 10,-10 h880 a10,10 0 0 1 10,10 v24 h-900 z" fill="#161616"/>
+<circle cx="22" cy="17" r="6" fill="#ff5f56"/>
+<circle cx="42" cy="17" r="6" fill="#ffbd2e"/>
+<circle cx="62" cy="17" r="6" fill="#27c93f"/>
+<text x="450" y="22" fill="#6a6a6a" font-size="13" text-anchor="middle">wasmtime  ·  check_flag()</text>
+<text x="20" y="54" fill="#6a6a6a" font-size="15" xml:space="preserve">$ python3 verify.py</text>
+<text x="20" y="76" fill="#00ff41" font-size="15" xml:space="preserve">b'r00t{w4sm_vm_byp4ss_unl0ck3d}'   -&gt;  ret=1   OK</text>
+<text x="20" y="98" fill="#ff5f56" font-size="15" xml:space="preserve">b'r00t{w4sm_vm_byp4ss_unl0ck3X}'   -&gt;  ret=0   FAIL</text>
+<text x="20" y="120" fill="#ff5f56" font-size="15" xml:space="preserve">b'AAAAAAAAAAAAAAAAAAAAAAAAAAAAA'   -&gt;  ret=0   FAIL</text>
+<text x="20" y="142" fill="#ff5f56" font-size="15" xml:space="preserve">b''                                -&gt;  ret=0   FAIL</text>
+<text x="20" y="164" fill="#c8c8c8" font-size="15" xml:space="preserve"></text>
+<text x="20" y="186" fill="#6a6a6a" font-size="15" xml:space="preserve"># js_print_ok called only for the real flag</text>
+</svg>

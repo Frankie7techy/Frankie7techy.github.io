@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 588" font-family="Fira Code, Consolas, monospace" role="img">
+<rect x="0.5" y="0.5" width="899" height="587" rx="10" fill="#0f0f0f" stroke="#242424"/>
+<path d="M0,10 a10,10 0 0 1 10,-10 h880 a10,10 0 0 1 10,10 v24 h-900 z" fill="#161616"/>
+<circle cx="22" cy="17" r="6" fill="#ff5f56"/>
+<circle cx="42" cy="17" r="6" fill="#ffbd2e"/>
+<circle cx="62" cy="17" r="6" fill="#27c93f"/>
+<text x="450" y="22" fill="#6a6a6a" font-size="13" text-anchor="middle">wasm-objdump -x wraith.wasm</text>
+<text x="20" y="54" fill="#6a6a6a" font-size="15" xml:space="preserve">$ wasm-objdump -x wraith.wasm</text>
+<text x="20" y="76" fill="#00ff41" font-size="15" xml:space="preserve">wraith.wasm:  file format wasm 0x1</text>
+<text x="20" y="98" fill="#6a6a6a" font-size="15" xml:space="preserve">module name: &lt;wraith.wasm&gt;</text>
+<text x="20" y="120" fill="#c8c8c8" font-size="15" xml:space="preserve"></text>
+<text x="20" y="142" fill="#c8c8c8" font-size="15" xml:space="preserve">Section Details:</text>
+<text x="20" y="164" fill="#c8c8c8" font-size="15" xml:space="preserve">Type[2]:</text>
+<text x="20" y="186" fill="#c8c8c8" font-size="15" xml:space="preserve"> - type[0] () -&gt; nil</text>
+<text x="20" y="208" fill="#c8c8c8" font-size="15" xml:space="preserve"> - type[1] (i32) -&gt; i32</text>
+<text x="20" y="230" fill="#c8c8c8" font-size="15" xml:space="preserve">Import[2]:</text>
+<text x="20" y="252" fill="#00d4ff" font-size="15" xml:space="preserve"> - func[0] sig=0 &lt;js_print_ok&gt;   &lt;- env.js_print_ok</text>
+<text x="20" y="274" fill="#00d4ff" font-size="15" xml:space="preserve"> - func[1] sig=0 &lt;js_print_fail&gt; &lt;- env.js_print_fail</text>
+<text x="20" y="296" fill="#c8c8c8" font-size="15" xml:space="preserve">Function[1]:</text>
+<text x="20" y="318" fill="#00ff41" font-size="15" xml:space="preserve"> - func[2] sig=1 &lt;check_flag&gt;</text>
+<text x="20" y="340" fill="#c8c8c8" font-size="15" xml:space="preserve">Memory[1]:</text>
+<text x="20" y="362" fill="#c8c8c8" font-size="15" xml:space="preserve"> - memory[0] pages: initial=2</text>
+<text x="20" y="384" fill="#c8c8c8" font-size="15" xml:space="preserve">Global[1]:</text>
+<text x="20" y="406" fill="#c8c8c8" font-size="15" xml:space="preserve"> - global[0] i32 mutable=1 &lt;__stack_pointer&gt;  init i32=66912</text>
+<text x="20" y="428" fill="#c8c8c8" font-size="15" xml:space="preserve">Export[2]:</text>
+<text x="20" y="450" fill="#00ff41" font-size="15" xml:space="preserve"> - memory[0] -&gt; "memory"</text>
+<text x="20" y="472" fill="#00ff41" font-size="15" xml:space="preserve"> - func[2] &lt;check_flag&gt; -&gt; "check_flag"</text>
+<text x="20" y="494" fill="#c8c8c8" font-size="15" xml:space="preserve">Code[1]:</text>
+<text x="20" y="516" fill="#c8c8c8" font-size="15" xml:space="preserve"> - func[2] size=1426 &lt;check_flag&gt;</text>
+<text x="20" y="538" fill="#ffbd2e" font-size="15" xml:space="preserve">Data[1]:</text>
+<text x="20" y="560" fill="#ffbd2e" font-size="15" xml:space="preserve"> - segment[0] &lt;.rodata&gt; memory=0 size=347  init i32=1024</text>
+</svg>

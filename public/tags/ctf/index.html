@@ -96,6 +96,20 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Rev Medium 200 pts r00t CTF · Wraith WRAITH One file in the handout: wraith.wasm, two kilobytes, a single exported function called check_flag, and no strings worth reading. It turns out to be a stack VM running a hidden bytecode program that tests the flag one byte at a time. Every check inverts in closed form, so there is nothing to brute force.
+2 KBwasm module 331hidden bytes 29byte checks 0brute force The handout The zip contains exactly one file. No README, no source, no hints:
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module" href="https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret
     </h2>
   </header>
@@ -220,23 +234,12 @@ TL;DR Someone slid a ZIP archive out of a network using nothing but DNS TXT quer
   <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>6 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
   <a class="entry-link" aria-label="post link to Packet Whisperer: The One Where DNS Snitched on Itself" href="https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/"></a>
 </article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">HackTheBox: SecretCorp Writeup
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>🧩 Challenge Overview This challenge involved exploiting a misconfigured web app to gain unauthorized access to internal data.
-🔍 Enumeration ```bash nmap -sC -sV 10.10.10.10 ``` Discovered ports:
-80/tcp, HTTP (Apache 2.4.41) 22/tcp, SSH (OpenSSH 8.2p1) 💥 Exploitation During directory fuzzing with `ffuf`, found `/backup.zip`. Unzipped credentials for `admin:SuperSecure123`. Login exposed an LFI vulnerability at `index.php?file=…`.
-```bash curl “http://target/index.php?file=../../../../etc/passwd” ```
-🧑‍💻 Privilege Escalation After gaining shell access: ```bash linpeas.sh | tee output.txt ``` Found `/usr/local/bin/backup` with SUID bit. Exploited it via `bash -p` to spawn a root shell.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2025-11-03 00:00:00 +0000 UTC'>November 3, 2025</span>&nbsp;·&nbsp;<span>1 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to HackTheBox: SecretCorp Writeup" href="https://frankie7techy.github.io/public/posts/htb-secretcorp/"></a>
-</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="next" href="https://frankie7techy.github.io/public/tags/ctf/page/2/">Next&nbsp;&nbsp;»
+    </a>
+  </nav>
+</footer>
     </main>
     
 <footer class="footer">
