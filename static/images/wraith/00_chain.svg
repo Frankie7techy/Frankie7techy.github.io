@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 308" font-family="Fira Code, Consolas, monospace" role="img">
+<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#00ff41"/></marker></defs>
+<rect x="0" y="0" width="1180" height="308" fill="#0a0a0a"/>
+<text x="590" y="44" fill="#00ff41" font-size="26" font-weight="bold" text-anchor="middle">WRAITH</text>
+<text x="590" y="82" fill="#6a6a6a" font-size="15" text-anchor="middle">a 2 KB wasm module hiding a bytecode VM that checks the flag one byte at a time</text>
+<rect x="30" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="44" y="191" fill="#00d4ff" font-size="17" font-weight="bold">1. Triage</text>
+<text x="44" y="214" fill="#9a9a9a" font-size="14">wraith.wasm</text>
+<text x="44" y="234" fill="#9a9a9a" font-size="14">2 KB, 1 export</text>
+<text x="44" y="254" fill="#9a9a9a" font-size="14">check_flag(i32)</text>
+<rect x="258" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="272" y="191" fill="#ffbd2e" font-size="17" font-weight="bold">2. De-obfuscate</text>
+<text x="272" y="214" fill="#9a9a9a" font-size="14">331-byte</text>
+<text x="272" y="234" fill="#9a9a9a" font-size="14">program</text>
+<text x="272" y="254" fill="#9a9a9a" font-size="14">XOR 90 63 09 d2</text>
+<rect x="486" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="500" y="191" fill="#ffbd2e" font-size="17" font-weight="bold">3. Decode VM</text>
+<text x="500" y="214" fill="#9a9a9a" font-size="14">opcodes A..H</text>
+<text x="500" y="234" fill="#9a9a9a" font-size="14">29 check</text>
+<text x="500" y="254" fill="#9a9a9a" font-size="14">blocks</text>
+<rect x="714" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="728" y="191" fill="#00d4ff" font-size="17" font-weight="bold">4. Invert</text>
+<text x="728" y="214" fill="#9a9a9a" font-size="14">in[i] =</text>
+<text x="728" y="234" fill="#9a9a9a" font-size="14">ror8(c,r) ^ k</text>
+<text x="728" y="254" fill="#9a9a9a" font-size="14">closed form</text>
+<rect x="942" y="164" width="200" height="96" rx="10" fill="#0f0f0f" stroke="#00ff41" stroke-width="1.4"/>
+<text x="956" y="191" fill="#00ff41" font-size="17" font-weight="bold">5. Verify</text>
+<text x="956" y="214" fill="#9a9a9a" font-size="14">run in</text>
+<text x="956" y="234" fill="#9a9a9a" font-size="14">wasmtime</text>
+<text x="956" y="254" fill="#9a9a9a" font-size="14">-&gt; flag</text>
+<path d="M230,212 C244,212 238,212 252,212" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M458,212 C472,212 466,212 480,212" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M686,212 C700,212 694,212 708,212" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M914,212 C928,212 922,212 936,212" fill="none" stroke="#00ff41" stroke-width="1.6" marker-end="url(#ah)"/>
+</svg>
