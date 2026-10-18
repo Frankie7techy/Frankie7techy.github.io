@@ -96,6 +96,106 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Basilisk: A Three-Stage Checker and the One Byte That Undid It
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Rev Medium r00t CTF :: Basilisk BASILISK A checker built like an onion: three stages, a SHA-256 key schedule, a fake core dump and a two-faced GDB stub. The maze is real. The scorer at the end leaves the front door open.
+3stages 5decoys 0x5cthe XOR 39hidden bytes The handout File What it looks like basilisk the target. A three-stage protector with anti-debug checks check the scorer. Feed it a flag, it says CORRECT or INCORRECT validator a second scorer. Its answer disagrees with check fake_dump.bin a “captured memory region from a previous run” memory_layout.txt a map of where the encrypted stages live debug_stub.py a GDB script that extracts the stages at runtime This is a lot of material for one challenge, and almost all of it is there to keep you busy, so let us separate the signal from the noise first.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Basilisk: A Three-Stage Checker and the One Byte That Undid It" href="https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">BlackGateWatch: A DNS Tunnel Hiding in Plain Sight
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Network r00t CTF :: BlackGateWatch BLACKGATEWATCH Thousands of boring DNS lookups to real services, and one host tunnelling hex out through subdomains it registered itself. The data is not in the payload. It is the query name.
+653query names 3that matter 1relay domain 0TXT records The handout A packet capture of a corporate network, and a flattened list of every query name in it. Most of it is the whitest noise imaginable: outlook.office365.com, api.slack.com, github.com, graph.microsoft.com, zoom.us. If you skim, you fall asleep.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to BlackGateWatch: A DNS Tunnel Hiding in Plain Sight" href="https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Gravimetry: Hunting a Flag in Gravitational-Wave Noise
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Rev Signals r00t CTF :: Gravimetry GRAVIMETRY A chirp buried in gravitational-wave detector noise, plus a Python decoder that is confidently wrong in two places. The challenge is real. The script is a minefield.
+41216float32 samples 4096Hz 2planted bugs 24hex flag suffix The handout strain.dat is 164,864 bytes, which is 41,216 little-endian float32 samples at 4096 Hz, so a bit over ten seconds of simulated interferometer strain. Alongside it:
+detector_params.txt, the calibration and instrument description wave_analysis.py, a complete-looking decoder The description tells you what to do: recover the hidden message from the strain data, and the flag suffix is the first 24 hex characters of the SHA-256 of the recovered bytes.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Gravimetry: Hunting a Flag in Gravitational-Wave Noise" href="https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">JANUS: The Cipher Had Two Faces, but the Checker Only Needed One
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Rev Crypto r00t CTF :: Janus JANUS Janus is the two-faced Roman god. The challenge wears a scary mutated stream cipher on the front and keeps a four-byte XOR key on the back. Guess which face the scorer checks.
+4byte key 44byte ciphertext 1decoy binary 2faces The handout The bundle ships a target (janus, plus a janus2 variant), a ciphertext file, and two scorers: check and validator. As with the rest of this set, the two scorers do not agree, and only one of them is the real one.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to JANUS: The Cipher Had Two Faces, but the Checker Only Needed One" href="https://frankie7techy.github.io/public/posts/janus-mutated-cipher/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Sidedoor: The Cloud Backup That Was Uploading the Secret
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Network r00t CTF :: Sidedoor SIDEDOOR A backup client that shipped a recovery token to a cloud sync service over plain, unauthenticated HTTP. The breach and the evidence are the same packet.
+3692packets 94seconds of capture 1odd host 0decryption steps The handout A single capture, capture.pcap, about 3700 frames over ninety seconds. The task is the classic one: something left the network that should not have, find it.
+Most of the traffic is boring and deliberately so: DNS, TLS to the usual CDNs, background chatter. The trick is that the interesting host is not exotic. It talks to sync.cloudbackup-service.net, which sounds exactly like something a managed laptop would be allowed to talk to. That is the point of a side door.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Sidedoor: The Cloud Backup That Was Uploading the Secret" href="https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">The Signal Key: Hermes Hides in the Bundle
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Mobile Rev r00t CTF :: The Signal Key THE SIGNAL KEY A licence screen, a string table that rotates on boot, and a small cipher. No device, no emulator, no Frida. The whole secret is sitting in the shipped JavaScript bundle.
+14string-table entries 11left rotations 4cipher rounds 0devices needed The handout One file: a React Native JavaScript bundle. React Native apps ship their logic as JavaScript, and this one was not minified into oblivion, which is the first break. The interesting code sits near the licence logic:
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to The Signal Key: Hermes Hides in the Bundle" href="https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">THORNWALL: Anti-Debug Theatre and a Scorer That Talks
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Rev Medium r00t CTF :: Thornwall THORNWALL A wall of thorns: a TracerPid check, a self-integrity hash, and a documented trap path if you touch a single byte of code. The scorer walks around all of it.
+2anti-debug layers 7rotation constant 0x5cthe XOR 0bytes patched The handout File Role thornwall the protected target check the scorer that decides the points validator a decoy scorer with a different answer bypass_guide.txt a walkthrough of the protection scheme thorn_reference.py a Python “reference” of the cipher, marked as a trap The interesting tension is right there in the file list: the challenge hands you a guide to disabling its own protection, and also warns you that following it is a trap. A self-integrity check means any byte you flip to defeat the TracerPid test will change the code hash and trip the trap path. You cannot patch your way in.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to THORNWALL: Anti-Debug Theatre and a Scorer That Talks" href="https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Wraith: Unwrapping the Bytecode VM Inside a 2 KB wasm Module
     </h2>
   </header>
@@ -134,21 +234,12 @@
   <footer class="entry-footer"><span title='2026-10-01 00:00:00 +0000 UTC'>October 1, 2026</span>&nbsp;·&nbsp;<span>8 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
   <a class="entry-link" aria-label="post link to Nexus: When Every Field Lies, Trust the Scorer" href="https://frankie7techy.github.io/public/posts/nexus-when-every-field-lies/"></a>
 </article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Challenge Overview Field Value Platform AfricaHackon Challenge Rooted or not? Author LordSudo Category Mobile / Reverse Engineering Difficulty Easy Points 100 Operation “PERFECT ROOT” A vault app exposes a debug panel, but the developers claim it’s safe since it’s gated behind a root check, and “real users don’t root their phones.”
-Files: Rooted or not.zip → vaultapp.apk
-TL;DR The app’s entire security model is a single File.exists(&#34;/system/bin/su&#34;) check. The flag is computed statically via XOR with a deterministic key, no rooting, no emulator, no Frida needed. Pure static analysis wins again.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-09-23 00:00:00 +0000 UTC'>September 23, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything" href="https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/"></a>
-</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="next" href="https://frankie7techy.github.io/public/categories/ctf-writeups/page/2/">Next&nbsp;&nbsp;»
+    </a>
+  </nav>
+</footer>
     </main>
     
 <footer class="footer">

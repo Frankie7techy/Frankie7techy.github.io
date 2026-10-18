@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Sidedoor: The Cloud Backup That Was Uploading the Secret | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Network Forensics, HTTP">
+<meta name="description" content="A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Sidedoor: The Cloud Backup That Was Uploading the Secret">
+  <meta property="og:description" content="A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Network Forensics">
+    <meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sidedoor: The Cloud Backup That Was Uploading the Secret">
+<meta name="twitter:description" content="A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Sidedoor: The Cloud Backup That Was Uploading the Secret",
+      "item": "https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Sidedoor: The Cloud Backup That Was Uploading the Secret",
+  "name": "Sidedoor: The Cloud Backup That Was Uploading the Secret",
+  "description": "A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.",
+  "keywords": [
+    "CTF", "r00t CTF", "Network Forensics", "HTTP"
+  ],
+  "articleBody": " Forensics Network r00t CTF :: Sidedoor SIDEDOOR A backup client that shipped a recovery token to a cloud sync service over plain, unauthenticated HTTP. The breach and the evidence are the same packet.\n3692packets 94seconds of capture 1odd host 0decryption steps The handout A single capture, capture.pcap, about 3700 frames over ninety seconds. The task is the classic one: something left the network that should not have, find it.\nMost of the traffic is boring and deliberately so: DNS, TLS to the usual CDNs, background chatter. The trick is that the interesting host is not exotic. It talks to sync.cloudbackup-service.net, which sounds exactly like something a managed laptop would be allowed to talk to. That is the point of a side door.\nFilters that pay off Before reaching for anything clever, reduce the haystack:\nhttp http.request.method == \"POST\" tcp.port != 443 \u0026\u0026 http The last one is the highest-value filter on almost every traffic challenge. Anything speaking cleartext HTTP to a non-standard port on a modern network deserves a look. Here it lands on a single POST to a cloud sync endpoint.\nReassembling the upload Wireshark’s HTTP object export does the whole job. In tshark terms:\ntshark -r capture.pcap --export-objects http,/tmp/sd -q That writes out every HTTP body it can reassemble. The body of interest is a multipart/form-data upload:\nPOST /cloud-sync/upload?session=8f2e1a HTTP/1.1 Host: sync.cloudbackup-service.net Content-Disposition: form-data; name=\"file\"; filename=\"quarterly_designs_backup.txt\" PROJECT ARCHIVE BACKUP -- INTERNAL USE ONLY recovery-token: r00t{th3_cl0ud_sync_th4t_w4snt} The backup client is doing exactly what a backup client does: posting a file to its service. The problem is that the file is a project archive, the transport is HTTP with no TLS, and the file contains a recovery-token line in plain sight. Every layer of this is a finding:\nthe traffic is unencrypted, so anyone on the path can read it the endpoint takes an arbitrary file with no authentication visible in the request the file itself carries a secret Flag r00t{th3_cl0ud_sync_th4t_w4snt} The lesson Forensics challenges love to dress up a plaintext leak as a “the attacker used a weird protocol” story. Most of the time it is simpler than that: something that should have been encrypted was not, and something that should not have been in a backup was.\nThe workflow to keep:\nSort by protocol, then by destination. Legitimate-looking hosts are where side doors live. Cleartext HTTP on a non-standard port is the single best filter in your toolbox. Export objects before you read packets by hand. Reassembly tools have already solved Content-Length, retransmissions and chunking for you. The flag is a confession. th3_cl0ud_sync_th4t_w4snt says it all: the cloud sync service was not a cloud sync service at all. It was the exfiltration channel, and the client was more than happy to help.\n",
+  "wordCount" : "454",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Sidedoor: The Cloud Backup That Was Uploading the Secret
+    </h1>
+    <div class="post-description">
+      A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#filters-that-pay-off" aria-label="Filters that pay off">Filters that pay off</a></li>
+                <li>
+                    <a href="#reassembling-the-upload" aria-label="Reassembling the upload">Reassembling the upload</a></li>
+                <li>
+                    <a href="#the-lesson" aria-label="The lesson">The lesson</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Forensics</span>
+    <span class="dr-badge cyan">Network</span>
+    <span class="dr-badge ghost">r00t CTF :: Sidedoor</span>
+  </div>
+  <div class="dr-title">SIDEDOOR</div>
+  <p class="dr-sub">A backup client that shipped a recovery token to a cloud sync service over plain, unauthenticated HTTP. The breach and the evidence are the same packet.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">3692</span><span class="l">packets</span></div>
+  <div class="dr-stat"><span class="n">94</span><span class="l">seconds of capture</span></div>
+  <div class="dr-stat"><span class="n red">1</span><span class="l">odd host</span></div>
+  <div class="dr-stat"><span class="n cyan">0</span><span class="l">decryption steps</span></div>
+</div>
+<p><img alt="Sidedoor pipeline" loading="lazy" src="/public/images/sidedoor/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p>A single capture, <code>capture.pcap</code>, about 3700 frames over ninety seconds. The task is the classic one: something left the network that should not have, find it.</p>
+<p>Most of the traffic is boring and deliberately so: DNS, TLS to the usual CDNs, background chatter. The trick is that the interesting host is not exotic. It talks to <code>sync.cloudbackup-service.net</code>, which sounds exactly like something a managed laptop would be allowed to talk to. That is the point of a side door.</p>
+<h2 id="filters-that-pay-off">Filters that pay off<a hidden class="anchor" aria-hidden="true" href="#filters-that-pay-off">#</a></h2>
+<p>Before reaching for anything clever, reduce the haystack:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">http
+</span></span><span class="line"><span class="cl">http.request.method == &#34;POST&#34;
+</span></span><span class="line"><span class="cl">tcp.port != 443 &amp;&amp; http
+</span></span></code></pre></div><p>The last one is the highest-value filter on almost every traffic challenge. Anything speaking cleartext HTTP to a non-standard port on a modern network deserves a look. Here it lands on a single POST to a cloud sync endpoint.</p>
+<p><img alt="HTTP upload" loading="lazy" src="/public/images/sidedoor/01_http.png"></p>
+<h2 id="reassembling-the-upload">Reassembling the upload<a hidden class="anchor" aria-hidden="true" href="#reassembling-the-upload">#</a></h2>
+<p>Wireshark&rsquo;s HTTP object export does the whole job. In <code>tshark</code> terms:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tshark -r capture.pcap --export-objects http,/tmp/sd -q
+</span></span></code></pre></div><p>That writes out every HTTP body it can reassemble. The body of interest is a <code>multipart/form-data</code> upload:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">POST /cloud-sync/upload?session=8f2e1a HTTP/1.1
+</span></span><span class="line"><span class="cl">Host: sync.cloudbackup-service.net
+</span></span><span class="line"><span class="cl">Content-Disposition: form-data; name=&#34;file&#34;;
+</span></span><span class="line"><span class="cl">  filename=&#34;quarterly_designs_backup.txt&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PROJECT ARCHIVE BACKUP -- INTERNAL USE ONLY
+</span></span><span class="line"><span class="cl">recovery-token: r00t{th3_cl0ud_sync_th4t_w4snt}
+</span></span></code></pre></div><p>The backup client is doing exactly what a backup client does: posting a file to its service. The problem is that the file is a project archive, the transport is HTTP with no TLS, and the file contains a <code>recovery-token</code> line in plain sight. Every layer of this is a finding:</p>
+<ul>
+<li>the traffic is unencrypted, so anyone on the path can read it</li>
+<li>the endpoint takes an arbitrary file with no authentication visible in the request</li>
+<li>the file itself carries a secret</li>
+</ul>
+<p><img alt="flag" loading="lazy" src="/public/images/sidedoor/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{th3_cl0ud_sync_th4t_w4snt}</code>
+</div>
+<h2 id="the-lesson">The lesson<a hidden class="anchor" aria-hidden="true" href="#the-lesson">#</a></h2>
+<p>Forensics challenges love to dress up a plaintext leak as a &ldquo;the attacker used a weird protocol&rdquo; story. Most of the time it is simpler than that: something that should have been encrypted was not, and something that should not have been in a backup was.</p>
+<p>The workflow to keep:</p>
+<ul>
+<li>Sort by protocol, then by destination. Legitimate-looking hosts are where side doors live.</li>
+<li>Cleartext HTTP on a non-standard port is the single best filter in your toolbox.</li>
+<li>Export objects before you read packets by hand. Reassembly tools have already solved <code>Content-Length</code>, retransmissions and chunking for you.</li>
+</ul>
+<p>The flag is a confession. <code>th3_cl0ud_sync_th4t_w4snt</code> says it all: the cloud sync service was not a cloud sync service at all. It was the exfiltration channel, and the client was more than happy to help.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/network-forensics/">Network Forensics</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/http/">HTTP</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

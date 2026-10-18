@@ -96,6 +96,35 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">BlackGateWatch: A DNS Tunnel Hiding in Plain Sight
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Network r00t CTF :: BlackGateWatch BLACKGATEWATCH Thousands of boring DNS lookups to real services, and one host tunnelling hex out through subdomains it registered itself. The data is not in the payload. It is the query name.
+653query names 3that matter 1relay domain 0TXT records The handout A packet capture of a corporate network, and a flattened list of every query name in it. Most of it is the whitest noise imaginable: outlook.office365.com, api.slack.com, github.com, graph.microsoft.com, zoom.us. If you skim, you fall asleep.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to BlackGateWatch: A DNS Tunnel Hiding in Plain Sight" href="https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Sidedoor: The Cloud Backup That Was Uploading the Secret
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Forensics Network r00t CTF :: Sidedoor SIDEDOOR A backup client that shipped a recovery token to a cloud sync service over plain, unauthenticated HTTP. The breach and the evidence are the same packet.
+3692packets 94seconds of capture 1odd host 0decryption steps The handout A single capture, capture.pcap, about 3700 frames over ninety seconds. The task is the classic one: something left the network that should not have, find it.
+Most of the traffic is boring and deliberately so: DNS, TLS to the usual CDNs, background chatter. The trick is that the interesting host is not exotic. It talks to sync.cloudbackup-service.net, which sounds exactly like something a managed laptop would be allowed to talk to. That is the point of a side door.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to Sidedoor: The Cloud Backup That Was Uploading the Secret" href="https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge
     </h2>
   </header>

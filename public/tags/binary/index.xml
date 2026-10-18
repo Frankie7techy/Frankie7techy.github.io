@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Binary on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/binary/</link>
+    <description>Recent content in Binary on z3ro :: CTF &amp; Security Research</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://frankie7techy.github.io/public/tags/binary/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Basilisk: A Three-Stage Checker and the One Byte That Undid It</title>
+      <link>https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/</guid>
+      <description>Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.</description>
+    </item>
+  </channel>
+</rss>

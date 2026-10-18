@@ -6,8 +6,15 @@
     <description>Recent content in Mobile on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 23 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/mobile/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Signal Key: Hermes Hides in the Bundle</title>
+      <link>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</guid>
+      <description>A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.</description>
+    </item>
     <item>
       <title>AfricaHackon: Rooted or Not? Bypassing a Root Check Without Rooting Anything</title>
       <link>https://frankie7techy.github.io/public/posts/africahackon-rooted-or-not/</link>

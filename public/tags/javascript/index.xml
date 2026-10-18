@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>JavaScript on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/javascript/</link>
+    <description>Recent content in JavaScript on z3ro :: CTF &amp; Security Research</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://frankie7techy.github.io/public/tags/javascript/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Signal Key: Hermes Hides in the Bundle</title>
+      <link>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</guid>
+      <description>A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.</description>
+    </item>
+  </channel>
+</rss>

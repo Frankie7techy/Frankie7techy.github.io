@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>BlackGateWatch: A DNS Tunnel Hiding in Plain Sight | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Network Forensics, DNS, Exfiltration">
+<meta name="description" content="Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="BlackGateWatch: A DNS Tunnel Hiding in Plain Sight">
+  <meta property="og:description" content="Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Network Forensics">
+    <meta property="article:tag" content="DNS">
+    <meta property="article:tag" content="Exfiltration">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BlackGateWatch: A DNS Tunnel Hiding in Plain Sight">
+<meta name="twitter:description" content="Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "BlackGateWatch: A DNS Tunnel Hiding in Plain Sight",
+      "item": "https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "BlackGateWatch: A DNS Tunnel Hiding in Plain Sight",
+  "name": "BlackGateWatch: A DNS Tunnel Hiding in Plain Sight",
+  "description": "Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.",
+  "keywords": [
+    "CTF", "r00t CTF", "Network Forensics", "DNS", "Exfiltration"
+  ],
+  "articleBody": " Forensics Network r00t CTF :: BlackGateWatch BLACKGATEWATCH Thousands of boring DNS lookups to real services, and one host tunnelling hex out through subdomains it registered itself. The data is not in the payload. It is the query name.\n653query names 3that matter 1relay domain 0TXT records The handout A packet capture of a corporate network, and a flattened list of every query name in it. Most of it is the whitest noise imaginable: outlook.office365.com, api.slack.com, github.com, graph.microsoft.com, zoom.us. If you skim, you fall asleep.\nSorting the unique query names and looking at the shape of them is the move:\ntshark -r dns_tunnel.pcap -Y 'dns.flags.response==0' \\ -T fields -e dns.qry.name | sort -u Three names stand out, because they are nothing like the rest:\n000.723030747b646e735f74756e6e336c73.relay.blackgate-watch.net 001.5f63347272795f6d3072335f7468346e.relay.blackgate-watch.net 002.5f717533723133737d.relay.blackgate-watch.net Reading the pattern Three structural tells, and together they are damning:\nA fixed relay domain. All three share relay.blackgate-watch.net, a domain the organisation did not appear to resolve for any other purpose. An ordered sequence label. 000, 001, 002. That is a chunk index, not a real hostname. It tells you both the order and that more chunks might have been expected. A hex-encoded payload label. The middle label is the giveaway. 723030747b646e735f74756e6e336c73 is not a word. It is hex, and it decodes to ASCII starting with r00t{. That third point is the whole trick. This tunnel does not use DNS TXT records, which is what most detection rules and most writeups assume. It smuggles the data in the query name itself, as a subdomain, which means the exfiltration looks like ordinary name resolution to anything that only inspects record type or record size.\nDecoding the tunnel Concatenate the payload labels in sequence order and hex-decode:\nlabels = [ \"723030747b646e735f74756e6e336c73\", # 000 \"5f63347272795f6d3072335f7468346e\", # 001 \"5f717533723133737d\", # 002 ] print(bytes.fromhex(\"\".join(labels)).decode()) 000 723030747b646e735f74756e6e336c73 r00t{dns_tunn3ls 001 5f63347272795f6d3072335f7468346e _c4rry_m0r3_th4n 002 5f717533723133737d _qu3r13s} Flag r00t{dns_tunn3ls_c4rry_m0r3_th4n_qu3r13s} The lesson DNS is the most permissive protocol on a corporate network, because almost nothing is blocked. A name has to be resolved for anything else to happen, so DNS is allowed out of almost every firewall, and the query name is attacker-controlled data that can be up to 253 characters long. It is a channel, not just a resolver.\nWhat makes this challenge good is what it avoids:\nno TXT records, so record-type rules miss it short labels, so length-based heuristics do not fire a low volume of tunnel traffic drowned in real lookups, so volume thresholds do not trip a domain that blends in by choosing the word relay When you are hunting this in the wild, the reliable tells are structural, not statistical: sequences (000, 001), high-entropy labels, base32 or hex alphabets in subdomains, and subdomains that only ever appear as queries and never get a sensible answer. The name of the game is dns tunnels carry more than queries, and the capture said so all along.\n",
+  "wordCount" : "477",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      BlackGateWatch: A DNS Tunnel Hiding in Plain Sight
+    </h1>
+    <div class="post-description">
+      Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#reading-the-pattern" aria-label="Reading the pattern">Reading the pattern</a></li>
+                <li>
+                    <a href="#decoding-the-tunnel" aria-label="Decoding the tunnel">Decoding the tunnel</a></li>
+                <li>
+                    <a href="#the-lesson" aria-label="The lesson">The lesson</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Forensics</span>
+    <span class="dr-badge cyan">Network</span>
+    <span class="dr-badge ghost">r00t CTF :: BlackGateWatch</span>
+  </div>
+  <div class="dr-title">BLACKGATEWATCH</div>
+  <p class="dr-sub">Thousands of boring DNS lookups to real services, and one host tunnelling hex out through subdomains it registered itself. The data is not in the payload. It is the query name.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">653</span><span class="l">query names</span></div>
+  <div class="dr-stat"><span class="n red">3</span><span class="l">that matter</span></div>
+  <div class="dr-stat"><span class="n cyan">1</span><span class="l">relay domain</span></div>
+  <div class="dr-stat"><span class="n">0</span><span class="l">TXT records</span></div>
+</div>
+<p><img alt="BlackGateWatch pipeline" loading="lazy" src="/public/images/blackgatewatch/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p>A packet capture of a corporate network, and a flattened list of every query name in it. Most of it is the whitest noise imaginable: <code>outlook.office365.com</code>, <code>api.slack.com</code>, <code>github.com</code>, <code>graph.microsoft.com</code>, <code>zoom.us</code>. If you skim, you fall asleep.</p>
+<p>Sorting the unique query names and looking at the shape of them is the move:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tshark -r dns_tunnel.pcap -Y <span class="s1">&#39;dns.flags.response==0&#39;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl">    -T fields -e dns.qry.name <span class="p">|</span> sort -u
+</span></span></code></pre></div><p>Three names stand out, because they are nothing like the rest:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">000.723030747b646e735f74756e6e336c73.relay.blackgate-watch.net
+</span></span><span class="line"><span class="cl">001.5f63347272795f6d3072335f7468346e.relay.blackgate-watch.net
+</span></span><span class="line"><span class="cl">002.5f717533723133737d.relay.blackgate-watch.net
+</span></span></code></pre></div><p><img alt="DNS queries" loading="lazy" src="/public/images/blackgatewatch/01_dns.png"></p>
+<h2 id="reading-the-pattern">Reading the pattern<a hidden class="anchor" aria-hidden="true" href="#reading-the-pattern">#</a></h2>
+<p>Three structural tells, and together they are damning:</p>
+<ul>
+<li><strong>A fixed relay domain.</strong> All three share <code>relay.blackgate-watch.net</code>, a domain the organisation did not appear to resolve for any other purpose.</li>
+<li><strong>An ordered sequence label.</strong> <code>000</code>, <code>001</code>, <code>002</code>. That is a chunk index, not a real hostname. It tells you both the order and that more chunks might have been expected.</li>
+<li><strong>A hex-encoded payload label.</strong> The middle label is the giveaway. <code>723030747b646e735f74756e6e336c73</code> is not a word. It is hex, and it decodes to ASCII starting with <code>r00t{</code>.</li>
+</ul>
+<p>That third point is the whole trick. This tunnel does not use DNS <code>TXT</code> records, which is what most detection rules and most writeups assume. It smuggles the data in the <em>query name itself</em>, as a subdomain, which means the exfiltration looks like ordinary name resolution to anything that only inspects record type or record size.</p>
+<h2 id="decoding-the-tunnel">Decoding the tunnel<a hidden class="anchor" aria-hidden="true" href="#decoding-the-tunnel">#</a></h2>
+<p>Concatenate the payload labels in sequence order and hex-decode:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;723030747b646e735f74756e6e336c73&#34;</span><span class="p">,</span>   <span class="c1"># 000</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;5f63347272795f6d3072335f7468346e&#34;</span><span class="p">,</span>   <span class="c1"># 001</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;5f717533723133737d&#34;</span><span class="p">,</span>                 <span class="c1"># 002</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="s2">&#34;&#34;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">000  723030747b646e735f74756e6e336c73  r00t{dns_tunn3ls
+</span></span><span class="line"><span class="cl">001  5f63347272795f6d3072335f7468346e  _c4rry_m0r3_th4n
+</span></span><span class="line"><span class="cl">002  5f717533723133737d                 _qu3r13s}
+</span></span></code></pre></div><p><img alt="flag" loading="lazy" src="/public/images/blackgatewatch/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{dns_tunn3ls_c4rry_m0r3_th4n_qu3r13s}</code>
+</div>
+<h2 id="the-lesson">The lesson<a hidden class="anchor" aria-hidden="true" href="#the-lesson">#</a></h2>
+<p>DNS is the most permissive protocol on a corporate network, because almost nothing is blocked. A name has to be resolved for anything else to happen, so DNS is allowed out of almost every firewall, and the query name is attacker-controlled data that can be up to 253 characters long. It is a channel, not just a resolver.</p>
+<p>What makes this challenge good is what it <em>avoids</em>:</p>
+<ul>
+<li>no <code>TXT</code> records, so record-type rules miss it</li>
+<li>short labels, so length-based heuristics do not fire</li>
+<li>a low volume of tunnel traffic drowned in real lookups, so volume thresholds do not trip</li>
+<li>a domain that blends in by choosing the word <code>relay</code></li>
+</ul>
+<p>When you are hunting this in the wild, the reliable tells are structural, not statistical: sequences (<code>000</code>, <code>001</code>), high-entropy labels, base32 or hex alphabets in subdomains, and subdomains that only ever appear as queries and never get a sensible answer. The name of the game is <em>dns tunnels carry more than queries</em>, and the capture said so all along.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/network-forensics/">Network Forensics</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/dns/">DNS</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/exfiltration/">Exfiltration</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

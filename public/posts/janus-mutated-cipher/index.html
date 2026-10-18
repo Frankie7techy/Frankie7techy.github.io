@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>JANUS: The Cipher Had Two Faces, but the Checker Only Needed One | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Reverse Engineering, Cryptography">
+<meta name="description" content="A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/janus-mutated-cipher/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/janus-mutated-cipher/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/janus-mutated-cipher/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="JANUS: The Cipher Had Two Faces, but the Checker Only Needed One">
+  <meta property="og:description" content="A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Cryptography">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JANUS: The Cipher Had Two Faces, but the Checker Only Needed One">
+<meta name="twitter:description" content="A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "JANUS: The Cipher Had Two Faces, but the Checker Only Needed One",
+      "item": "https://frankie7techy.github.io/public/posts/janus-mutated-cipher/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "JANUS: The Cipher Had Two Faces, but the Checker Only Needed One",
+  "name": "JANUS: The Cipher Had Two Faces, but the Checker Only Needed One",
+  "description": "A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.",
+  "keywords": [
+    "CTF", "r00t CTF", "Reverse Engineering", "Cryptography"
+  ],
+  "articleBody": " Rev Crypto r00t CTF :: Janus JANUS Janus is the two-faced Roman god. The challenge wears a scary mutated stream cipher on the front and keeps a four-byte XOR key on the back. Guess which face the scorer checks.\n4byte key 44byte ciphertext 1decoy binary 2faces The handout The bundle ships a target (janus, plus a janus2 variant), a ciphertext file, and two scorers: check and validator. As with the rest of this set, the two scorers do not agree, and only one of them is the real one.\nThe challenge description leans hard on a custom construction, a mutated ChaCha-flavoured stream cipher with a key schedule worth studying. That is the front face. Solving it properly means reimplementing the whole thing and brute-forcing whatever knob was mutated.\nIt is also, it turns out, completely optional.\nWhere the answer actually lives Every scorer in this set has the same job: take a candidate flag, compare it to the real one, print CORRECT or INCORRECT. To do that it needs the real flag at runtime. So instead of attacking the cipher, follow the comparison.\nobjdump -d -M intel ./check tells the story in about fifteen instructions. The function never calls a decryptor. It builds the expected flag on the stack, then runs strcmp. The construction is:\nexpected[0] = 'r' expected[i] = key[i \u0026 3] ^ ciphertext[i] for i = 1 .. 43 The i \u0026 3 is the giveaway. The “key” is four bytes, repeated across the whole flag. There is no key schedule, no round function, no mutation. The imposing name is the security model.\nBoth operands sit in the checker’s .rodata, one screen apart:\n0x2020 ffc6a5e2 00000000 00000000 00000000 .... 0x2040 8df6959684ac918c8ab5fa8f8ab29196 ................ key = ff c6 a5 e2 ct = 8d f6 95 96 84 ac 91 8c 8a b5 fa 8f 8a b2 91 96 cc a2 fa d1 c7 a5 c6 81 c6 fe 91 d0 c7 f5 90 da cb a7 c0 d0 99 f0 91 da ca f5 c4 9f XOR the ciphertext with the key cycling every four bytes and the flag falls out:\nkey = bytes.fromhex(\"ffc6a5e2\") ct = bytes.fromhex( \"8df6959684ac918c8ab5fa8f8ab29196\" \"cca2fad1c7a5c681c6fe91d0c7f590da\" \"cba7c0d099f091dacaf5c49f\") print(bytes(key[i \u0026 3] ^ ct[i] for i in range(len(ct))).decode()) Flag r00t{j4nus_mut4t3d_38ccc984283584ae2f64853a} Confirm Piping the recovered string into ./check prints CORRECT. The `validator` binary prints nothing useful, which is exactly the tell: its embedded answer is a different string, the same decoy pattern that appears in several challenges in this set.\nThe lesson Not every challenge is a cipher. JANUS wants you to believe it is one, and the description does its best to sell that: an exotic name, a mutated construction, a variant binary to compare against. Underneath, the person who wrote the scorer took the shortest possible path to “does this input match”, and that path is a repeat-XOR with a four-byte key.\nThere is a version of this challenge that is a real cryptography problem, and that version lives in janus, not in check. If you want the fight, take the front face: recover the mutated schedule from janus and decrypt ciphertext.bin legitimately. But when you are after points and the clock is running, read the binary that already knows the answer. It is almost never as guarded as the target.\n",
+  "wordCount" : "543",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/janus-mutated-cipher/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      JANUS: The Cipher Had Two Faces, but the Checker Only Needed One
+    </h1>
+    <div class="post-description">
+      A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#where-the-answer-actually-lives" aria-label="Where the answer actually lives">Where the answer actually lives</a></li>
+                <li>
+                    <a href="#the-lesson" aria-label="The lesson">The lesson</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Rev</span>
+    <span class="dr-badge cyan">Crypto</span>
+    <span class="dr-badge ghost">r00t CTF :: Janus</span>
+  </div>
+  <div class="dr-title">JANUS</div>
+  <p class="dr-sub">Janus is the two-faced Roman god. The challenge wears a scary mutated stream cipher on the front and keeps a four-byte XOR key on the back. Guess which face the scorer checks.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">4</span><span class="l">byte key</span></div>
+  <div class="dr-stat"><span class="n cyan">44</span><span class="l">byte ciphertext</span></div>
+  <div class="dr-stat"><span class="n red">1</span><span class="l">decoy binary</span></div>
+  <div class="dr-stat"><span class="n">2</span><span class="l">faces</span></div>
+</div>
+<p><img alt="Janus pipeline" loading="lazy" src="/public/images/janus/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p>The bundle ships a target (<code>janus</code>, plus a <code>janus2</code> variant), a ciphertext file, and two scorers: <code>check</code> and <code>validator</code>. As with the rest of this set, the two scorers do not agree, and only one of them is the real one.</p>
+<p>The challenge description leans hard on a custom construction, a mutated ChaCha-flavoured stream cipher with a key schedule worth studying. That is the front face. Solving it properly means reimplementing the whole thing and brute-forcing whatever knob was mutated.</p>
+<p>It is also, it turns out, completely optional.</p>
+<h2 id="where-the-answer-actually-lives">Where the answer actually lives<a hidden class="anchor" aria-hidden="true" href="#where-the-answer-actually-lives">#</a></h2>
+<p>Every scorer in this set has the same job: take a candidate flag, compare it to the real one, print <code>CORRECT</code> or <code>INCORRECT</code>. To do that it needs the real flag at runtime. So instead of attacking the cipher, follow the comparison.</p>
+<p><code>objdump -d -M intel ./check</code> tells the story in about fifteen instructions. The function never calls a decryptor. It builds the expected flag on the stack, then runs <code>strcmp</code>. The construction is:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">expected[0] = &#39;r&#39;
+</span></span><span class="line"><span class="cl">expected[i] = key[i &amp; 3] ^ ciphertext[i]     for i = 1 .. 43
+</span></span></code></pre></div><p><img alt="check disassembly" loading="lazy" src="/public/images/janus/01_disasm.png"></p>
+<p>The <code>i &amp; 3</code> is the giveaway. The &ldquo;key&rdquo; is four bytes, repeated across the whole flag. There is no key schedule, no round function, no mutation. The imposing name is the security model.</p>
+<p>Both operands sit in the checker&rsquo;s <code>.rodata</code>, one screen apart:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">0x2020  ffc6a5e2 00000000 00000000 00000000  ....
+</span></span><span class="line"><span class="cl">0x2040  8df6959684ac918c8ab5fa8f8ab29196  ................
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">key = ff c6 a5 e2
+</span></span><span class="line"><span class="cl">ct  = 8d f6 95 96 84 ac 91 8c 8a b5 fa 8f 8a b2 91 96
+</span></span><span class="line"><span class="cl">      cc a2 fa d1 c7 a5 c6 81 c6 fe 91 d0 c7 f5 90 da
+</span></span><span class="line"><span class="cl">      cb a7 c0 d0 99 f0 91 da ca f5 c4 9f
+</span></span></code></pre></div><p>XOR the ciphertext with the key cycling every four bytes and the flag falls out:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">key</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="s2">&#34;ffc6a5e2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ct</span>  <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;8df6959684ac918c8ab5fa8f8ab29196&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;cca2fad1c7a5c681c6fe91d0c7f590da&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;cba7c0d099f091dacaf5c49f&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">&amp;</span> <span class="mi">3</span><span class="p">]</span> <span class="o">^</span> <span class="n">ct</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ct</span><span class="p">)))</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p><img alt="recover the flag" loading="lazy" src="/public/images/janus/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{j4nus_mut4t3d_38ccc984283584ae2f64853a}</code>
+</div>
+<div class="dr-callout ok">
+  <span class="t">Confirm</span>
+  <p>Piping the recovered string into <code>./check</code> prints <strong>CORRECT</strong>. The `validator` binary prints nothing useful, which is exactly the tell: its embedded answer is a different string, the same decoy pattern that appears in several challenges in this set.</p>
+</div>
+<h2 id="the-lesson">The lesson<a hidden class="anchor" aria-hidden="true" href="#the-lesson">#</a></h2>
+<p>Not every challenge is a cipher. JANUS wants you to believe it is one, and the description does its best to sell that: an exotic name, a mutated construction, a variant binary to compare against. Underneath, the person who wrote the scorer took the shortest possible path to &ldquo;does this input match&rdquo;, and that path is a repeat-XOR with a four-byte key.</p>
+<p>There is a version of this challenge that is a real cryptography problem, and that version lives in <code>janus</code>, not in <code>check</code>. If you want the fight, take the front face: recover the mutated schedule from <code>janus</code> and decrypt <code>ciphertext.bin</code> legitimately. But when you are after points and the clock is running, read the binary that already knows the answer. It is almost never as guarded as the target.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/cryptography/">Cryptography</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -9,6 +9,20 @@
     <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Anti-Debug</title>
+      <link>https://frankie7techy.github.io/public/tags/anti-debug/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/anti-debug/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Binary</title>
+      <link>https://frankie7techy.github.io/public/tags/binary/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/binary/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Binary Analysis</title>
       <link>https://frankie7techy.github.io/public/tags/binary-analysis/</link>
       <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
@@ -23,10 +37,59 @@
       <description></description>
     </item>
     <item>
+      <title>Cryptography</title>
+      <link>https://frankie7techy.github.io/public/tags/cryptography/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/cryptography/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>CTF</title>
       <link>https://frankie7techy.github.io/public/tags/ctf/</link>
       <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/ctf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DNS</title>
+      <link>https://frankie7techy.github.io/public/tags/dns/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/dns/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Exfiltration</title>
+      <link>https://frankie7techy.github.io/public/tags/exfiltration/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/exfiltration/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>HTTP</title>
+      <link>https://frankie7techy.github.io/public/tags/http/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/http/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>JavaScript</title>
+      <link>https://frankie7techy.github.io/public/tags/javascript/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/javascript/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mobile</title>
+      <link>https://frankie7techy.github.io/public/tags/mobile/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/mobile/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Network Forensics</title>
+      <link>https://frankie7techy.github.io/public/tags/network-forensics/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/network-forensics/</guid>
       <description></description>
     </item>
     <item>
@@ -37,10 +100,24 @@
       <description></description>
     </item>
     <item>
+      <title>R00t CTF</title>
+      <link>https://frankie7techy.github.io/public/tags/r00t-ctf/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/r00t-ctf/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Reverse Engineering</title>
       <link>https://frankie7techy.github.io/public/tags/reverse-engineering/</link>
       <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/reverse-engineering/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Signal Processing</title>
+      <link>https://frankie7techy.github.io/public/tags/signal-processing/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/signal-processing/</guid>
       <description></description>
     </item>
     <item>
@@ -55,13 +132,6 @@
       <link>https://frankie7techy.github.io/public/tags/continued-fractions/</link>
       <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/continued-fractions/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Cryptography</title>
-      <link>https://frankie7techy.github.io/public/tags/cryptography/</link>
-      <pubDate>Thu, 15 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/cryptography/</guid>
       <description></description>
     </item>
     <item>
@@ -142,13 +212,6 @@
       <description></description>
     </item>
     <item>
-      <title>Network Forensics</title>
-      <link>https://frankie7techy.github.io/public/tags/network-forensics/</link>
-      <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/network-forensics/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>PowerShell</title>
       <link>https://frankie7techy.github.io/public/tags/powershell/</link>
       <pubDate>Tue, 13 Oct 2026 00:00:00 +0000</pubDate>
@@ -198,13 +261,6 @@
       <description></description>
     </item>
     <item>
-      <title>Exfiltration</title>
-      <link>https://frankie7techy.github.io/public/tags/exfiltration/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/exfiltration/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Exploitation</title>
       <link>https://frankie7techy.github.io/public/tags/exploitation/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
@@ -251,20 +307,6 @@
       <link>https://frankie7techy.github.io/public/tags/android/</link>
       <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/android/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>DNS</title>
-      <link>https://frankie7techy.github.io/public/tags/dns/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/dns/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Mobile</title>
-      <link>https://frankie7techy.github.io/public/tags/mobile/</link>
-      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/mobile/</guid>
       <description></description>
     </item>
     <item>

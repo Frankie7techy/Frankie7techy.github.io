@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>The Signal Key: Hermes Hides in the Bundle | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Mobile, Reverse Engineering, JavaScript">
+<meta name="description" content="A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="The Signal Key: Hermes Hides in the Bundle">
+  <meta property="og:description" content="A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Mobile">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="JavaScript">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Signal Key: Hermes Hides in the Bundle">
+<meta name="twitter:description" content="A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "The Signal Key: Hermes Hides in the Bundle",
+      "item": "https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "The Signal Key: Hermes Hides in the Bundle",
+  "name": "The Signal Key: Hermes Hides in the Bundle",
+  "description": "A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.",
+  "keywords": [
+    "CTF", "r00t CTF", "Mobile", "Reverse Engineering", "JavaScript"
+  ],
+  "articleBody": " Mobile Rev r00t CTF :: The Signal Key THE SIGNAL KEY A licence screen, a string table that rotates on boot, and a small cipher. No device, no emulator, no Frida. The whole secret is sitting in the shipped JavaScript bundle.\n14string-table entries 11left rotations 4cipher rounds 0devices needed The handout One file: a React Native JavaScript bundle. React Native apps ship their logic as JavaScript, and this one was not minified into oblivion, which is the first break. The interesting code sits near the licence logic:\nvar __STR_ARR = [\"T2xmaHF2aCN5aHVsaWxoZw==\", \"T3JkZ2xxajExMQ==\", ...]; __STR_ARR = rotator(__STR_ARR, ++cnt); // cnt is 11 by the time we get here function __sidx(i) { var raw = __b64d(__STR_ARR[i - 336]); return String.fromCharCode(...[...raw].map(b =\u003e b.charCodeAt(0) - 3)); } var key = __sidx(342); var ct = __hex2bytes(__sidx(343)); var ok = __cipherDecode(ct, key); Three layers, all local: a base64 string table, a boot-time rotation of that table, and a per-character offset of -3.\nLayer one: un-rotate the table The table is shuffled once at startup with rotator(__STR_ARR, cnt), and cnt is incremented elsewhere in the boot path. By the time the licence code runs, cnt is 11, so the table has been left-rotated eleven times.\nARR = [...] rot = ARR[:] for _ in range(11): rot.append(rot.pop(0)) ARR = rot Now __sidx can resolve indices. Note the off-by-336: the source indexes into the rotated global array, but the table only has fourteen entries, so the effective local index is i - 336.\nLayer two: decode the strings __sidx base64-decodes the chosen entry, then shifts every character down by three. Two of the decodes tell you the app is real:\n__sidx(336) = \"Activate License\" __sidx(337) = \"Enter activation code\" And the two the cipher uses:\n__sidx(342) = \"dojo-signal-key!\" # the key __sidx(343) = \"3be94dfe52cf7bceef6d1218214a6a6d572fe857c230d0d7c2c48adc11298388\" # the ciphertext, hex Layer three: the cipher __cipherDecode runs four rounds in reverse. Each round does three things to every byte:\nrotate right by (round + 1) % 8 subtract (round * 7 + 1) modulo 256 XOR with the key, aligned at (i + round) % len(key) All three operations are reversible, and the function is already written as a decode, so reimplementing it in Python is mechanical:\ndef cipher_decode(data, key): out = bytearray(data) for r in range(3, -1, -1): shift = (r + 1) % 8 for i in range(len(out)): b = out[i] out[i] = ((b \u003e\u003e shift) | (b \u003c\u003c (8 - shift))) \u0026 0xFF for i in range(len(out)): k = key[(i + r) % len(key)] out[i] = (out[i] - (r * 7 + 1) + 256) % 256 out[i] ^= k return bytes(out) key = b\"dojo-signal-key!\" ct = bytes.fromhex(\"3be94dfe52cf7bceef6d1218214a6a6d572fe857c230d0d7c2c48adc11298388\") print(cipher_decode(ct, key).decode()) Flag r00t{h3rm3s_h1d3s_1n_th3_bundl3} Why this one is a nice challenge There is no shortcut here, and no scorer to shortcut. The key, the ciphertext and the algorithm are all in the bundle, and the bundle is plain JavaScript, so the only way through is to actually read the code and rebuild the routine. The -3 offset and the boot-time rotation are just enough friction to make you slow down and prove you understood the control flow instead of copying constants.\nThe name is a joke that lands once you see it. React Native runs its JavaScript on an engine called Hermes, and Hermes compiles the JavaScript into a bytecode bundle. The flag says Hermes hides in the bundle, and Hermes, here, really did. The string table, the rotation and the cipher are all sitting in the open, compiled down and shipped to every device that installs the app.\nIf you want a tool-based version of the same idea, the workflow is: pull index.android.bundle out of the APK, hand it to a Hermes bytecode disassembler, and work from the decompiled JavaScript. In this case the bundle was readable enough that grep and a careful read beat any tooling.\n",
+  "wordCount" : "637",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      The Signal Key: Hermes Hides in the Bundle
+    </h1>
+    <div class="post-description">
+      A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#layer-one-un-rotate-the-table" aria-label="Layer one: un-rotate the table">Layer one: un-rotate the table</a></li>
+                <li>
+                    <a href="#layer-two-decode-the-strings" aria-label="Layer two: decode the strings">Layer two: decode the strings</a></li>
+                <li>
+                    <a href="#layer-three-the-cipher" aria-label="Layer three: the cipher">Layer three: the cipher</a></li>
+                <li>
+                    <a href="#why-this-one-is-a-nice-challenge" aria-label="Why this one is a nice challenge">Why this one is a nice challenge</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Mobile</span>
+    <span class="dr-badge cyan">Rev</span>
+    <span class="dr-badge ghost">r00t CTF :: The Signal Key</span>
+  </div>
+  <div class="dr-title">THE SIGNAL KEY</div>
+  <p class="dr-sub">A licence screen, a string table that rotates on boot, and a small cipher. No device, no emulator, no Frida. The whole secret is sitting in the shipped JavaScript bundle.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">14</span><span class="l">string-table entries</span></div>
+  <div class="dr-stat"><span class="n cyan">11</span><span class="l">left rotations</span></div>
+  <div class="dr-stat"><span class="n">4</span><span class="l">cipher rounds</span></div>
+  <div class="dr-stat"><span class="n red">0</span><span class="l">devices needed</span></div>
+</div>
+<p><img alt="The Signal Key pipeline" loading="lazy" src="/public/images/the-signal-key/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p>One file: a React Native JavaScript bundle. React Native apps ship their logic as JavaScript, and this one was not minified into oblivion, which is the first break. The interesting code sits near the licence logic:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-javascript" data-lang="javascript"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">__STR_ARR</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;T2xmaHF2aCN5aHVsaWxoZw==&#34;</span><span class="p">,</span> <span class="s2">&#34;T3JkZ2xxajExMQ==&#34;</span><span class="p">,</span> <span class="p">...];</span>
+</span></span><span class="line"><span class="cl"><span class="nx">__STR_ARR</span> <span class="o">=</span> <span class="nx">rotator</span><span class="p">(</span><span class="nx">__STR_ARR</span><span class="p">,</span> <span class="o">++</span><span class="nx">cnt</span><span class="p">);</span>        <span class="c1">// cnt is 11 by the time we get here
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">__sidx</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">raw</span> <span class="o">=</span> <span class="nx">__b64d</span><span class="p">(</span><span class="nx">__STR_ARR</span><span class="p">[</span><span class="nx">i</span> <span class="o">-</span> <span class="mi">336</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nb">String</span><span class="p">.</span><span class="nx">fromCharCode</span><span class="p">(...[...</span><span class="nx">raw</span><span class="p">].</span><span class="nx">map</span><span class="p">(</span><span class="nx">b</span> <span class="p">=&gt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mi">3</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">__sidx</span><span class="p">(</span><span class="mi">342</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">ct</span>  <span class="o">=</span> <span class="nx">__hex2bytes</span><span class="p">(</span><span class="nx">__sidx</span><span class="p">(</span><span class="mi">343</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">ok</span>  <span class="o">=</span> <span class="nx">__cipherDecode</span><span class="p">(</span><span class="nx">ct</span><span class="p">,</span> <span class="nx">key</span><span class="p">);</span>
+</span></span></code></pre></div><p>Three layers, all local: a base64 string table, a boot-time rotation of that table, and a per-character offset of <code>-3</code>.</p>
+<p><img alt="bundle strings" loading="lazy" src="/public/images/the-signal-key/01_bundle.png"></p>
+<h2 id="layer-one-un-rotate-the-table">Layer one: un-rotate the table<a hidden class="anchor" aria-hidden="true" href="#layer-one-un-rotate-the-table">#</a></h2>
+<p>The table is shuffled once at startup with <code>rotator(__STR_ARR, cnt)</code>, and <code>cnt</code> is incremented elsewhere in the boot path. By the time the licence code runs, <code>cnt</code> is <code>11</code>, so the table has been left-rotated eleven times.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">ARR</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">rot</span> <span class="o">=</span> <span class="n">ARR</span><span class="p">[:]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">11</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">rot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rot</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">ARR</span> <span class="o">=</span> <span class="n">rot</span>
+</span></span></code></pre></div><p>Now <code>__sidx</code> can resolve indices. Note the off-by-336: the source indexes into the rotated global array, but the table only has fourteen entries, so the effective local index is <code>i - 336</code>.</p>
+<h2 id="layer-two-decode-the-strings">Layer two: decode the strings<a hidden class="anchor" aria-hidden="true" href="#layer-two-decode-the-strings">#</a></h2>
+<p><code>__sidx</code> base64-decodes the chosen entry, then shifts every character down by three. Two of the decodes tell you the app is real:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">__sidx(336) = &#34;Activate License&#34;
+</span></span><span class="line"><span class="cl">__sidx(337) = &#34;Enter activation code&#34;
+</span></span></code></pre></div><p>And the two the cipher uses:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">__sidx(342) = &#34;dojo-signal-key!&#34;          # the key
+</span></span><span class="line"><span class="cl">__sidx(343) = &#34;3be94dfe52cf7bceef6d1218214a6a6d572fe857c230d0d7c2c48adc11298388&#34;   # the ciphertext, hex
+</span></span></code></pre></div><h2 id="layer-three-the-cipher">Layer three: the cipher<a hidden class="anchor" aria-hidden="true" href="#layer-three-the-cipher">#</a></h2>
+<p><code>__cipherDecode</code> runs four rounds in reverse. Each round does three things to every byte:</p>
+<ol>
+<li>rotate right by <code>(round + 1) % 8</code></li>
+<li>subtract <code>(round * 7 + 1)</code> modulo 256</li>
+<li>XOR with the key, aligned at <code>(i + round) % len(key)</code></li>
+</ol>
+<p>All three operations are reversible, and the function is already written as a <em>decode</em>, so reimplementing it in Python is mechanical:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">cipher_decode</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">out</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">shift</span> <span class="o">=</span> <span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">8</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">b</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">b</span> <span class="o">&gt;&gt;</span> <span class="n">shift</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">b</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mi">8</span> <span class="o">-</span> <span class="n">shift</span><span class="p">)))</span> <span class="o">&amp;</span> <span class="mh">0xFF</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">            <span class="n">k</span> <span class="o">=</span> <span class="n">key</span><span class="p">[(</span><span class="n">i</span> <span class="o">+</span> <span class="n">r</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mi">7</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">256</span><span class="p">)</span> <span class="o">%</span> <span class="mi">256</span>
+</span></span><span class="line"><span class="cl">            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^=</span> <span class="n">k</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">key</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">&#34;dojo-signal-key!&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">ct</span>  <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="s2">&#34;3be94dfe52cf7bceef6d1218214a6a6d572fe857c230d0d7c2c48adc11298388&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">cipher_decode</span><span class="p">(</span><span class="n">ct</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p><img alt="flag" loading="lazy" src="/public/images/the-signal-key/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{h3rm3s_h1d3s_1n_th3_bundl3}</code>
+</div>
+<h2 id="why-this-one-is-a-nice-challenge">Why this one is a nice challenge<a hidden class="anchor" aria-hidden="true" href="#why-this-one-is-a-nice-challenge">#</a></h2>
+<p>There is no shortcut here, and no scorer to shortcut. The key, the ciphertext and the algorithm are all in the bundle, and the bundle is plain JavaScript, so the only way through is to actually read the code and rebuild the routine. The <code>-3</code> offset and the boot-time rotation are just enough friction to make you slow down and prove you understood the control flow instead of copying constants.</p>
+<p>The name is a joke that lands once you see it. React Native runs its JavaScript on an engine called <strong>Hermes</strong>, and Hermes compiles the JavaScript into a bytecode bundle. The flag says Hermes hides in the bundle, and Hermes, here, really did. The string table, the rotation and the cipher are all sitting in the open, compiled down and shipped to every device that installs the app.</p>
+<p>If you want a tool-based version of the same idea, the workflow is: pull <code>index.android.bundle</code> out of the APK, hand it to a Hermes bytecode disassembler, and work from the decompiled JavaScript. In this case the bundle was readable enough that <code>grep</code> and a careful read beat any tooling.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/mobile/">Mobile</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/javascript/">JavaScript</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

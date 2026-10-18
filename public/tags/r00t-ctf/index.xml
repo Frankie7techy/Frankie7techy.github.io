@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>R00t CTF on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/r00t-ctf/</link>
+    <description>Recent content in R00t CTF on z3ro :: CTF &amp; Security Research</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://frankie7techy.github.io/public/tags/r00t-ctf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Basilisk: A Three-Stage Checker and the One Byte That Undid It</title>
+      <link>https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/</guid>
+      <description>Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.</description>
+    </item>
+    <item>
+      <title>BlackGateWatch: A DNS Tunnel Hiding in Plain Sight</title>
+      <link>https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/</guid>
+      <description>Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.</description>
+    </item>
+    <item>
+      <title>Gravimetry: Hunting a Flag in Gravitational-Wave Noise</title>
+      <link>https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/</guid>
+      <description>41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.</description>
+    </item>
+    <item>
+      <title>JANUS: The Cipher Had Two Faces, but the Checker Only Needed One</title>
+      <link>https://frankie7techy.github.io/public/posts/janus-mutated-cipher/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/janus-mutated-cipher/</guid>
+      <description>A mutated stream cipher on the outside, a four-byte repeating key on the inside. Disassemble the scorer and the whole thing falls apart in a dozen instructions.</description>
+    </item>
+    <item>
+      <title>Sidedoor: The Cloud Backup That Was Uploading the Secret</title>
+      <link>https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/</guid>
+      <description>A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.</description>
+    </item>
+    <item>
+      <title>The Signal Key: Hermes Hides in the Bundle</title>
+      <link>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</guid>
+      <description>A React Native app gates a licence screen behind a string table, a rotator and a small block cipher. Everything needed to reproduce it ships inside index.android.bundle.</description>
+    </item>
+    <item>
+      <title>THORNWALL: Anti-Debug Theatre and a Scorer That Talks</title>
+      <link>https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/</guid>
+      <description>A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.</description>
+    </item>
+  </channel>
+</rss>

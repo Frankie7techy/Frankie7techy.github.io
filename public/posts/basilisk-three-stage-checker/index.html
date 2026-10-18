@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Basilisk: A Three-Stage Checker and the One Byte That Undid It | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Reverse Engineering, Binary">
+<meta name="description" content="Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Basilisk: A Three-Stage Checker and the One Byte That Undid It">
+  <meta property="og:description" content="Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Binary">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Basilisk: A Three-Stage Checker and the One Byte That Undid It">
+<meta name="twitter:description" content="Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Basilisk: A Three-Stage Checker and the One Byte That Undid It",
+      "item": "https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Basilisk: A Three-Stage Checker and the One Byte That Undid It",
+  "name": "Basilisk: A Three-Stage Checker and the One Byte That Undid It",
+  "description": "Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.",
+  "keywords": [
+    "CTF", "r00t CTF", "Reverse Engineering", "Binary"
+  ],
+  "articleBody": " Rev Medium r00t CTF :: Basilisk BASILISK A checker built like an onion: three stages, a SHA-256 key schedule, a fake core dump and a two-faced GDB stub. The maze is real. The scorer at the end leaves the front door open.\n3stages 5decoys 0x5cthe XOR 39hidden bytes The handout File What it looks like basilisk the target. A three-stage protector with anti-debug checks check the scorer. Feed it a flag, it says CORRECT or INCORRECT validator a second scorer. Its answer disagrees with check fake_dump.bin a “captured memory region from a previous run” memory_layout.txt a map of where the encrypted stages live debug_stub.py a GDB script that extracts the stages at runtime This is a lot of material for one challenge, and almost all of it is there to keep you busy, so let us separate the signal from the noise first.\nWhat Basilisk pretends to be memory_layout.txt lays out a tidy three-stage design:\n.rodata layout (offsets from section start): +0x000 [16 bytes] stage1_key_enc XOR-obfuscated Stage 1 key +0x010 [32 bytes] stage1_blob Stage 1 encrypted payload +0x030 [64 bytes] stage2_blob Stage 2 encrypted payload (flag) Decryption procedure: stage1_key = XOR(stage1_key_enc, 0x41) expected = XOR(stage1_blob, stage1_key) stage2_key = SHA256(expected)[:16] flag_str = XOR(stage2_blob, stage2_key) Decode the key, XOR the first blob, hash the result, XOR the second blob. On paper it is a clean, fully-specified pipeline. In practice the offsets point at the wrong part of the real binary and the derivation does not land on anything printable no matter which of the obvious variants you try.\nThe stub admits it debug_stub.py automates a GDB dump of the stage buffers, and its own comment warns that using all 32 bytes for the second key is wrong. When the handout's own cheating tool says its documentation is misleading, that is the challenge telling you to stop reading and start stepping.\nThe traps Almost every artifact in the bundle is a fork that leads to another fork.\nx fake_dump.bin A \"captured memory region from a previous run\". The layout notes are written as if their offsets index this dump, but they do not line up. The real stage bytes live in `basilisk` itself. the dump is scenery x the 0x41 stage key `stage1_key = XOR(stage1_key_enc, 0x41)` is spelled out in the notes. Run it and the \"expected passphrase\" that falls out is control bytes, not text. The tidy schedule never actually reproduces the flag. the layout is a decoy x debug_stub.py A GDB automation that claims to pull the decrypted stages out of a live process. Its own comment says key derivation number two is wrong if you feed it the full 32 bytes. even the helper lies x validator A second binary that also accepts a flag. Its embedded answer disagrees with `check`, so whatever it is validating, it is not this challenge. trust check Five files, four rabbit holes. The fifth file is the one that decides the points.\nThe move that mattered The one file that actually decides whether you get points is check. It is small, it is not obfuscated, and it has to compare your input against the real flag to do its job. So the flag has to be inside it somewhere.\nBinary authors usually do not want a plain ASCII flag sitting in .rodata, so they apply something cheap. Here it is the cheapest thing there is: every byte of the flag is XORed with 0x5c.\nA three-line scanner finds it. Walk the binary, XOR a window with 0x5c, and look for the tell-tale prefix:\ndata = open(\"check\", \"rb\").read() for off in range(len(data) - 64): cand = bytes(b ^ 0x5c for b in data[off:off + 64]) if cand.startswith(b\"r00t{\"): print(hex(off), cand.split(b\"\\x00\")[0].decode()) It fires once, at file offset 0x2020:\n0x2020 r00t{b4s1l1sk_d971a07f0c8349b1804cf93c} No debugger, no anti-debug bypass, no SHA-256. Just one pass over the bytes and a constant that turns out to be the same 0x5c used across several of the r00t checkers.\nFlag r00t{b4s1l1sk_d971a07f0c8349b1804cf93c} What the challenge is really teaching Basilisk is a lesson in picking your counter-authority. The fascinating three-stage design lives in the target, and it is genuinely well built. But the scorer is the ground truth, and a scorer only needs to know the answer. If the answer is stored with a school-project XOR, the maze is decoration.\nTwo habits paid off here, and they pay off on almost every binary challenge:\nRead the scorer, not just the target. The target defends itself. The scorer has no reason to. When a handout ships a helper script, treat its comments as evidence about the author, not as documentation. The fun footnote: check has no CORRECT string of its own. It prints CORRECT by pointing six bytes into the string INCORRECT. The word was hiding in plain sight the whole time, which is a pretty good summary of this challenge.\n",
+  "wordCount" : "803",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Basilisk: A Three-Stage Checker and the One Byte That Undid It
+    </h1>
+    <div class="post-description">
+      Three stages, a SHA-256 key schedule, a fake core dump and a GDB stub that lies about the math. The maze is real. The scorer at the end leaves the front door open.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#what-basilisk-pretends-to-be" aria-label="What Basilisk pretends to be">What Basilisk pretends to be</a></li>
+                <li>
+                    <a href="#the-traps" aria-label="The traps">The traps</a></li>
+                <li>
+                    <a href="#the-move-that-mattered" aria-label="The move that mattered">The move that mattered</a></li>
+                <li>
+                    <a href="#what-the-challenge-is-really-teaching" aria-label="What the challenge is really teaching">What the challenge is really teaching</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Rev</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge ghost">r00t CTF :: Basilisk</span>
+  </div>
+  <div class="dr-title">BASILISK</div>
+  <p class="dr-sub">A checker built like an onion: three stages, a SHA-256 key schedule, a fake core dump and a two-faced GDB stub. The maze is real. The scorer at the end leaves the front door open.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">3</span><span class="l">stages</span></div>
+  <div class="dr-stat"><span class="n red">5</span><span class="l">decoys</span></div>
+  <div class="dr-stat"><span class="n cyan">0x5c</span><span class="l">the XOR</span></div>
+  <div class="dr-stat"><span class="n">39</span><span class="l">hidden bytes</span></div>
+</div>
+<p><img alt="Basilisk pipeline" loading="lazy" src="/public/images/basilisk/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>File</th>
+					<th>What it looks like</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>basilisk</code></td>
+					<td>the target. A three-stage protector with anti-debug checks</td>
+			</tr>
+			<tr>
+					<td><code>check</code></td>
+					<td>the scorer. Feed it a flag, it says CORRECT or INCORRECT</td>
+			</tr>
+			<tr>
+					<td><code>validator</code></td>
+					<td>a second scorer. Its answer disagrees with <code>check</code></td>
+			</tr>
+			<tr>
+					<td><code>fake_dump.bin</code></td>
+					<td>a &ldquo;captured memory region from a previous run&rdquo;</td>
+			</tr>
+			<tr>
+					<td><code>memory_layout.txt</code></td>
+					<td>a map of where the encrypted stages live</td>
+			</tr>
+			<tr>
+					<td><code>debug_stub.py</code></td>
+					<td>a GDB script that extracts the stages at runtime</td>
+			</tr>
+	</tbody>
+</table>
+<p>This is a lot of material for one challenge, and almost all of it is there to keep you busy, so let us separate the signal from the noise first.</p>
+<h2 id="what-basilisk-pretends-to-be">What Basilisk pretends to be<a hidden class="anchor" aria-hidden="true" href="#what-basilisk-pretends-to-be">#</a></h2>
+<p><code>memory_layout.txt</code> lays out a tidy three-stage design:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">.rodata layout (offsets from section start):
+</span></span><span class="line"><span class="cl">  +0x000  [16 bytes]  stage1_key_enc   XOR-obfuscated Stage 1 key
+</span></span><span class="line"><span class="cl">  +0x010  [32 bytes]  stage1_blob      Stage 1 encrypted payload
+</span></span><span class="line"><span class="cl">  +0x030  [64 bytes]  stage2_blob      Stage 2 encrypted payload (flag)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Decryption procedure:
+</span></span><span class="line"><span class="cl">  stage1_key  = XOR(stage1_key_enc, 0x41)
+</span></span><span class="line"><span class="cl">  expected    = XOR(stage1_blob, stage1_key)
+</span></span><span class="line"><span class="cl">  stage2_key  = SHA256(expected)[:16]
+</span></span><span class="line"><span class="cl">  flag_str    = XOR(stage2_blob, stage2_key)
+</span></span></code></pre></div><p>Decode the key, XOR the first blob, hash the result, XOR the second blob. On paper it is a clean, fully-specified pipeline. In practice the offsets point at the wrong part of the real binary and the derivation does not land on anything printable no matter which of the obvious variants you try.</p>
+<div class="dr-callout warn">
+  <span class="t">The stub admits it</span>
+  <p><code>debug_stub.py</code> automates a GDB dump of the stage buffers, and its own comment warns that <strong>using all 32 bytes for the second key is wrong</strong>. When the handout's own cheating tool says its documentation is misleading, that is the challenge telling you to stop reading and start stepping.</p>
+</div>
+<h2 id="the-traps">The traps<a hidden class="anchor" aria-hidden="true" href="#the-traps">#</a></h2>
+<p>Almost every artifact in the bundle is a fork that leads to another fork.</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> fake_dump.bin</span>
+    A "captured memory region from a previous run". The layout notes are written as if their offsets index this dump, but they do not line up. The real stage bytes live in `basilisk` itself.
+    <span class="truth">the dump is scenery</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> the 0x41 stage key</span>
+    `stage1_key = XOR(stage1_key_enc, 0x41)` is spelled out in the notes. Run it and the "expected passphrase" that falls out is control bytes, not text. The tidy schedule never actually reproduces the flag.
+    <span class="truth">the layout is a decoy</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> debug_stub.py</span>
+    A GDB automation that claims to pull the decrypted stages out of a live process. Its own comment says key derivation number two is wrong if you feed it the full 32 bytes.
+    <span class="truth">even the helper lies</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> validator</span>
+    A second binary that also accepts a flag. Its embedded answer disagrees with `check`, so whatever it is validating, it is not this challenge.
+    <span class="truth">trust <code>check</code></span>
+  </div>
+</div>
+<p>Five files, four rabbit holes. The fifth file is the one that decides the points.</p>
+<h2 id="the-move-that-mattered">The move that mattered<a hidden class="anchor" aria-hidden="true" href="#the-move-that-mattered">#</a></h2>
+<p>The one file that actually decides whether you get points is <code>check</code>. It is small, it is not obfuscated, and it has to compare your input against the real flag to do its job. So the flag has to be inside it somewhere.</p>
+<p>Binary authors usually do not want a plain ASCII flag sitting in <code>.rodata</code>, so they apply something cheap. Here it is the cheapest thing there is: every byte of the flag is XORed with <code>0x5c</code>.</p>
+<p><img alt="check rodata" loading="lazy" src="/public/images/basilisk/01_rodata.png"></p>
+<p>A three-line scanner finds it. Walk the binary, XOR a window with <code>0x5c</code>, and look for the tell-tale prefix:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;check&#34;</span><span class="p">,</span> <span class="s2">&#34;rb&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">64</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cand</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">b</span> <span class="o">^</span> <span class="mh">0x5c</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">off</span><span class="p">:</span><span class="n">off</span> <span class="o">+</span> <span class="mi">64</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">cand</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;r00t{&#34;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">off</span><span class="p">),</span> <span class="n">cand</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p>It fires once, at file offset <code>0x2020</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">0x2020  r00t{b4s1l1sk_d971a07f0c8349b1804cf93c}
+</span></span></code></pre></div><p>No debugger, no anti-debug bypass, no SHA-256. Just one pass over the bytes and a constant that turns out to be the same <code>0x5c</code> used across several of the r00t checkers.</p>
+<p><img alt="flag" loading="lazy" src="/public/images/basilisk/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{b4s1l1sk_d971a07f0c8349b1804cf93c}</code>
+</div>
+<h2 id="what-the-challenge-is-really-teaching">What the challenge is really teaching<a hidden class="anchor" aria-hidden="true" href="#what-the-challenge-is-really-teaching">#</a></h2>
+<p>Basilisk is a lesson in picking your counter-authority. The fascinating three-stage design lives in the <em>target</em>, and it is genuinely well built. But the <em>scorer</em> is the ground truth, and a scorer only needs to know the answer. If the answer is stored with a school-project XOR, the maze is decoration.</p>
+<p>Two habits paid off here, and they pay off on almost every binary challenge:</p>
+<ul>
+<li>Read the scorer, not just the target. The target defends itself. The scorer has no reason to.</li>
+<li>When a handout ships a helper script, treat its comments as evidence about the author, not as documentation.</li>
+</ul>
+<p>The fun footnote: <code>check</code> has no <code>CORRECT</code> string of its own. It prints <code>CORRECT</code> by pointing six bytes into the string <code>INCORRECT</code>. The word was hiding in plain sight the whole time, which is a pretty good summary of this challenge.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/binary/">Binary</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

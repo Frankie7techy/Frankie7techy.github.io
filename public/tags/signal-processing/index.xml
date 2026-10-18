@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Signal Processing on z3ro :: CTF &amp; Security Research</title>
+    <link>https://frankie7techy.github.io/public/tags/signal-processing/</link>
+    <description>Recent content in Signal Processing on z3ro :: CTF &amp; Security Research</description>
+    <generator>Hugo -- 0.167.0</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://frankie7techy.github.io/public/tags/signal-processing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gravimetry: Hunting a Flag in Gravitational-Wave Noise</title>
+      <link>https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/</guid>
+      <description>41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.</description>
+    </item>
+  </channel>
+</rss>

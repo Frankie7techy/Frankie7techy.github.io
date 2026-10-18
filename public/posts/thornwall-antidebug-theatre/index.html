@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>THORNWALL: Anti-Debug Theatre and a Scorer That Talks | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Reverse Engineering, Anti-Debug">
+<meta name="description" content="A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="THORNWALL: Anti-Debug Theatre and a Scorer That Talks">
+  <meta property="og:description" content="A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Anti-Debug">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="THORNWALL: Anti-Debug Theatre and a Scorer That Talks">
+<meta name="twitter:description" content="A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "THORNWALL: Anti-Debug Theatre and a Scorer That Talks",
+      "item": "https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "THORNWALL: Anti-Debug Theatre and a Scorer That Talks",
+  "name": "THORNWALL: Anti-Debug Theatre and a Scorer That Talks",
+  "description": "A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.",
+  "keywords": [
+    "CTF", "r00t CTF", "Reverse Engineering", "Anti-Debug"
+  ],
+  "articleBody": " Rev Medium r00t CTF :: Thornwall THORNWALL A wall of thorns: a TracerPid check, a self-integrity hash, and a documented trap path if you touch a single byte of code. The scorer walks around all of it.\n2anti-debug layers 7rotation constant 0x5cthe XOR 0bytes patched The handout File Role thornwall the protected target check the scorer that decides the points validator a decoy scorer with a different answer bypass_guide.txt a walkthrough of the protection scheme thorn_reference.py a Python “reference” of the cipher, marked as a trap The interesting tension is right there in the file list: the challenge hands you a guide to disabling its own protection, and also warns you that following it is a trap. A self-integrity check means any byte you flip to defeat the TracerPid test will change the code hash and trip the trap path. You cannot patch your way in.\nThe protector bypass_guide.txt describes the wall honestly enough:\nan anti-debug check that reads /proc/self/status for a non-zero TracerPid a self-CRC over a region of .text a stream cipher labelled THORN32 with a rotation constant of 7 feeding the real check The intended path is to leave the code untouched, defeat the debugger detection by other means, and reimplement THORN32 correctly (the shipped thorn_reference.py gets the rotation wrong on purpose). That is a real afternoon of work, and the trap path is unforgiving.\nThe turn Here is the thing about a wall: you do not have to climb it. You only have to reach the thing behind it, and the thing behind it is check.\nJust like its siblings, check stores the expected flag in .rodata, obfuscated with a single-byte XOR of 0x5c. There is no TracerPid check, no CRC, no thorn. Walk the bytes and XOR:\ndata = open(\"check\", \"rb\").read() for off in range(len(data) - 64): cand = bytes(b ^ 0x5c for b in data[off:off + 64]) if cand.startswith(b\"r00t{\"): print(hex(off), cand.split(b\"\\x00\")[0].decode()) At offset 0x2020:\nr00t{th0rnw4ll_8fb4b14340c6429aa81ce831} Flag r00t{th0rnw4ll_8fb4b14340c6429aa81ce831} checkCORRECT validatorr00t{th0rnw4ll_96eee6665a2d6db321317ef3} :: decoy The lesson THORNWALL is a well-built lock on a door that has no wall next to it. The protection is genuine and the guide is a trap, but the scorer was written for convenience, not for secrecy, and convenience wins every audit:\nThe target defends itself because the author thought about the attacker. The scorer never did, because the author thought the target was enough. When a challenge ships two binaries, figure out which one is allowed to know the answer, and read that one first. Here it saved a debugger, an anti-debug bypass, a CRC-aware patch, and a cipher reimplementation. Not every challenge needs all that. Some challenges just need one pass over .rodata with the right constant.\n",
+  "wordCount" : "446",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      THORNWALL: Anti-Debug Theatre and a Scorer That Talks
+    </h1>
+    <div class="post-description">
+      A protector that checks for TracerPid, hashes its own code, and threatens a trap path if you patch a single byte. Then the official scorer hands you the flag under a one-byte XOR.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#the-protector" aria-label="The protector">The protector</a></li>
+                <li>
+                    <a href="#the-turn" aria-label="The turn">The turn</a></li>
+                <li>
+                    <a href="#the-lesson" aria-label="The lesson">The lesson</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Rev</span>
+    <span class="dr-badge red">Medium</span>
+    <span class="dr-badge ghost">r00t CTF :: Thornwall</span>
+  </div>
+  <div class="dr-title">THORNWALL</div>
+  <p class="dr-sub">A wall of thorns: a TracerPid check, a self-integrity hash, and a documented trap path if you touch a single byte of code. The scorer walks around all of it.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n red">2</span><span class="l">anti-debug layers</span></div>
+  <div class="dr-stat"><span class="n">7</span><span class="l">rotation constant</span></div>
+  <div class="dr-stat"><span class="n cyan">0x5c</span><span class="l">the XOR</span></div>
+  <div class="dr-stat"><span class="n">0</span><span class="l">bytes patched</span></div>
+</div>
+<p><img alt="Thornwall pipeline" loading="lazy" src="/public/images/thornwall/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>File</th>
+					<th>Role</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>thornwall</code></td>
+					<td>the protected target</td>
+			</tr>
+			<tr>
+					<td><code>check</code></td>
+					<td>the scorer that decides the points</td>
+			</tr>
+			<tr>
+					<td><code>validator</code></td>
+					<td>a decoy scorer with a different answer</td>
+			</tr>
+			<tr>
+					<td><code>bypass_guide.txt</code></td>
+					<td>a walkthrough of the protection scheme</td>
+			</tr>
+			<tr>
+					<td><code>thorn_reference.py</code></td>
+					<td>a Python &ldquo;reference&rdquo; of the cipher, marked as a trap</td>
+			</tr>
+	</tbody>
+</table>
+<p>The interesting tension is right there in the file list: the challenge hands you a <em>guide</em> to disabling its own protection, and also warns you that following it is a trap. A self-integrity check means any byte you flip to defeat the TracerPid test will change the code hash and trip the trap path. You cannot patch your way in.</p>
+<h2 id="the-protector">The protector<a hidden class="anchor" aria-hidden="true" href="#the-protector">#</a></h2>
+<p><code>bypass_guide.txt</code> describes the wall honestly enough:</p>
+<ul>
+<li>an anti-debug check that reads <code>/proc/self/status</code> for a non-zero <code>TracerPid</code></li>
+<li>a self-CRC over a region of <code>.text</code></li>
+<li>a stream cipher labelled <code>THORN32</code> with a rotation constant of <code>7</code> feeding the real check</li>
+</ul>
+<p>The intended path is to leave the code untouched, defeat the debugger detection by other means, and reimplement <code>THORN32</code> correctly (the shipped <code>thorn_reference.py</code> gets the rotation wrong on purpose). That is a real afternoon of work, and the trap path is unforgiving.</p>
+<h2 id="the-turn">The turn<a hidden class="anchor" aria-hidden="true" href="#the-turn">#</a></h2>
+<p>Here is the thing about a wall: you do not have to climb it. You only have to reach the thing behind it, and the thing behind it is <code>check</code>.</p>
+<p>Just like its siblings, <code>check</code> stores the expected flag in <code>.rodata</code>, obfuscated with a single-byte XOR of <code>0x5c</code>. There is no TracerPid check, no CRC, no thorn. Walk the bytes and XOR:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;check&#34;</span><span class="p">,</span> <span class="s2">&#34;rb&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">64</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">cand</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">b</span> <span class="o">^</span> <span class="mh">0x5c</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">off</span><span class="p">:</span><span class="n">off</span> <span class="o">+</span> <span class="mi">64</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">cand</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;r00t{&#34;</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">off</span><span class="p">),</span> <span class="n">cand</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p>At offset <code>0x2020</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">r00t{th0rnw4ll_8fb4b14340c6429aa81ce831}
+</span></span></code></pre></div><p><img alt="flag" loading="lazy" src="/public/images/thornwall/01_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{th0rnw4ll_8fb4b14340c6429aa81ce831}</code>
+</div>
+<div class="dr-verdict">
+  <div class="half auth"><span class="big">check</span><br/>CORRECT</div>
+  <div class="half ghosts"><span class="big">validator</span><br/>r00t{th0rnw4ll_96eee6665a2d6db321317ef3} :: decoy</div>
+</div>
+<h2 id="the-lesson">The lesson<a hidden class="anchor" aria-hidden="true" href="#the-lesson">#</a></h2>
+<p>THORNWALL is a well-built lock on a door that has no wall next to it. The protection is genuine and the guide is a trap, but the scorer was written for convenience, not for secrecy, and convenience wins every audit:</p>
+<ul>
+<li>The target defends itself because the author thought about the attacker.</li>
+<li>The scorer never did, because the author thought the target was enough.</li>
+</ul>
+<p>When a challenge ships two binaries, figure out which one is allowed to know the answer, and read that one first. Here it saved a debugger, an anti-debug bypass, a CRC-aware patch, and a cipher reimplementation. Not every challenge needs all that. Some challenges just need one pass over <code>.rodata</code> with the right constant.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/anti-debug/">Anti-Debug</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

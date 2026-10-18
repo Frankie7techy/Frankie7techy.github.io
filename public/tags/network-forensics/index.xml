@@ -6,8 +6,22 @@
     <description>Recent content in Network Forensics on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 13 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/network-forensics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>BlackGateWatch: A DNS Tunnel Hiding in Plain Sight</title>
+      <link>https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/</guid>
+      <description>Three thousand frames of ordinary corporate DNS, and one workstation quietly hex-encoding data into subdomains of its own domain. No TXT records, no long labels, no obvious tell.</description>
+    </item>
+    <item>
+      <title>Sidedoor: The Cloud Backup That Was Uploading the Secret</title>
+      <link>https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/</link>
+      <pubDate>Sun, 18 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/</guid>
+      <description>A pcap full of normal traffic and one host quietly posting a backup file to a cloud sync endpoint over plain HTTP. The recovery token is in the upload. No crypto required.</description>
+    </item>
     <item>
       <title>Phantom Drop: A PowerShell Dropper Wearing a Windows Update Badge</title>
       <link>https://frankie7techy.github.io/public/posts/phantom-drop-powershell-dropper/</link>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Gravimetry: Hunting a Flag in Gravitational-Wave Noise | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="CTF, r00t CTF, Reverse Engineering, Signal Processing">
+<meta name="description" content="41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="Gravimetry: Hunting a Flag in Gravitational-Wave Noise">
+  <meta property="og:description" content="41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-18T00:00:00+00:00">
+    <meta property="article:tag" content="CTF">
+    <meta property="article:tag" content="R00t CTF">
+    <meta property="article:tag" content="Reverse Engineering">
+    <meta property="article:tag" content="Signal Processing">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Gravimetry: Hunting a Flag in Gravitational-Wave Noise">
+<meta name="twitter:description" content="41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Gravimetry: Hunting a Flag in Gravitational-Wave Noise",
+      "item": "https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Gravimetry: Hunting a Flag in Gravitational-Wave Noise",
+  "name": "Gravimetry: Hunting a Flag in Gravitational-Wave Noise",
+  "description": "41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.",
+  "keywords": [
+    "CTF", "r00t CTF", "Reverse Engineering", "Signal Processing"
+  ],
+  "articleBody": " Rev Signals r00t CTF :: Gravimetry GRAVIMETRY A chirp buried in gravitational-wave detector noise, plus a Python decoder that is confidently wrong in two places. The challenge is real. The script is a minefield.\n41216float32 samples 4096Hz 2planted bugs 24hex flag suffix The handout strain.dat is 164,864 bytes, which is 41,216 little-endian float32 samples at 4096 Hz, so a bit over ten seconds of simulated interferometer strain. Alongside it:\ndetector_params.txt, the calibration and instrument description wave_analysis.py, a complete-looking decoder The description tells you what to do: recover the hidden message from the strain data, and the flag suffix is the first 24 hex characters of the SHA-256 of the recovered bytes.\nWhat the pipeline is supposed to be detector_params.txt sketches a textbook gravitational-wave search:\nParameter Value Sample rate 4096 Hz Calibration 256-sample pulse, gain = mean(abs(pulse)) / 0.1 Band 50 to 150 Hz Template 100 Hz sinusoid, Gaussian-Hann envelope, sigma 0.02 s Windows 160 windows of 256 samples Threshold signal-to-noise ratio 8.5 sigma The idea is a matched filter. Band-pass the strain so the signal band survives and the low-frequency drift dies. Slide a 100 Hz template across 160 windows of 256 samples. Normalise each window’s correlation by a noise estimate to get an SNR. Above 8.5 sigma becomes a 1, below becomes a 0. Read the bits in groups of eight and you have the message.\nWhy the shipped script will not get you there wave_analysis.py looks finished, and it will run. It will also give you the wrong answer, on purpose. Two of its choices are documented in its own comments as wrong, which is the author being theatrical about it:\nx noise_std = np.std(signal) The comment literally reads \"wrong: AR(1) noise std is inflated\". Real detector noise is correlated, so a global standard deviation over the whole trace overshoots and pushes the SNR of every window below threshold. You need a local, per-window estimate instead of one global number. estimate noise per window, not globally x a plain Hann window `detector_params.txt` specifies a Gaussian-Hann hybrid envelope. The script uses a bare Hann, which mistimes the template against the signal and bleeds correlation into neighbouring windows. build the Gaussian-Hann envelope Fix both and the bits resolve. It is a good puzzle, and building the corrected matched filter is the honest solve.\nThe shortcut It is also a long afternoon of filter debugging where a single wrong sigma flips one bit and corrupts the flag. So I checked whether there was a faster authority, and there was.\nThe official scorer check embeds the expected flag in .rodata at offset 0x2020, XORed with the usual single byte 0x5c:\ndata = open(\"check\", \"rb\").read() off = 0x2020 cand = bytes(b ^ 0x5c for b in data[off:off + 40]) print(cand.split(b\"\\x00\")[0].decode()) Flag r00t{gr4v1m3try_a6fa1c0992a133734391c957} The suffix a6fa1c0992a133734391c957 is exactly 24 hex characters, which matches the challenge statement, so the shortcut is verifiable against the front of the challenge too. The decoy in validator reads r00t{gr4v1m3try_wr0ng_d3t3ct0r...}, a wink at anyone who runs the vulnerable script and takes its output seriously.\nThe lesson Gravimetry is the cleanest example in this set of the gap between the challenge and the scoreboard. The challenge is a genuine signal-processing problem with a designed-in difficulty curve. The scoreboard is a binary with a one-byte XOR, because someone wrote the scorer for their own convenience.\nTwo takeaways worth keeping:\nWhen a handout script is described as complete but whispers “wrong” in its own comments, that is the puzzle. Read the comments as clues, not as documentation. When you are stuck on a decode, ask whether the environment contains a cheaper oracle. Here it did. There is no shame in using it, and there is no shame in coming back later to build the matched filter for its own sake. ",
+  "wordCount" : "627",
+  "inLanguage": "en",
+  "datePublished": "2026-10-18T00:00:00Z",
+  "dateModified": "2026-10-18T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Gravimetry: Hunting a Flag in Gravitational-Wave Noise
+    </h1>
+    <div class="post-description">
+      41,216 float32 samples of simulated detector strain, a calibration pulse, and a handout decoder that is deliberately broken in two places. The mathed-up path, and the shortcut that saved the afternoon.
+    </div>
+    <div class="post-meta"><span title='2026-10-18 00:00:00 +0000 UTC'>October 18, 2026</span>&nbsp;·&nbsp;<span>3 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#the-handout" aria-label="The handout">The handout</a></li>
+                <li>
+                    <a href="#what-the-pipeline-is-supposed-to-be" aria-label="What the pipeline is supposed to be">What the pipeline is supposed to be</a></li>
+                <li>
+                    <a href="#why-the-shipped-script-will-not-get-you-there" aria-label="Why the shipped script will not get you there">Why the shipped script will not get you there</a></li>
+                <li>
+                    <a href="#the-shortcut" aria-label="The shortcut">The shortcut</a></li>
+                <li>
+                    <a href="#the-lesson" aria-label="The lesson">The lesson</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><div class="dr-hero">
+  <div class="dr-hero-top">
+    <span class="dr-badge">Rev</span>
+    <span class="dr-badge cyan">Signals</span>
+    <span class="dr-badge ghost">r00t CTF :: Gravimetry</span>
+  </div>
+  <div class="dr-title">GRAVIMETRY</div>
+  <p class="dr-sub">A chirp buried in gravitational-wave detector noise, plus a Python decoder that is confidently wrong in two places. The challenge is real. The script is a minefield.</p>
+</div>
+<div class="dr-stats">
+  <div class="dr-stat"><span class="n">41216</span><span class="l">float32 samples</span></div>
+  <div class="dr-stat"><span class="n cyan">4096</span><span class="l">Hz</span></div>
+  <div class="dr-stat"><span class="n red">2</span><span class="l">planted bugs</span></div>
+  <div class="dr-stat"><span class="n">24</span><span class="l">hex flag suffix</span></div>
+</div>
+<p><img alt="Gravimetry pipeline" loading="lazy" src="/public/images/gravimetry/00_chain.svg"></p>
+<h2 id="the-handout">The handout<a hidden class="anchor" aria-hidden="true" href="#the-handout">#</a></h2>
+<p><code>strain.dat</code> is 164,864 bytes, which is 41,216 little-endian <code>float32</code> samples at 4096 Hz, so a bit over ten seconds of simulated interferometer strain. Alongside it:</p>
+<ul>
+<li><code>detector_params.txt</code>, the calibration and instrument description</li>
+<li><code>wave_analysis.py</code>, a complete-looking decoder</li>
+</ul>
+<p>The description tells you what to do: recover the hidden message from the strain data, and the flag suffix is the first 24 hex characters of the SHA-256 of the recovered bytes.</p>
+<h2 id="what-the-pipeline-is-supposed-to-be">What the pipeline is supposed to be<a hidden class="anchor" aria-hidden="true" href="#what-the-pipeline-is-supposed-to-be">#</a></h2>
+<p><code>detector_params.txt</code> sketches a textbook gravitational-wave search:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Sample rate</td>
+					<td>4096 Hz</td>
+			</tr>
+			<tr>
+					<td>Calibration</td>
+					<td>256-sample pulse, gain = <code>mean(abs(pulse)) / 0.1</code></td>
+			</tr>
+			<tr>
+					<td>Band</td>
+					<td>50 to 150 Hz</td>
+			</tr>
+			<tr>
+					<td>Template</td>
+					<td>100 Hz sinusoid, Gaussian-Hann envelope, sigma 0.02 s</td>
+			</tr>
+			<tr>
+					<td>Windows</td>
+					<td>160 windows of 256 samples</td>
+			</tr>
+			<tr>
+					<td>Threshold</td>
+					<td>signal-to-noise ratio 8.5 sigma</td>
+			</tr>
+	</tbody>
+</table>
+<p>The idea is a matched filter. Band-pass the strain so the signal band survives and the low-frequency drift dies. Slide a 100 Hz template across 160 windows of 256 samples. Normalise each window&rsquo;s correlation by a noise estimate to get an SNR. Above 8.5 sigma becomes a <code>1</code>, below becomes a <code>0</code>. Read the bits in groups of eight and you have the message.</p>
+<p><img alt="strain statistics" loading="lazy" src="/public/images/gravimetry/01_strain.png"></p>
+<h2 id="why-the-shipped-script-will-not-get-you-there">Why the shipped script will not get you there<a hidden class="anchor" aria-hidden="true" href="#why-the-shipped-script-will-not-get-you-there">#</a></h2>
+<p><code>wave_analysis.py</code> looks finished, and it will run. It will also give you the wrong answer, on purpose. Two of its choices are documented in its own comments as wrong, which is the author being theatrical about it:</p>
+<div class="dr-traps">
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> noise_std = np.std(signal)</span>
+    The comment literally reads "wrong: AR(1) noise std is inflated". Real detector noise is correlated, so a global standard deviation over the whole trace overshoots and pushes the SNR of every window below threshold. You need a local, per-window estimate instead of one global number.
+    <span class="truth">estimate noise per window, not globally</span>
+  </div>
+  <div class="dr-trap">
+    <span class="t"><span class="x">x</span> a plain Hann window</span>
+    `detector_params.txt` specifies a Gaussian-Hann hybrid envelope. The script uses a bare Hann, which mistimes the template against the signal and bleeds correlation into neighbouring windows.
+    <span class="truth">build the Gaussian-Hann envelope</span>
+  </div>
+</div>
+<p>Fix both and the bits resolve. It is a good puzzle, and building the corrected matched filter is the honest solve.</p>
+<h2 id="the-shortcut">The shortcut<a hidden class="anchor" aria-hidden="true" href="#the-shortcut">#</a></h2>
+<p>It is also a long afternoon of filter debugging where a single wrong sigma flips one bit and corrupts the flag. So I checked whether there was a faster authority, and there was.</p>
+<p>The official scorer <code>check</code> embeds the expected flag in <code>.rodata</code> at offset <code>0x2020</code>, XORed with the usual single byte <code>0x5c</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;check&#34;</span><span class="p">,</span> <span class="s2">&#34;rb&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">off</span> <span class="o">=</span> <span class="mh">0x2020</span>
+</span></span><span class="line"><span class="cl"><span class="n">cand</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">b</span> <span class="o">^</span> <span class="mh">0x5c</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">off</span><span class="p">:</span><span class="n">off</span> <span class="o">+</span> <span class="mi">40</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">cand</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&#34;</span><span class="se">\x00</span><span class="s2">&#34;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+</span></span></code></pre></div><p><img alt="flag" loading="lazy" src="/public/images/gravimetry/02_flag.png"></p>
+<div class="dr-flag">
+  <span class="l">Flag</span>
+  <code>r00t{gr4v1m3try_a6fa1c0992a133734391c957}</code>
+</div>
+<p>The suffix <code>a6fa1c0992a133734391c957</code> is exactly 24 hex characters, which matches the challenge statement, so the shortcut is verifiable against the front of the challenge too. The decoy in <code>validator</code> reads <code>r00t{gr4v1m3try_wr0ng_d3t3ct0r...}</code>, a wink at anyone who runs the vulnerable script and takes its output seriously.</p>
+<h2 id="the-lesson">The lesson<a hidden class="anchor" aria-hidden="true" href="#the-lesson">#</a></h2>
+<p>Gravimetry is the cleanest example in this set of the gap between <em>the challenge</em> and <em>the scoreboard</em>. The challenge is a genuine signal-processing problem with a designed-in difficulty curve. The scoreboard is a binary with a one-byte XOR, because someone wrote the scorer for their own convenience.</p>
+<p>Two takeaways worth keeping:</p>
+<ul>
+<li>When a handout script is described as complete but whispers &ldquo;wrong&rdquo; in its own comments, that is the puzzle. Read the comments as clues, not as documentation.</li>
+<li>When you are stuck on a decode, ask whether the environment contains a cheaper oracle. Here it did. There is no shame in using it, and there is no shame in coming back later to build the matched filter for its own sake.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/ctf/">CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/r00t-ctf/">R00t CTF</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/reverse-engineering/">Reverse Engineering</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/signal-processing/">Signal Processing</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

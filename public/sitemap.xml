@@ -2,7 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://frankie7techy.github.io/public/tags/anti-debug/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/basilisk-three-stage-checker/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/binary/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/binary-analysis/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/blackgatewatch-dns-tunnel/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/bytecode-vm/</loc>
@@ -11,10 +23,37 @@
     <loc>https://frankie7techy.github.io/public/categories/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/cryptography/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/ctf/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/categories/ctf-writeups/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/dns/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/exfiltration/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/gravimetry-chirp-in-the-noise/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/http/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/janus-mutated-cipher/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/javascript/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/mobile/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/network-forensics/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/</loc>
@@ -23,10 +62,25 @@
     <loc>https://frankie7techy.github.io/public/tags/python/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/r00t-ctf/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/reverse-engineering/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/sidedoor-cloud-backup-leak/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/signal-processing/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</loc>
+    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/thornwall-antidebug-theatre/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/webassembly/</loc>
@@ -42,9 +96,6 @@
     <lastmod>2026-10-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/categories/crypto/</loc>
-    <lastmod>2026-10-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/cryptography/</loc>
     <lastmod>2026-10-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/</loc>
@@ -89,9 +140,6 @@
     <loc>https://frankie7techy.github.io/public/tags/malware-analysis/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/network-forensics/</loc>
-    <lastmod>2026-10-13T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/posts/pearl-harbour-forged-captain/</loc>
     <lastmod>2026-10-13T00:00:00+00:00</lastmod>
   </url><url>
@@ -123,9 +171,6 @@
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/digital-forensics/</loc>
-    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/exfiltration/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/exploitation/</loc>
@@ -162,12 +207,6 @@
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/android/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/dns/</loc>
-    <lastmod>2026-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/mobile/</loc>
     <lastmod>2026-09-23T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/packet-whisperer-dns-exfiltration/</loc>
