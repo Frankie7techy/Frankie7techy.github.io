@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Lab | z3ro :: CTF &amp; Security Research</title>
+<title>Research | z3ro :: CTF &amp; Security Research</title>
 <meta name="keywords" content="">
 <meta name="description" content="CTF Writeups and Security Research">
 <meta name="author" content="z3ro">
-<link rel="canonical" href="https://frankie7techy.github.io/public/tags/lab/">
+<link rel="canonical" href="https://frankie7techy.github.io/public/categories/research/">
 <link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
@@ -18,8 +18,8 @@
 <link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://frankie7techy.github.io/public/tags/lab/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/tags/lab/">
+<link rel="alternate" type="application/rss+xml" href="https://frankie7techy.github.io/public/categories/research/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/categories/research/">
 <noscript>
     <style>
         #theme-toggle,
@@ -34,14 +34,14 @@
         document.querySelector("html").dataset.theme = 'light';
     }
 
-</script><meta property="og:url" content="https://frankie7techy.github.io/public/tags/lab/">
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/categories/research/">
   <meta property="og:site_name" content="z3ro :: CTF & Security Research">
-  <meta property="og:title" content="Lab">
+  <meta property="og:title" content="Research">
   <meta property="og:description" content="CTF Writeups and Security Research">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Lab">
+<meta name="twitter:title" content="Research">
 <meta name="twitter:description" content="CTF Writeups and Security Research">
 
 </head>
@@ -90,23 +90,22 @@
 <main class="main"> 
 <header class="page-header">
   <h1>
-    Lab
+    Research
   </h1>
 </header>
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619
+    <h2 class="entry-hint-parent">PHP2Shell in a Box: Reproducing CVE-2026-109618 and CVE-2026-109619 on a Laptop
     </h2>
   </header>
   <div class="entry-content">
-    <p>Public lab: github.com/Frankie7techy/php2shell-lab
-When the PHP security release dropped on October 21, two details made everyone’s hair stand up: the bugs sit in code that every request touches (memory management and error handling), and one of the confirmed exploits fires before any application code runs. Not “your sloppy WordPress plugin ran it”, not “your framework forgot to escape”. The runtime itself, with default settings, on Apache with mod_php.
-That combination, unauthenticated plus runtime-level plus default-settings, is why the patch race mattered. So instead of skimming the advisories, I built the runtime.
+    <p> Research CVSS 9.2 x2 RCE PHP 5.4 - 8.5.11 · patched 2026-10-21 PHP2SHELL Two critical remote-code-execution bugs in the PHP runtime itself, in code that every single request touches. One fires before your application runs a line. Here is the build log: recompiling the exact vulnerable runtime, finding the request shape that reaches the bug, and finding out which part is deterministic and which part is a lottery.
+471in-parse OOM fatals 0worker crashes (honest) 1020parts per trigger Oct 17first observed exploitation The lab, with all scripts and raw logs: github.com/Frankie7techy/php2shell-lab
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"></a>
+  <footer class="entry-footer"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to PHP2Shell in a Box: Reproducing CVE-2026-109618 and CVE-2026-109619 on a Laptop" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"></a>
 </article>
     </main>
     

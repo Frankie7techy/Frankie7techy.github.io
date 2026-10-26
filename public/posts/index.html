@@ -111,17 +111,16 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619
+    <h2 class="entry-hint-parent">PHP2Shell in a Box: Reproducing CVE-2026-109618 and CVE-2026-109619 on a Laptop
     </h2>
   </header>
   <div class="entry-content">
-    <p>Public lab: github.com/Frankie7techy/php2shell-lab
-When the PHP security release dropped on October 21, two details made everyone’s hair stand up: the bugs sit in code that every request touches (memory management and error handling), and one of the confirmed exploits fires before any application code runs. Not “your sloppy WordPress plugin ran it”, not “your framework forgot to escape”. The runtime itself, with default settings, on Apache with mod_php.
-That combination, unauthenticated plus runtime-level plus default-settings, is why the patch race mattered. So instead of skimming the advisories, I built the runtime.
+    <p> Research CVSS 9.2 x2 RCE PHP 5.4 - 8.5.11 · patched 2026-10-21 PHP2SHELL Two critical remote-code-execution bugs in the PHP runtime itself, in code that every single request touches. One fires before your application runs a line. Here is the build log: recompiling the exact vulnerable runtime, finding the request shape that reaches the bug, and finding out which part is deterministic and which part is a lottery.
+471in-parse OOM fatals 0worker crashes (honest) 1020parts per trigger Oct 17first observed exploitation The lab, with all scripts and raw logs: github.com/Frankie7techy/php2shell-lab
 ...</p>
   </div>
-  <footer class="entry-footer"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"></a>
+  <footer class="entry-footer"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>9 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to PHP2Shell in a Box: Reproducing CVE-2026-109618 and CVE-2026-109619 on a Laptop" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"></a>
 </article>
 
 <article class="post-entry"> 

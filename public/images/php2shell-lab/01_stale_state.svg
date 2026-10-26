@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 330" font-family="Consolas, monospace" role="img">
+<defs><marker id="ah2" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#ffbd2e"/></marker></defs>
+<rect x="0" y="0" width="1180" height="330" fill="#0a0a0a"/>
+<text x="590" y="42" fill="#ffbd2e" font-size="26" font-weight="bold" text-anchor="middle">PHP2SHELL / CVE-2026-109619</text>
+<text x="590" y="76" fill="#8c8c8c" font-size="15" text-anchor="middle">request-owned state survives its request; the next worker request consumes freed memory</text>
+<rect x="30" y="140" width="240" height="120" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="44" y="167" fill="#00d4ff" font-size="16" font-weight="bold">Producer request</text>
+<text x="44" y="192" fill="#9a9a9a" font-size="13">fatal error with backtraces</text>
+<text x="44" y="212" fill="#9a9a9a" font-size="13">enabled, or a session</text>
+<text x="44" y="232" fill="#9a9a9a" font-size="13">upload_progress update</text>
+<text x="44" y="252" fill="#9a9a9a" font-size="13">stores request-owned state</text>
+<rect x="300" y="140" width="240" height="120" rx="10" fill="#0f0f0f" stroke="#ff5f56" stroke-width="1.4"/>
+<text x="314" y="167" fill="#ff5f56" font-size="16" font-weight="bold">Request dies</text>
+<text x="314" y="192" fill="#9a9a9a" font-size="13">pre-patch shutdown skips</text>
+<text x="314" y="212" fill="#9a9a9a" font-size="13">the matching reset of the</text>
+<text x="314" y="232" fill="#9a9a9a" font-size="13">worker-global pointer</text>
+<text x="314" y="252" fill="#9a9a9a" font-size="13">heap block is freed</text>
+<rect x="570" y="140" width="240" height="120" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="584" y="167" fill="#ffbd2e" font-size="16" font-weight="bold">Same worker, later</text>
+<text x="584" y="192" fill="#9a9a9a" font-size="13">next request runs a</text>
+<text x="584" y="212" fill="#9a9a9a" font-size="13">diagnostic or session</text>
+<text x="584" y="232" fill="#9a9a9a" font-size="13">op BEFORE request init</text>
+<text x="584" y="252" fill="#9a9a9a" font-size="13">replaces the pointer</text>
+<rect x="840" y="140" width="310" height="120" rx="10" fill="#0f0f0f" stroke="#ff5f56" stroke-width="1.4"/>
+<text x="854" y="167" fill="#ff5f56" font-size="16" font-weight="bold">UAF on stale state</text>
+<text x="854" y="192" fill="#9a9a9a" font-size="13">read / free / branch on the</text>
+<text x="854" y="212" fill="#9a9a9a" font-size="13">old chunk; attack-relevant</text>
+<text x="854" y="232" fill="#9a9a9a" font-size="13">families confirmed:</text>
+<text x="854" y="252" fill="#9a9a9a" font-size="13">fatal backtraces, session</text>
+<path d="M270,199 C284,199 284,199 294,199" fill="none" stroke="#ffbd2e" stroke-width="1.6" marker-end="url(#ah2)"/>
+<path d="M540,199 C554,199 554,199 564,199" fill="none" stroke="#ffbd2e" stroke-width="1.6" marker-end="url(#ah2)"/>
+<path d="M810,199 C824,199 824,199 834,199" fill="none" stroke="#ffbd2e" stroke-width="1.6" marker-end="url(#ah2)"/>
+<rect x="30" y="288" width="1120" height="28" rx="6" fill="#0f0f0f" stroke="#555"/>
+<text x="42" y="307" fill="#777" font-size="13">both producer paths verified live on defaults in the lab: uncaught fatal backtraces in log, session.upload_progress.enabled=1</text>
+</svg>

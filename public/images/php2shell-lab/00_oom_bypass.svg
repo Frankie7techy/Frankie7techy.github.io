@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 330" font-family="Consolas, monospace" role="img">
+<defs><marker id="ah" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#ff5f56"/></marker></defs>
+<rect x="0" y="0" width="1180" height="330" fill="#0a0a0a"/>
+<text x="590" y="42" fill="#ff5f56" font-size="26" font-weight="bold" text-anchor="middle">PHP2SHELL / CVE-2026-109618</text>
+<text x="590" y="76" fill="#8c8c8c" font-size="15" text-anchor="middle">how a chunked body walks past post_max_size and detonates memory_limit mid-parse</text>
+<rect x="24" y="150" width="208" height="106" rx="10" fill="#0f0f0f" stroke="#00d4ff" stroke-width="1.4"/>
+<text x="38" y="177" fill="#00d4ff" font-size="16" font-weight="bold">1. Chunked POST</text>
+<text x="38" y="200" fill="#9a9a9a" font-size="13">Transfer-Encoding: chunked</text>
+<text x="38" y="220" fill="#9a9a9a" font-size="13">no Content-Length</text>
+<text x="38" y="240" fill="#9a9a9a" font-size="13">1020 parts, huge names</text>
+<rect x="260" y="150" width="208" height="106" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="274" y="177" fill="#ffbd2e" font-size="16" font-weight="bold">2. CL check skipped</text>
+<text x="274" y="200" fill="#9a9a9a" font-size="13">post_max_size=8M never</text>
+<text x="274" y="220" fill="#9a9a9a" font-size="13">fires pre-parse: nothing</text>
+<text x="274" y="240" fill="#9a9a9a" font-size="13">to compare against</text>
+<rect x="496" y="150" width="208" height="106" rx="10" fill="#0f0f0f" stroke="#ffbd2e" stroke-width="1.4"/>
+<text x="510" y="177" fill="#ffbd2e" font-size="16" font-weight="bold">3. rfc1867 parse</text>
+<text x="510" y="200" fill="#9a9a9a" font-size="13">part names copied into</text>
+<text x="510" y="220" fill="#9a9a9a" font-size="13">symbol tables, ~1.2x</text>
+<text x="510" y="240" fill="#9a9a9a" font-size="13">of 130-500 MB wire</text>
+<rect x="732" y="150" width="208" height="106" rx="10" fill="#0f0f0f" stroke="#ff5f56" stroke-width="1.4"/>
+<text x="746" y="177" fill="#ff5f56" font-size="16" font-weight="bold">4. OOM mid-parse</text>
+<text x="746" y="200" fill="#9a9a9a" font-size="13">memory_limit 128M hit</text>
+<text x="746" y="220" fill="#9a9a9a" font-size="13">"in Unknown on line 0"</text>
+<text x="746" y="240" fill="#9a9a9a" font-size="13">before any app code</text>
+<rect x="968" y="150" width="192" height="106" rx="10" fill="#0f0f0f" stroke="#ff5f56" stroke-width="1.4"/>
+<text x="982" y="177" fill="#ff5f56" font-size="16" font-weight="bold">5. longjmp bail</text>
+<text x="982" y="200" fill="#9a9a9a" font-size="13">shutdown reads/branches</text>
+<text x="982" y="220" fill="#9a9a9a" font-size="13">on half-initialized</text>
+<text x="982" y="240" fill="#9a9a9a" font-size="13">request memory</text>
+<path d="M232,202 C246,202 246,202 254,202" fill="none" stroke="#ff5f56" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M468,202 C482,202 482,202 490,202" fill="none" stroke="#ff5f56" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M704,202 C718,202 718,202 726,202" fill="none" stroke="#ff5f56" stroke-width="1.6" marker-end="url(#ah)"/>
+<path d="M940,202 C954,202 954,202 962,202" fill="none" stroke="#ff5f56" stroke-width="1.6" marker-end="url(#ah)"/>
+<rect x="260" y="288" width="444" height="30" rx="6" fill="#0f0f0f" stroke="#555" stroke-width="1.1"/>
+<text x="272" y="308" fill="#777" font-size="13">same body WITH Content-Length: "POST Content-Length of 18788902 bytes exceeds</text>
+<text x="880" y="308" fill="#777" font-size="13">the limit"</text>
+</svg>

@@ -9,11 +9,11 @@
     <lastBuildDate>Mon, 26 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619</title>
+      <title>PHP2Shell in a Box: Reproducing CVE-2026-109618 and CVE-2026-109619 on a Laptop</title>
       <link>https://frankie7techy.github.io/public/posts/php2shell-in-a-box/</link>
       <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/posts/php2shell-in-a-box/</guid>
-      <description>The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between &amp;#39;condition reproduced&amp;#39; and &amp;#39;server owned&amp;#39; sits.</description>
+      <description>The two 9.2-critical runtime RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026 touch code every request runs. I rebuilt the exact vulnerable runtime (PHP 8.5.11 compiled as mod_php, default settings), found the request shape that detonates memory_limit mid-parse, and mapped where the honest line between &amp;#39;condition reproduced&amp;#39; and &amp;#39;server owned&amp;#39; actually sits.</description>
     </item>
     <item>
       <title>Basilisk: A Three-Stage Checker and the One Byte That Undid It</title>
