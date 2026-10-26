@@ -111,6 +111,21 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Public lab: github.com/Frankie7techy/php2shell-lab
+When the PHP security release dropped on October 21, two details made everyone’s hair stand up: the bugs sit in code that every request touches (memory management and error handling), and one of the confirmed exploits fires before any application code runs. Not “your sloppy WordPress plugin ran it”, not “your framework forgot to escape”. The runtime itself, with default settings, on Apache with mod_php.
+That combination, unauthenticated plus runtime-level plus default-settings, is why the patch race mattered. So instead of skimming the advisories, I built the runtime.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
+  <a class="entry-link" aria-label="post link to PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Basilisk: A Three-Stage Checker and the One Byte That Undid It
     </h2>
   </header>
@@ -235,20 +250,6 @@ Most of the traffic is boring and deliberately so: DNS, TLS to the usual CDNs, b
   </div>
   <footer class="entry-footer"><span title='2026-10-15 00:00:00 +0000 UTC'>October 15, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
   <a class="entry-link" aria-label="post link to Fianchetto: A 2048-Bit Modulus, Undone by a 160-Bit Secret" href="https://frankie7techy.github.io/public/posts/fianchetto-wiener-attack/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">DeadBolt: Two Signatures, One Nonce, One Dead Key
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p> Crypto Medium 200 pts r00t CTF · DeadBolt DEADBOLT A release-signing service signs its build manifests with secp256k1. It handed us the public key and two signatures over two different releases — and both of them share the same r. That single coincidence collapses the whole scheme.
-2signatures 1repeated nonce 1key recovered 0brute force The setup deadbolt.json is short. It names the curve, gives us a public key, and hands over two signatures over two different messages:
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-10-14 00:00:00 +0000 UTC'>October 14, 2026</span>&nbsp;·&nbsp;<span>4 min</span>&nbsp;·&nbsp;<span>z3ro</span></footer>
-  <a class="entry-link" aria-label="post link to DeadBolt: Two Signatures, One Nonce, One Dead Key" href="https://frankie7techy.github.io/public/posts/deadbolt-nonce-reuse/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">

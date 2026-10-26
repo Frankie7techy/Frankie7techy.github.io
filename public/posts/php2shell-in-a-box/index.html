@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619 | z3ro :: CTF &amp; Security Research</title>
+<meta name="keywords" content="PHP, RCE, CVE, Vulnerability Research, Lab">
+<meta name="description" content="The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between &#39;condition reproduced&#39; and &#39;server owned&#39; sits.">
+<meta name="author" content="z3ro">
+<link rel="canonical" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/">
+<link crossorigin="anonymous" href="/public/assets/css/stylesheet.ef6dbc10051f8ac8bcc2e04820f85b27b0930c4f6361fdf40d477838f2f80aba.css" integrity="sha256-7228EAUfisi8wuBIIPhbJ7CTDE9jYf30DUd4OPL4Cro=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://frankie7techy.github.io/public/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://frankie7techy.github.io/public/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://frankie7techy.github.io/public/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://frankie7techy.github.io/public/apple-touch-icon.png">
+<link rel="mask-icon" href="https://frankie7techy.github.io/public/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><meta property="og:url" content="https://frankie7techy.github.io/public/posts/php2shell-in-a-box/">
+  <meta property="og:site_name" content="z3ro :: CTF & Security Research">
+  <meta property="og:title" content="PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619">
+  <meta property="og:description" content="The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between &#39;condition reproduced&#39; and &#39;server owned&#39; sits.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-10-26T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-10-26T00:00:00+00:00">
+    <meta property="article:tag" content="PHP">
+    <meta property="article:tag" content="RCE">
+    <meta property="article:tag" content="CVE">
+    <meta property="article:tag" content="Vulnerability Research">
+    <meta property="article:tag" content="Lab">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619">
+<meta name="twitter:description" content="The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between &#39;condition reproduced&#39; and &#39;server owned&#39; sits.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://frankie7techy.github.io/public/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619",
+      "item": "https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619",
+  "name": "PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619",
+  "description": "The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between 'condition reproduced' and 'server owned' sits.",
+  "keywords": [
+    "PHP", "RCE", "CVE", "Vulnerability Research", "Lab"
+  ],
+  "articleBody": "Public lab: github.com/Frankie7techy/php2shell-lab\nWhen the PHP security release dropped on October 21, two details made everyone’s hair stand up: the bugs sit in code that every request touches (memory management and error handling), and one of the confirmed exploits fires before any application code runs. Not “your sloppy WordPress plugin ran it”, not “your framework forgot to escape”. The runtime itself, with default settings, on Apache with mod_php.\nThat combination, unauthenticated plus runtime-level plus default-settings, is why the patch race mattered. So instead of skimming the advisories, I built the runtime.\nGetting the bug back The first obstacle is that you cannot install a vulnerable PHP anymore. Distributors received the fix before disclosure: Ubuntu 26.04’s 8.5.4-0ubuntu1.5 looks like an older version but its changelog literally contains CVE-2026-109618_109619.patch. The version string lies; the patch does not.\nThat means: build it yourself. The lab’s setup-wsl.sh downloads the genuine php-8.5.11.tar.gz (the last vulnerable 8.5 release), configures it with --with-apxs2 for Apache mod_php, and installs it next to a stock php.ini-production. Fifteen minutes later you have the highest-risk setup the PHP security team described, serving on 127.0.0.1:8080.\nOne deliberate choice in apache-lab.conf: the prefork pool is small (StartServers 2, MaxRequestWorkers 8). Both bugs require the producer and consumer of the corruption to land on the same worker process, and small pools are what the confirmed exploitations assumed.\nWhat the bug looks like on the wire The interesting half is CVE-2026-109618, the OOM corruption. PHP handles memory_limit exhaustion by longjmp()-ing out of the current context. If that jump happens while request memory is reachable but not fully initialized, cleanup later reads and branches on garbage. The advisory lists the winning condition plainly: an OOM during multipart parsing, not during script execution.\nThere is a catch that took some empirical prodding. The default limits fight each other:\npost_max_size = 8M rejects big bodies before parsing, max_multipart_body_parts = 1020 caps the part count, max_input_vars = 1000 caps the variable count, and 128M of memory_limit is a long way from an 8M body. The way through is on the advisory’s own list: send the body with Transfer-Encoding: chunked and no Content-Length. Without a Content-Length, the pre-parse post_max_size check never fires, and the rfc1867 parser keeps consuming whatever you send. Verified directly: an 18.8 MB body got rejected with Content-Length, and sailed into the parser without it (the parser’s own limit warnings show up in the error log for the chunked case only).\nNow the amplification: ~1000 parts, each with a 128-512 KB part name. Parsed memory runs at roughly 1.2x wire size, and chunked removes the wire ceiling, so ~150-600 MB of symbol table allocations walk into a 128M limit. The OOM fires mid-parse:\nPHP Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 135168 bytes) in Unknown on line 0 Stack trace: #0 {main} Read that carefully, because it is the whole story in four lines. in Unknown on line 0 and #0 {main} mean the fatal fired in request startup, inside the multipart parser, before index.php executed a single line. The longjmp the patch removes is exactly the one this escape hatch is taking.\nIn the verification run, 471 of 471 trigger requests landed in this state. The trigger is deterministic. The corruption is not, which is the next section.\nThe honest line Full RCE needs the failed allocation to land at precisely the wrong moment, with the heap shaped the right way. The researchers demonstrated it; the CVSS says AC:H for a reason. Across ~470 draws with varied part-name sizes (sampling different failure points inside the parse), the lab produced zero worker segfaults and zero heap-corruption aborts. The same held for the CVE-2026-109619 producer-consumer pairs: both producer paths are provably live with defaults (session upload progress tracking, fatal-error backtraces in the log), but 200 pairs did not produce a crash correlation.\nThat is the point of publishing the lab with honest numbers. The public PoC pile for these CVEs is mostly noise (watchTowr’s summary: the sprayed exploits “don’t work at all, test for timing-based differences, or crash the target”, and JFrog found some laced with malware). What the lab gives you instead is the deterministic pre-condition and a harness to iterate on the probabilistic part without pointing any of it at servers you do not own.\nWhat to actually do Patch: 8.5.12, 8.4.27, 8.3.36, or 8.2.35. Version strings on distro packages can lie; check the changelog. PHP 8.1 and older are never getting a fixed release. Treat them as permanently vulnerable. Stopgap for the OOM bug: enforce memory_limit=-1 at the pool/vhost level and keep post_max_size low. For the stale-state bug: session.upload_progress.enabled=0 and on 8.5 fatal_error_backtraces=0. All incomplete, all better than nothing. Detection hint from the lab work: chunked POST bodies to PHP endpoints with no Content-Length are not a normal client pattern, and requests producing Allowed memory size ... in Unknown on line 0 are this trigger or something shaped like it. Amazon’s MadPot telemetry puts the first exploitation attempts at October 17, four days before disclosure; if you run PHP, review logs from that date, not from the advisory date. ",
+  "wordCount" : "849",
+  "inLanguage": "en",
+  "datePublished": "2026-10-26T00:00:00Z",
+  "dateModified": "2026-10-26T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "z3ro"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://frankie7techy.github.io/public/posts/php2shell-in-a-box/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "z3ro :: CTF \u0026 Security Research",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://frankie7techy.github.io/public/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://frankie7techy.github.io/public/" accesskey="h" title="z3ro :: CTF &amp; Security Research (Alt + H)">z3ro :: CTF &amp; Security Research</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://frankie7techy.github.io/public/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://frankie7techy.github.io/public/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      PHP2Shell in a Box: Building a Local Lab for CVE-2026-109618 and CVE-2026-109619
+    </h1>
+    <div class="post-description">
+      The two 9.2-critical RCEs fixed in PHP 8.2.35 through 8.5.12 on October 21, 2026, deserve more than a CVE skim. Here is how I stood up the exact vulnerable runtime (PHP 8.5.11 as mod_php, default settings) on a laptop, what the trigger actually looks like on the wire, and where the honest line between &#39;condition reproduced&#39; and &#39;server owned&#39; sits.
+    </div>
+    <div class="post-meta"><span title='2026-10-26 00:00:00 +0000 UTC'>October 26, 2026</span>&nbsp;·&nbsp;<span>5 min</span>&nbsp;·&nbsp;<span>z3ro</span>
+
+</div>
+  </header> <div class="toc">
+    <details  open>
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#getting-the-bug-back" aria-label="Getting the bug back">Getting the bug back</a></li>
+                <li>
+                    <a href="#what-the-bug-looks-like-on-the-wire" aria-label="What the bug looks like on the wire">What the bug looks like on the wire</a></li>
+                <li>
+                    <a href="#the-honest-line" aria-label="The honest line">The honest line</a></li>
+                <li>
+                    <a href="#what-to-actually-do" aria-label="What to actually do">What to actually do</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p><strong>Public lab:</strong> <a href="https://github.com/Frankie7techy/php2shell-lab">github.com/Frankie7techy/php2shell-lab</a></p>
+<p>When the PHP security release dropped on October 21, two details made everyone&rsquo;s
+hair stand up: the bugs sit in code that <strong>every request touches</strong> (memory
+management and error handling), and one of the confirmed exploits fires
+<strong>before any application code runs</strong>. Not &ldquo;your sloppy WordPress plugin ran it&rdquo;,
+not &ldquo;your framework forgot to escape&rdquo;. The runtime itself, with default
+settings, on Apache with mod_php.</p>
+<p>That combination, unauthenticated plus runtime-level plus default-settings, is
+why the patch race mattered. So instead of skimming the advisories, I built the
+runtime.</p>
+<h2 id="getting-the-bug-back">Getting the bug back<a hidden class="anchor" aria-hidden="true" href="#getting-the-bug-back">#</a></h2>
+<p>The first obstacle is that you cannot install a vulnerable PHP anymore.
+Distributors received the fix before disclosure: Ubuntu 26.04&rsquo;s
+<code>8.5.4-0ubuntu1.5</code> looks like an older version but its changelog literally
+contains <code>CVE-2026-109618_109619.patch</code>. The version string lies; the patch
+does not.</p>
+<p>That means: build it yourself. The lab&rsquo;s <code>setup-wsl.sh</code> downloads the genuine
+<code>php-8.5.11.tar.gz</code> (the last vulnerable 8.5 release), configures it with
+<code>--with-apxs2</code> for Apache mod_php, and installs it next to a stock
+<code>php.ini-production</code>. Fifteen minutes later you have the highest-risk setup
+the PHP security team described, serving on <code>127.0.0.1:8080</code>.</p>
+<p>One deliberate choice in <code>apache-lab.conf</code>: the prefork pool is small
+(StartServers 2, MaxRequestWorkers 8). Both bugs require the producer and
+consumer of the corruption to <strong>land on the same worker process</strong>, and small
+pools are what the confirmed exploitations assumed.</p>
+<h2 id="what-the-bug-looks-like-on-the-wire">What the bug looks like on the wire<a hidden class="anchor" aria-hidden="true" href="#what-the-bug-looks-like-on-the-wire">#</a></h2>
+<p>The interesting half is CVE-2026-109618, the OOM corruption. PHP handles
+<code>memory_limit</code> exhaustion by <code>longjmp()</code>-ing out of the current context. If
+that jump happens while request memory is reachable but not fully initialized,
+cleanup later reads and branches on garbage. The advisory lists the winning
+condition plainly: an OOM <strong>during multipart parsing</strong>, not during script
+execution.</p>
+<p>There is a catch that took some empirical prodding. The default limits fight
+each other:</p>
+<ul>
+<li><code>post_max_size = 8M</code> rejects big bodies <strong>before</strong> parsing,</li>
+<li><code>max_multipart_body_parts = 1020</code> caps the part count,</li>
+<li><code>max_input_vars = 1000</code> caps the variable count,</li>
+<li>and 128M of <code>memory_limit</code> is a long way from an 8M body.</li>
+</ul>
+<p>The way through is on the advisory&rsquo;s own list: send the body with
+<strong><code>Transfer-Encoding: chunked</code> and no <code>Content-Length</code></strong>. Without a
+Content-Length, the pre-parse <code>post_max_size</code> check never fires, and the
+rfc1867 parser keeps consuming whatever you send. Verified directly: an
+18.8 MB body got rejected with <code>Content-Length</code>, and sailed into the parser
+without it (the parser&rsquo;s own limit warnings show up in the error log for the
+chunked case only).</p>
+<p>Now the amplification: ~1000 parts, each with a 128-512 KB <strong>part name</strong>.
+Parsed memory runs at roughly 1.2x wire size, and chunked removes the wire
+ceiling, so ~150-600 MB of symbol table allocations walk into a 128M limit.
+The OOM fires mid-parse:</p>
+<pre tabindex="0"><code>PHP Fatal error: Allowed memory size of 134217728 bytes exhausted
+(tried to allocate 135168 bytes) in Unknown on line 0
+Stack trace: #0 {main}
+</code></pre><p>Read that carefully, because it is the whole story in four lines. <code>in Unknown on line 0</code> and <code>#0 {main}</code> mean the fatal fired in <strong>request startup</strong>, inside
+the multipart parser, before <code>index.php</code> executed a single line. The longjmp
+the patch removes is exactly the one this escape hatch is taking.</p>
+<p>In the verification run, <strong>471 of 471 trigger requests</strong> landed in this state.
+The trigger is deterministic. The corruption is not, which is the next
+section.</p>
+<h2 id="the-honest-line">The honest line<a hidden class="anchor" aria-hidden="true" href="#the-honest-line">#</a></h2>
+<p>Full RCE needs the failed allocation to land at precisely the wrong moment,
+with the heap shaped the right way. The researchers demonstrated it; the CVSS
+says <code>AC:H</code> for a reason. Across ~470 draws with varied part-name sizes
+(sampling different failure points inside the parse), the lab produced <strong>zero
+worker segfaults and zero heap-corruption aborts</strong>. The same held for the
+CVE-2026-109619 producer-consumer pairs: both producer paths are provably live
+with defaults (session upload progress tracking, fatal-error backtraces in the
+log), but 200 pairs did not produce a crash correlation.</p>
+<p>That is the point of publishing the lab with honest numbers. The public PoC
+pile for these CVEs is mostly noise (watchTowr&rsquo;s summary: the sprayed exploits
+&ldquo;don&rsquo;t work at all, test for timing-based differences, or crash the target&rdquo;,
+and JFrog found some laced with malware). What the lab gives you instead is
+the <strong>deterministic pre-condition</strong> and a harness to iterate on the
+probabilistic part without pointing any of it at servers you do not own.</p>
+<h2 id="what-to-actually-do">What to actually do<a hidden class="anchor" aria-hidden="true" href="#what-to-actually-do">#</a></h2>
+<ul>
+<li>Patch: 8.5.12, 8.4.27, 8.3.36, or 8.2.35. Version strings on distro packages
+can lie; check the changelog.</li>
+<li>PHP 8.1 and older are <strong>never getting a fixed release</strong>. Treat them as
+permanently vulnerable.</li>
+<li>Stopgap for the OOM bug: enforce <code>memory_limit=-1</code> at the pool/vhost level
+and keep <code>post_max_size</code> low. For the stale-state bug:
+<code>session.upload_progress.enabled=0</code> and on 8.5
+<code>fatal_error_backtraces=0</code>. All incomplete, all better than nothing.</li>
+<li>Detection hint from the lab work: chunked POST bodies to PHP endpoints with
+no <code>Content-Length</code> are not a normal client pattern, and requests producing
+<code>Allowed memory size ... in Unknown on line 0</code> are this trigger or something
+shaped like it. Amazon&rsquo;s MadPot telemetry puts the first exploitation
+attempts at <strong>October 17</strong>, four days before disclosure; if you run PHP,
+review logs from that date, not from the advisory date.</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://frankie7techy.github.io/public/tags/php/">PHP</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/rce/">RCE</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/cve/">CVE</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/vulnerability-research/">Vulnerability Research</a></li>
+      <li><a href="https://frankie7techy.github.io/public/tags/lab/">Lab</a></li>
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://frankie7techy.github.io/public/">z3ro :: CTF &amp; Security Research</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

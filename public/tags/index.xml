@@ -6,8 +6,43 @@
     <description>Recent content in Tags on z3ro :: CTF &amp; Security Research</description>
     <generator>Hugo -- 0.167.0</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 18 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 26 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://frankie7techy.github.io/public/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CVE</title>
+      <link>https://frankie7techy.github.io/public/tags/cve/</link>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/cve/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Lab</title>
+      <link>https://frankie7techy.github.io/public/tags/lab/</link>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/lab/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>PHP</title>
+      <link>https://frankie7techy.github.io/public/tags/php/</link>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/php/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RCE</title>
+      <link>https://frankie7techy.github.io/public/tags/rce/</link>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/rce/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vulnerability Research</title>
+      <link>https://frankie7techy.github.io/public/tags/vulnerability-research/</link>
+      <pubDate>Mon, 26 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://frankie7techy.github.io/public/tags/vulnerability-research/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Anti-Debug</title>
       <link>https://frankie7techy.github.io/public/tags/anti-debug/</link>
@@ -240,13 +275,6 @@
       <description></description>
     </item>
     <item>
-      <title>CVE</title>
-      <link>https://frankie7techy.github.io/public/tags/cve/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/cve/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Dead Reckoning</title>
       <link>https://frankie7techy.github.io/public/tags/dead-reckoning/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
@@ -279,20 +307,6 @@
       <link>https://frankie7techy.github.io/public/tags/insider-threat/</link>
       <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://frankie7techy.github.io/public/tags/insider-threat/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>RCE</title>
-      <link>https://frankie7techy.github.io/public/tags/rce/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/rce/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Vulnerability Research</title>
-      <link>https://frankie7techy.github.io/public/tags/vulnerability-research/</link>
-      <pubDate>Thu, 01 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://frankie7techy.github.io/public/tags/vulnerability-research/</guid>
       <description></description>
     </item>
     <item>

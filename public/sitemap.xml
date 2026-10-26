@@ -2,6 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://frankie7techy.github.io/public/categories/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/cve/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/lab/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/php/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/php2shell-in-a-box/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/posts/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/rce/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/tags/vulnerability-research/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/categories/web/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://frankie7techy.github.io/public/</loc>
+    <lastmod>2026-10-26T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/anti-debug/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
@@ -18,9 +51,6 @@
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/bytecode-vm/</loc>
-    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/categories/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/cryptography/</loc>
@@ -56,9 +86,6 @@
     <loc>https://frankie7techy.github.io/public/tags/network-forensics/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/posts/</loc>
-    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/python/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
@@ -74,9 +101,6 @@
     <loc>https://frankie7techy.github.io/public/tags/signal-processing/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/</loc>
-    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/posts/the-signal-key-react-native-bundle/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
@@ -84,9 +108,6 @@
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/webassembly/</loc>
-    <lastmod>2026-10-18T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/</loc>
     <lastmod>2026-10-18T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/posts/wraith-wasm-bytecode-vm/</loc>
@@ -161,9 +182,6 @@
     <loc>https://frankie7techy.github.io/public/tags/crypto/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/cve/</loc>
-    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/tags/dead-reckoning/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
@@ -188,16 +206,7 @@
     <loc>https://frankie7techy.github.io/public/categories/pwn/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/rce/</loc>
-    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://frankie7techy.github.io/public/posts/the-last-day-insider-offboarding/</loc>
-    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/tags/vulnerability-research/</loc>
-    <lastmod>2026-10-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://frankie7techy.github.io/public/categories/web/</loc>
     <lastmod>2026-10-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://frankie7techy.github.io/public/tags/windows-event-logs/</loc>
